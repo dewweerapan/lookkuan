@@ -98,7 +98,7 @@ test.describe('Settings & Administration', () => {
       await page.goto('/settings/users')
       await page.waitForLoadState('networkidle')
 
-      await expect(page.getByText('ผู้ใช้')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'จัดการผู้ใช้งาน' })).toBeVisible()
     })
 
     test('should display users list', async ({ page }) => {
