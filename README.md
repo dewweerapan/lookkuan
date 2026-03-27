@@ -69,3 +69,4 @@ npm run dev
 - ✅ PIN Login สำหรับพนักงานหน้าร้าน
 - ✅ ตรวจสอบสถานะงานปัก (Public URL)
 # lookkuan
+# lookkuan
