@@ -81,7 +81,7 @@ export default function JobOrdersClient({ jobOrders: initialJobOrders }: Props) 
 
     // Optimistic update
     setJobOrders(prev =>
-      prev.map(j => j.id === jobId ? { ...j, status: newStatus } : j)
+      prev.map(j => j.id === jobId ? { ...j, status: newStatus as JobOrder['status'] } : j)
     )
     setDraggedId(null)
     setDragOverStatus(null)
