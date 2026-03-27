@@ -1,0 +1,146 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║       LOOKKUAN E2E TESTS - QUICK REFERENCE GUIDE                          ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+📋 TEST SUITE OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+01. 01-auth.spec.ts         [6 tests]   Login, logout, session, access control
+02. 02-dashboard.spec.ts    [11 tests]  Dashboard, stat cards, quick actions
+03. 03-inventory.spec.ts    [18 tests]  Products, variants, stock, categories
+04. 04-pos.spec.ts          [16 tests]  POS, cart, payment, barcode scanning
+05. 05-job-orders.spec.ts   [15 tests]  Job orders, tracking, status, forms
+06. 06-reports.spec.ts      [21 tests]  Reports, risk dashboard, customers
+07. 07-settings.spec.ts     [21 tests]  Settings, users, admin, config
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TOTAL: 108 test cases | 1,769 lines of code | 7 test files
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 COMMANDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# Run all tests
+npm run test:e2e
+
+# UI mode (recommended for development)
+npm run test:e2e:ui
+
+# Headed mode (see browser)
+npm run test:e2e:headed
+
+# Single test file
+npx playwright test e2e/01-auth.spec.ts
+
+# Pattern matching
+npx playwright test --grep "Payment"
+
+# Debug mode
+npx playwright test --debug
+
+# HTML report
+npx playwright show-report
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔑 KEY FEATURES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ Thai UI labels (อีเมล, รหัสผ่าน, เข้าสู่ระบบ, etc.)
+✓ Flexible element detection (.isVisible().catch(() => false))
+✓ Network waiting (waitForLoadState('networkidle'))
+✓ Form filling & submission
+✓ Navigation assertion
+✓ Payment flow testing
+✓ Mobile responsiveness
+✓ Admin access control
+✓ Public page access
+✓ CRUD operations
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📍 COMMON PATTERNS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Navigation:
+  await page.goto('/dashboard')
+  await page.waitForURL('**/inventory')
+
+Form filling:
+  await page.getByLabel('อีเมล').fill('test@example.com')
+  await page.getByLabel('รหัสผ่าน').fill('password')
+
+Button clicking:
+  await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).click()
+
+Waiting:
+  await page.waitForLoadState('networkidle')
+  await page.waitForSelector('[class*="card"]', { timeout: 10000 })
+
+Assertions:
+  await expect(page.getByText('หน้าหลัก')).toBeVisible()
+  await expect(page.url()).toContain('/dashboard')
+
+Optional elements:
+  const elem = page.locator('[class*="card"]')
+  if (await elem.isVisible().catch(() => false)) {
+    await expect(elem).toBeVisible()
+  }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 TEST COVERAGE BY PAGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+/login               → 01-auth.spec.ts (login, validation, errors)
+/pin-login           → 01-auth.spec.ts (PIN login link)
+/dashboard           → 02-dashboard.spec.ts (stats, actions, sidebar)
+/inventory           → 03-inventory.spec.ts (list, search, filter)
+/inventory/new       → 03-inventory.spec.ts (add product)
+/inventory/[id]      → 03-inventory.spec.ts (detail, variants, adjust)
+/inventory/categories → 03-inventory.spec.ts (categories CRUD)
+/inventory/movements → 03-inventory.spec.ts (movements history)
+/pos                 → 04-pos.spec.ts (POS, cart, payment)
+/job-orders          → 05-job-orders.spec.ts (list, Kanban/Table)
+/job-orders/new      → 05-job-orders.spec.ts (create form)
+/job-orders/[id]     → 05-job-orders.spec.ts (detail, status)
+/track/[orderNumber] → 05-job-orders.spec.ts (public tracking)
+/reports             → 06-reports.spec.ts (sales, breakdown, top products)
+/risk-dashboard      → 06-reports.spec.ts (void, override, cash)
+/customers           → 06-reports.spec.ts (customer list, search)
+/settings            → 07-settings.spec.ts (system stats, config)
+/settings/users      → 07-settings.spec.ts (user management, roles)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚙️ SETUP REQUIREMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Dev server running:
+   npm run dev
+
+2. .env.local configured:
+   TEST_EMAIL=jizrix@gmail.com
+   TEST_PASSWORD=test123456
+   PLAYWRIGHT_BASE_URL=http://localhost:3000
+
+3. Auth state:
+   e2e/.auth/user.json (created by auth.setup.ts)
+
+4. Playwright installed:
+   npm install @playwright/test
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 TIPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• Use UI mode for interactive test development
+• Check HTML report for failed test details
+• Flexible selectors handle UI variations
+• Tests can run in any order (independent)
+• Hover tests use page.setViewportSize() for mobile
+• Public pages tested in separate browser context
+• Check playwright.config.ts for timeout settings
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
