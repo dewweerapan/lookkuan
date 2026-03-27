@@ -1,0 +1,22 @@
+{
+  "name": "LookKuan - ระบบจัดการร้านเสื้อผ้า",
+  "short_name": "LookKuan",
+  "description": "ระบบ POS และจัดการร้านเสื้อผ้าครบวงจร",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F9FAFB",
+  "theme_color": "#F97316",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
