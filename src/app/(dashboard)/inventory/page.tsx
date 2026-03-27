@@ -57,12 +57,15 @@ export default async function InventoryPage() {
         title="สินค้าและสต็อก"
         description={`สินค้าทั้งหมด ${products.length} รายการ`}
         actions={
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             <Link href="/inventory/categories" className="pos-btn-secondary">
               📁 หมวดหมู่
             </Link>
             <Link href="/inventory/movements" className="pos-btn-secondary">
               📋 ประวัติสต็อก
+            </Link>
+            <Link href="/inventory/barcodes" className="pos-btn-secondary">
+              🏷️ พิมพ์บาร์โค้ด
             </Link>
             <Link href="/inventory/new" className="pos-btn-primary">
               ➕ เพิ่มสินค้าใหม่

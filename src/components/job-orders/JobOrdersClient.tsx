@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { JOB_STATUS_LABELS, JOB_STATUS_COLORS } from '@/lib/constants'
 import SearchInput from '@/components/shared/SearchInput'
+import { toast } from 'sonner'
 import type { JobOrder } from '@/types/database'
 
 interface Props {
@@ -12,10 +14,24 @@ interface Props {
 }
 
 const statusOrder = ['pending', 'in_progress', 'completed', 'delivered'] as const
+type JobStatus = typeof statusOrder[number]
 
-export default function JobOrdersClient({ jobOrders }: Props) {
+const STATUS_NEXT: Record<JobStatus, string> = {
+  pending: 'รอดำเนินการ',
+  in_progress: 'กำลังปัก',
+  completed: 'เสร็จแล้ว',
+  delivered: 'ส่งมอบแล้ว',
+}
+
+export default function JobOrdersClient({ jobOrders: initialJobOrders }: Props) {
+  const [jobOrders, setJobOrders] = useState<JobOrder[]>(initialJobOrders)
   const [search, setSearch] = useState('')
   const [viewMode, setViewMode] = useState<'board' | 'list'>('board')
+
+  // Drag state
+  const [draggedId, setDraggedId] = useState<string | null>(null)
+  const [dragOverStatus, setDragOverStatus] = useState<string | null>(null)
+  const dragSourceStatus = useRef<string | null>(null)
 
   const filtered = jobOrders.filter(j => {
     if (!search) return true
@@ -32,6 +48,65 @@ export default function JobOrdersClient({ jobOrders }: Props) {
     acc[status] = filtered.filter(j => j.status === status)
     return acc
   }, {} as Record<string, JobOrder[]>)
+
+  // ---- Drag handlers ----
+  const handleDragStart = (e: React.DragEvent, jobId: string, fromStatus: string) => {
+    setDraggedId(jobId)
+    dragSourceStatus.current = fromStatus
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', jobId)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedId(null)
+    setDragOverStatus(null)
+    dragSourceStatus.current = null
+  }
+
+  const handleDragOver = (e: React.DragEvent, status: string) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setDragOverStatus(status)
+  }
+
+  const handleDrop = async (e: React.DragEvent, newStatus: string) => {
+    e.preventDefault()
+    const jobId = e.dataTransfer.getData('text/plain')
+    if (!jobId || dragSourceStatus.current === newStatus) {
+      setDraggedId(null)
+      setDragOverStatus(null)
+      return
+    }
+
+    // Optimistic update
+    setJobOrders(prev =>
+      prev.map(j => j.id === jobId ? { ...j, status: newStatus } : j)
+    )
+    setDraggedId(null)
+    setDragOverStatus(null)
+
+    // Persist to DB
+    try {
+      const supabase = createClient()
+      const updateData: Record<string, unknown> = { status: newStatus }
+      if (newStatus === 'delivered') {
+        updateData.delivered_at = new Date().toISOString()
+      }
+      const { error } = await supabase
+        .from('job_orders')
+        .update(updateData)
+        .eq('id', jobId)
+
+      if (error) throw error
+
+      const job = jobOrders.find(j => j.id === jobId)
+      toast.success(`เปลี่ยนสถานะ "${job?.order_number}" เป็น ${STATUS_NEXT[newStatus as JobStatus]}`)
+    } catch {
+      // Rollback on error
+      setJobOrders(initialJobOrders)
+      toast.error('เปลี่ยนสถานะไม่สำเร็จ')
+    }
+  }
 
   return (
     <div>
@@ -64,63 +139,95 @@ export default function JobOrdersClient({ jobOrders }: Props) {
       </div>
 
       {viewMode === 'board' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          {statusOrder.map(status => (
-            <div key={status} className="bg-gray-50 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-4">
-                <span className={`status-badge ${JOB_STATUS_COLORS[status]}`}>
-                  {JOB_STATUS_LABELS[status]}
-                </span>
-                <span className="text-sm text-gray-500 font-semibold">
-                  ({groupedByStatus[status]?.length || 0})
-                </span>
-              </div>
-              <div className="space-y-3">
-                {groupedByStatus[status]?.map(job => (
-                  <Link
-                    key={job.id}
-                    href={`/job-orders/${job.id}`}
-                    className="block bg-white rounded-xl border border-gray-200 p-4
-                             hover:shadow-md hover:border-brand-300 transition-all"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <span className="text-sm font-mono text-gray-500">{job.order_number}</span>
-                      <span className="text-sm font-semibold text-brand-600">
-                        {formatCurrency(job.quoted_price)}
-                      </span>
-                    </div>
-                    <p className="font-bold text-gray-800 mb-1">{job.customer_name}</p>
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-2">{job.description}</p>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">{job.garment_type} × {job.quantity}</span>
-                      {job.estimated_completion_date && (
-                        <span className="text-gray-400">
-                          กำหนด: {formatDate(job.estimated_completion_date)}
-                        </span>
-                      )}
-                    </div>
-                    {job.deposit_amount > 0 && (
-                      <div className="mt-2 text-sm">
-                        <span className="text-green-600 font-medium">
-                          มัดจำ: {formatCurrency(job.deposit_amount)}
-                        </span>
-                        <span className="text-gray-400 mx-1">|</span>
-                        <span className="text-orange-600 font-medium">
-                          ค้าง: {formatCurrency(job.balance_due)}
-                        </span>
+        <>
+          {/* Drag hint */}
+          <p className="text-sm text-gray-400 mb-3 text-center">
+            💡 ลากการ์ดข้ามคอลัมน์เพื่อเปลี่ยนสถานะ
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            {statusOrder.map(status => (
+              <div
+                key={status}
+                onDragOver={(e) => handleDragOver(e, status)}
+                onDrop={(e) => handleDrop(e, status)}
+                onDragLeave={() => setDragOverStatus(null)}
+                className={`rounded-xl p-4 min-h-[200px] transition-all border-2 ${
+                  dragOverStatus === status && dragSourceStatus.current !== status
+                    ? 'border-brand-400 bg-brand-50 scale-[1.01]'
+                    : 'border-transparent bg-gray-50'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <span className={`status-badge ${JOB_STATUS_COLORS[status]}`}>
+                    {JOB_STATUS_LABELS[status]}
+                  </span>
+                  <span className="text-sm text-gray-500 font-semibold">
+                    ({groupedByStatus[status]?.length || 0})
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  {groupedByStatus[status]?.map(job => (
+                    <div
+                      key={job.id}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, job.id, status)}
+                      onDragEnd={handleDragEnd}
+                      className={`bg-white rounded-xl border border-gray-200 p-4
+                               cursor-grab active:cursor-grabbing select-none
+                               transition-all hover:shadow-md hover:border-brand-300
+                               ${draggedId === job.id ? 'opacity-40 scale-95 shadow-lg' : ''}`}
+                    >
+                      {/* Drag handle indicator */}
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-mono text-gray-500">{job.order_number}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-brand-600">
+                            {formatCurrency(job.quoted_price)}
+                          </span>
+                          <span className="text-gray-300 text-lg leading-none select-none">⠿</span>
+                        </div>
                       </div>
-                    )}
-                  </Link>
-                ))}
-                {(!groupedByStatus[status] || groupedByStatus[status].length === 0) && (
-                  <div className="text-center py-6 text-gray-400 text-sm">
-                    ไม่มีงาน
-                  </div>
-                )}
+                      <p className="font-bold text-gray-800 mb-1">{job.customer_name}</p>
+                      <p className="text-sm text-gray-600 line-clamp-2 mb-2">{job.description}</p>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">{job.garment_type} × {job.quantity}</span>
+                        {job.estimated_completion_date && (
+                          <span className="text-gray-400">
+                            กำหนด: {formatDate(job.estimated_completion_date)}
+                          </span>
+                        )}
+                      </div>
+                      {job.balance_due > 0 && (
+                        <div className="mt-2 text-sm">
+                          <span className="text-orange-600 font-medium">
+                            ค้างชำระ: {formatCurrency(job.balance_due)}
+                          </span>
+                        </div>
+                      )}
+                      <Link
+                        href={`/job-orders/${job.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="mt-2 block text-xs text-brand-500 hover:text-brand-700 text-right"
+                      >
+                        ดูรายละเอียด →
+                      </Link>
+                    </div>
+                  ))}
+                  {(!groupedByStatus[status] || groupedByStatus[status].length === 0) && (
+                    <div className={`text-center py-8 rounded-xl border-2 border-dashed transition-all ${
+                      dragOverStatus === status ? 'border-brand-400 text-brand-400' : 'border-gray-200 text-gray-400'
+                    }`}>
+                      <p className="text-2xl mb-1">{dragOverStatus === status ? '📥' : '📭'}</p>
+                      <p className="text-sm">
+                        {dragOverStatus === status ? 'วางที่นี่' : 'ไม่มีงาน'}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </>
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <table className="data-table">
@@ -148,8 +255,8 @@ export default function JobOrdersClient({ jobOrders }: Props) {
                     <p className="text-sm text-gray-500">{job.garment_type} × {job.quantity}</p>
                   </td>
                   <td>
-                    <span className={`status-badge ${JOB_STATUS_COLORS[job.status]}`}>
-                      {JOB_STATUS_LABELS[job.status]}
+                    <span className={`status-badge ${JOB_STATUS_COLORS[job.status as JobStatus]}`}>
+                      {JOB_STATUS_LABELS[job.status as JobStatus]}
                     </span>
                   </td>
                   <td className="text-right font-semibold">{formatCurrency(job.quoted_price)}</td>
