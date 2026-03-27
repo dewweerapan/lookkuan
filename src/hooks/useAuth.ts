@@ -19,11 +19,14 @@ export function useAuth() {
         setUser(user)
 
         if (user) {
-          const { data: profile } = await supabase
+          const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', user.id)
             .single()
+          if (profileError) {
+            console.error('Profile fetch error:', profileError)
+          }
           setProfile(profile)
         }
       } catch (error) {

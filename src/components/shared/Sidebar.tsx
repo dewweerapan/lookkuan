@@ -77,12 +77,14 @@ const navItems: NavItem[] = [
 
 export default function Sidebar() {
   const pathname = usePathname()
-  const { profile, signOut, hasRole } = useAuth()
+  const { profile, loading, signOut, hasRole } = useAuth()
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
+  // While loading, show all menu items to avoid flash of missing menus
   const filteredNavItems = navItems.filter(item => {
     if (!item.roles) return true
+    if (loading) return true
     return hasRole(item.roles)
   })
 
