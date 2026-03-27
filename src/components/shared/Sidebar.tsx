@@ -81,10 +81,9 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
-  // While loading, show all menu items to avoid flash of missing menus
+  // hasRole already falls back to cached localStorage role, so no need to check loading
   const filteredNavItems = navItems.filter(item => {
     if (!item.roles) return true
-    if (loading) return true
     return hasRole(item.roles)
   })
 
