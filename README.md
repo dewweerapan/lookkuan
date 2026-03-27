@@ -68,3 +68,4 @@ npm run dev
 - ✅ RBAC (Admin, Manager, Cashier, Embroidery Staff)
 - ✅ PIN Login สำหรับพนักงานหน้าร้าน
 - ✅ ตรวจสอบสถานะงานปัก (Public URL)
+# lookkuan
