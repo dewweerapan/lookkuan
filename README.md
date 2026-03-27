@@ -70,3 +70,4 @@ npm run dev
 - ✅ ตรวจสอบสถานะงานปัก (Public URL)
 # lookkuan
 # lookkuan
+# lookkuan
