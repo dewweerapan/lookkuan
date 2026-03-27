@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  eslint: {
+    // Lint is run separately via `next lint` — skip during build to avoid false positives
+    ignoreDuringBuilds: true,
+  },
   images: {
     remotePatterns: [
       {
