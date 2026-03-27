@@ -7,18 +7,36 @@ import JobOrderActions from '@/components/job-orders/JobOrderActions'
 
 async function getJobOrder(id: string) {
   const supabase = await createClient()
-  const { data, error } = await supabase
+
+  // Step 1: Fetch job order (no join to avoid double-FK ambiguity)
+  const { data: job, error } = await supabase
     .from('job_orders')
-    .select(`
-      *,
-      assigned_staff:profiles!assigned_to(full_name, role),
-      received_staff:profiles!received_by(full_name)
-    `)
+    .select('*')
     .eq('id', id)
     .single()
 
-  if (error || !data) return null
-  return data
+  if (error || !job) return null
+
+  // Step 2: Fetch staff names separately
+  const staffIds = [job.received_by, job.assigned_to].filter(Boolean) as string[]
+  let staffMap: Record<string, { full_name: string; role: string }> = {}
+
+  if (staffIds.length > 0) {
+    const { data: staffList } = await supabase
+      .from('profiles')
+      .select('id, full_name, role')
+      .in('id', staffIds)
+
+    if (staffList) {
+      staffMap = Object.fromEntries(staffList.map(s => [s.id, s]))
+    }
+  }
+
+  return {
+    ...job,
+    received_staff: job.received_by ? staffMap[job.received_by] ?? null : null,
+    assigned_staff: job.assigned_to ? staffMap[job.assigned_to] ?? null : null,
+  }
 }
 
 export default async function JobOrderDetailPage({ params }: { params: { id: string } }) {

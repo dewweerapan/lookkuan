@@ -7,11 +7,7 @@ async function getJobOrders() {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('job_orders')
-    .select(`
-      *,
-      assigned_staff:profiles!assigned_to(full_name),
-      received_staff:profiles!received_by(full_name)
-    `)
+    .select('*')
     .order('created_at', { ascending: false })
 
   if (error) {
