@@ -57,10 +57,24 @@ export default function POSPage() {
     loadData()
   }, [])
 
+  const handleBarcodeScan = useCallback((barcode: string) => {
+    const trimmed = barcode.trim()
+    for (const product of products) {
+      const variant = product.variants?.find(v => v.barcode === trimmed || v.sku === trimmed)
+      if (variant) {
+        cart.addItem({ ...variant, product })
+        playSound('success')
+        toast.success(`เพิ่ม ${product.name} (${variant.color}/${variant.size})`)
+        return
+      }
+    }
+    playSound('error')
+    toast.error(`ไม่พบสินค้า: ${trimmed}`)
+  }, [products, cart])
+
   // Barcode scanner handler (listens for rapid key input)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if focused on input fields (except barcode scanning)
       const target = e.target as HTMLElement
       if (target.tagName === 'INPUT' && target !== searchRef.current) return
 
@@ -81,22 +95,7 @@ export default function POSPage() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [products])
-
-  const handleBarcodeScan = useCallback((barcode: string) => {
-    const trimmed = barcode.trim()
-    for (const product of products) {
-      const variant = product.variants?.find(v => v.barcode === trimmed || v.sku === trimmed)
-      if (variant) {
-        cart.addItem({ ...variant, product })
-        playSound('success')
-        toast.success(`เพิ่ม ${product.name} (${variant.color}/${variant.size})`)
-        return
-      }
-    }
-    playSound('error')
-    toast.error(`ไม่พบสินค้า: ${trimmed}`)
-  }, [products, cart])
+  }, [handleBarcodeScan])
 
   // Search handler
   const handleSearchSubmit = (e: React.FormEvent) => {
