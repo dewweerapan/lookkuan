@@ -4,11 +4,11 @@ test.describe('Dashboard', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to dashboard (auth state is pre-loaded from auth.setup.ts)
     await page.goto('/dashboard')
-    await expect(page.getByText('หน้าหลัก')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'หน้าหลัก' })).toBeVisible()
   })
 
   test('should display page title and sidebar', async ({ page }) => {
-    await expect(page.getByText('หน้าหลัก')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'หน้าหลัก' })).toBeVisible()
     await expect(page.getByText('ภาพรวมร้าน LookKuan วันนี้')).toBeVisible()
   })
 
@@ -26,15 +26,16 @@ test.describe('Dashboard', () => {
   })
 
   test('should display quick action buttons', async ({ page }) => {
-    // Check all quick action buttons exist
-    await expect(page.getByRole('link', { name: /ขายสินค้า/ })).toBeVisible()
-    await expect(page.getByRole('link', { name: /รับงานปัก/ })).toBeVisible()
-    await expect(page.getByRole('link', { name: /จัดการสต็อก/ })).toBeVisible()
-    await expect(page.getByRole('link', { name: /ลูกค้า/ })).toBeVisible()
+    // Scope to main content to avoid sidebar links
+    const main = page.locator('main')
+    await expect(main.getByRole('link', { name: /ขายสินค้า/ })).toBeVisible()
+    await expect(main.getByRole('link', { name: /รับงานปัก/ })).toBeVisible()
+    await expect(main.getByRole('link', { name: /จัดการสต็อก/ })).toBeVisible()
+    await expect(main.getByRole('link', { name: /ลูกค้า/ })).toBeVisible()
   })
 
   test('should navigate to POS from quick action', async ({ page }) => {
-    await page.getByRole('link', { name: /ขายสินค้า/ }).click()
+    await page.locator('main').getByRole('link', { name: /ขายสินค้า/ }).click()
     await page.waitForURL('**/pos', { timeout: 10000 })
     await expect(page.url()).toContain('/pos')
   })
@@ -52,7 +53,7 @@ test.describe('Dashboard', () => {
   })
 
   test('should navigate to Customers from quick action', async ({ page }) => {
-    await page.getByRole('link', { name: /ลูกค้า/ }).click()
+    await page.locator('main').getByRole('link', { name: /ลูกค้า/ }).click()
     await page.waitForURL('**/customers', { timeout: 10000 })
     await expect(page.url()).toContain('/customers')
   })
@@ -93,7 +94,7 @@ test.describe('Dashboard', () => {
     await page.setViewportSize({ width: 375, height: 667 })
 
     // Elements should still be visible (though layout may be adjusted)
-    await expect(page.getByText('หน้าหลัก')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'หน้าหลัก' })).toBeVisible()
     await expect(page.getByText('ยอดขายวันนี้')).toBeVisible()
   })
 })

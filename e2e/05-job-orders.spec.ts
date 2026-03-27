@@ -9,7 +9,7 @@ test.describe('Job Orders (Embroidery)', () => {
 
   test.describe('Job Orders List', () => {
     test('should load job orders page', async ({ page }) => {
-      await expect(page.getByText('งานปักเสื้อ')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'งานปักเสื้อ' })).toBeVisible()
     })
 
     test('should display create new job order button', async ({ page }) => {

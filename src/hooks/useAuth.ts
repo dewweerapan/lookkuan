@@ -58,9 +58,15 @@ export function useAuth() {
   }, [])
 
   const signOut = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    window.location.href = '/login'
+    try {
+      const supabase = createClient()
+      await supabase.auth.signOut()
+    } catch (err) {
+      console.error('SignOut error:', err)
+    } finally {
+      // Always redirect to login regardless of error
+      window.location.replace('/login')
+    }
   }
 
   const hasRole = (roles: string | string[]): boolean => {

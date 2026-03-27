@@ -1,7 +1,7 @@
 import { test as setup, expect } from '@playwright/test'
 
 const TEST_EMAIL = process.env.TEST_EMAIL || 'jizrix@gmail.com'
-const TEST_PASSWORD = process.env.TEST_PASSWORD || 'test123456'
+const TEST_PASSWORD = process.env.TEST_PASSWORD || 'Itl0stall'
 
 setup('authenticate', async ({ page }) => {
   await page.goto('/login')
@@ -13,7 +13,7 @@ setup('authenticate', async ({ page }) => {
 
   // Wait for redirect to dashboard
   await page.waitForURL('**/dashboard', { timeout: 15000 })
-  await expect(page.getByText('หน้าหลัก')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'หน้าหลัก' })).toBeVisible()
 
   // Save auth state
   await page.context().storageState({ path: 'e2e/.auth/user.json' })

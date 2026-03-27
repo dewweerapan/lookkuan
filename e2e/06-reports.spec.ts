@@ -6,7 +6,7 @@ test.describe('Reports & Analytics', () => {
       await page.goto('/reports')
       await page.waitForLoadState('networkidle')
 
-      await expect(page.getByText('รายงาน')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'รายงาน' })).toBeVisible()
     })
 
     test('should display sales summary section', async ({ page }) => {
@@ -192,7 +192,7 @@ test.describe('Reports & Analytics', () => {
       await page.goto('/customers')
       await page.waitForLoadState('networkidle')
 
-      await expect(page.getByText('ลูกค้า')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'ลูกค้า' })).toBeVisible()
     })
 
     test('should display customer list', async ({ page }) => {

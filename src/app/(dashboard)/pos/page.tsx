@@ -23,6 +23,7 @@ export default function POSPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [processing, setProcessing] = useState(false)
 
   // Payment state
@@ -40,16 +41,30 @@ export default function POSPage() {
     const loadData = async () => {
       try {
         const client = createClient()
+
+        // Add timeout safety — force loading false after 10s
+        const timeout = setTimeout(() => {
+          setLoading(false)
+          setLoadError('โหลดข้อมูลนานเกินไป กรุณา refresh หน้าใหม่')
+        }, 10000)
+
         const [{ data: cats, error: catErr }, { data: prods, error: prodErr }] = await Promise.all([
           client.from('categories').select('*').eq('is_active', true).order('sort_order'),
           client.from('products').select('*, variants:product_variants(*)').eq('is_active', true).order('name'),
         ])
+
+        clearTimeout(timeout)
+
         if (catErr) console.error('Categories error:', catErr)
-        if (prodErr) console.error('Products error:', prodErr)
+        if (prodErr) {
+          console.error('Products error:', prodErr)
+          setLoadError(`โหลดสินค้าไม่สำเร็จ: ${prodErr.message}`)
+        }
         setCategories(cats || [])
         setProducts(prods || [])
       } catch (err) {
         console.error('Load error:', err)
+        setLoadError('เกิดข้อผิดพลาด กรุณา refresh หน้าใหม่')
       } finally {
         setLoading(false)
       }
@@ -200,6 +215,22 @@ export default function POSPage() {
         <div className="text-center">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-brand-500 border-r-transparent mx-auto" />
           <p className="mt-4 text-lg text-gray-600">กำลังโหลดข้อมูลสินค้า...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex items-center justify-center min-h-[80vh]">
+        <div className="text-center">
+          <p className="text-xl text-red-600 mb-4">⚠️ {loadError}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-brand-500 text-white rounded-xl text-lg font-medium hover:bg-brand-600"
+          >
+            🔄 โหลดใหม่
+          </button>
         </div>
       </div>
     )

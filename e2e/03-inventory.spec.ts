@@ -9,7 +9,7 @@ test.describe('Inventory Management', () => {
 
   test.describe('Inventory List', () => {
     test('should load inventory page with products', async ({ page }) => {
-      await expect(page.getByText('สินค้าและสต็อก')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'สินค้าและสต็อก' })).toBeVisible()
       // Wait for product list to load
       await page.waitForSelector('[class*="product"], table tbody tr', { timeout: 10000 }).catch(() => null)
     })

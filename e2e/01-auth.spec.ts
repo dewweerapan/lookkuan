@@ -10,14 +10,14 @@ test.describe('Authentication Flow', () => {
 
       // Fill form
       await page.getByLabel('อีเมล').fill('jizrix@gmail.com')
-      await page.getByLabel('รหัสผ่าน').fill('test123456')
+      await page.getByLabel('รหัสผ่าน').fill('Itl0stall')
 
       // Submit
       await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).click()
 
       // Should redirect to dashboard
       await page.waitForURL('**/dashboard', { timeout: 15000 })
-      await expect(page.getByText('หน้าหลัก')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'หน้าหลัก' })).toBeVisible()
     })
 
     test('should show error with wrong password', async ({ page }) => {
@@ -40,7 +40,7 @@ test.describe('Authentication Flow', () => {
       await page.goto('/login')
 
       await page.getByLabel('อีเมล').fill('nonexistent@example.com')
-      await page.getByLabel('รหัสผ่าน').fill('test123456')
+      await page.getByLabel('รหัสผ่าน').fill('Itl0stall')
       await page.getByRole('button', { name: 'เข้าสู่ระบบ' }).click()
 
       await expect(
@@ -53,7 +53,7 @@ test.describe('Authentication Flow', () => {
     test('should require email field', async ({ page }) => {
       await page.goto('/login')
 
-      await page.getByLabel('รหัสผ่าน').fill('test123456')
+      await page.getByLabel('รหัสผ่าน').fill('Itl0stall')
       const submitButton = page.getByRole('button', { name: 'เข้าสู่ระบบ' })
 
       // HTML5 validation should prevent submission
@@ -98,16 +98,16 @@ test.describe('Authentication Flow', () => {
       // This test uses the saved auth state from auth.setup.ts
       await page.goto('/dashboard')
 
-      await expect(page.getByText('หน้าหลัก')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'หน้าหลัก' })).toBeVisible()
     })
 
     test('can navigate between authenticated routes', async ({ page }) => {
       await page.goto('/dashboard')
-      await expect(page.getByText('หน้าหลัก')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'หน้าหลัก' })).toBeVisible()
 
       // Navigate to inventory
       await page.goto('/inventory')
-      await expect(page.getByText('สินค้าและสต็อก')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'สินค้าและสต็อก' })).toBeVisible()
 
       // Navigate to POS
       await page.goto('/pos')
@@ -115,7 +115,7 @@ test.describe('Authentication Flow', () => {
 
       // Navigate to job orders
       await page.goto('/job-orders')
-      await expect(page.getByText('งานปักเสื้อ')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'งานปักเสื้อ' })).toBeVisible()
     })
   })
 })
