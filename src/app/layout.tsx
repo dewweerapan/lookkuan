@@ -11,9 +11,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 3,       // allow zoom for accessibility
+  userScalable: true,
   themeColor: '#F97316',
+  viewportFit: 'cover',  // support iPhone notch/home bar
 }
 
 export default function RootLayout({

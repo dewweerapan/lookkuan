@@ -100,6 +100,7 @@ export default function POSClient({ categories, products }: Props) {
   const [processing, setProcessing] = useState(false)
   const [variantPickerProduct, setVariantPickerProduct] = useState<ProductWithVariants | null>(null)
   const [showCamera, setShowCamera] = useState(false)
+  const [showMobileCart, setShowMobileCart] = useState(false)
 
   // Payment state
   const [showPayment, setShowPayment] = useState(false)
@@ -262,7 +263,15 @@ export default function POSClient({ categories, products }: Props) {
         />
       )}
 
-      <div className="flex flex-col lg:flex-row gap-4 h-[calc(100vh-5rem)]">
+      {/* Mobile cart overlay */}
+      {showMobileCart && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setShowMobileCart(false)}
+        />
+      )}
+
+      <div className="flex flex-col lg:flex-row gap-4 lg:h-[calc(100vh-5rem)]">
         {/* LEFT: Product Selection */}
         <div className="flex-1 flex flex-col min-h-0">
           <form onSubmit={handleSearchSubmit} className="mb-4">
@@ -350,10 +359,24 @@ export default function POSClient({ categories, products }: Props) {
           </div>
         </div>
 
-        {/* RIGHT: Cart */}
-        <div className="w-full lg:w-96 bg-white rounded-xl border-2 border-gray-200 flex flex-col shadow-lg">
+        {/* RIGHT: Cart — desktop side panel / mobile bottom sheet */}
+        <div className={`
+          lg:w-96 bg-white rounded-xl border-2 border-gray-200 flex flex-col shadow-lg
+          lg:flex
+          fixed lg:relative bottom-16 lg:bottom-auto left-0 right-0 z-50 lg:z-auto
+          transition-transform duration-300
+          ${showMobileCart ? 'translate-y-0' : 'translate-y-full lg:translate-y-0'}
+          max-h-[85vh] lg:max-h-none rounded-t-2xl lg:rounded-xl
+        `}>
           <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-800">🛒 ตะกร้า ({cart.getItemCount()})</h2>
+            <div className="flex items-center gap-3">
+              {/* Mobile close button */}
+              <button
+                onClick={() => setShowMobileCart(false)}
+                className="lg:hidden p-1 rounded-lg hover:bg-gray-100 text-gray-400"
+              >✕</button>
+              <h2 className="text-xl font-bold text-gray-800">🛒 ตะกร้า ({cart.getItemCount()})</h2>
+            </div>
             {cart.items.length > 0 && (
               <button
                 onClick={() => setShowVoidConfirm(true)}
@@ -498,6 +521,22 @@ export default function POSClient({ categories, products }: Props) {
           )}
         </div>
       </div>
+
+      {/* Mobile floating cart button */}
+      {!showMobileCart && (
+        <button
+          onClick={() => setShowMobileCart(true)}
+          className="lg:hidden fixed bottom-20 right-4 z-30 bg-brand-500 text-white
+                     rounded-full shadow-xl flex items-center gap-2 px-5 py-3.5
+                     text-base font-bold active:scale-95 transition-all"
+        >
+          <span>🛒</span>
+          <span>{cart.getItemCount() > 0 ? cart.getItemCount() : 'ตะกร้า'}</span>
+          {cart.getItemCount() > 0 && (
+            <span className="font-bold">{formatCurrency(cart.getTotal())}</span>
+          )}
+        </button>
+      )}
 
       <ConfirmDialog
         open={showVoidConfirm}

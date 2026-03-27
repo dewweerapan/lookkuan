@@ -27,6 +27,7 @@ export default function JobOrdersClient({ jobOrders: initialJobOrders }: Props) 
   const [jobOrders, setJobOrders] = useState<JobOrder[]>(initialJobOrders)
   const [search, setSearch] = useState('')
   const [viewMode, setViewMode] = useState<'board' | 'list'>('board')
+  const [mobileActiveStatus, setMobileActiveStatus] = useState<JobStatus>('pending')
 
   // Drag state
   const [draggedId, setDraggedId] = useState<string | null>(null)
@@ -140,11 +141,70 @@ export default function JobOrdersClient({ jobOrders: initialJobOrders }: Props) 
 
       {viewMode === 'board' ? (
         <>
-          {/* Drag hint */}
-          <p className="text-sm text-gray-400 mb-3 text-center">
+          {/* Drag hint — desktop only */}
+          <p className="hidden md:block text-sm text-gray-400 mb-3 text-center">
             💡 ลากการ์ดข้ามคอลัมน์เพื่อเปลี่ยนสถานะ
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+
+          {/* Mobile: status tabs */}
+          <div className="flex md:hidden overflow-x-auto gap-2 pb-2 mb-4 no-scrollbar">
+            {statusOrder.map(s => (
+              <button
+                key={s}
+                onClick={() => setMobileActiveStatus(s)}
+                className={`whitespace-nowrap px-4 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0 border-2 transition-all ${
+                  mobileActiveStatus === s
+                    ? 'bg-brand-500 text-white border-brand-600'
+                    : 'bg-white text-gray-600 border-gray-200'
+                }`}
+              >
+                {JOB_STATUS_LABELS[s]}
+                <span className="ml-1.5 bg-black/10 rounded-full px-1.5 py-0.5 text-xs">
+                  {groupedByStatus[s]?.length || 0}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* Mobile: single-column list for active status */}
+          <div className="md:hidden space-y-3">
+            {(groupedByStatus[mobileActiveStatus] || []).map(job => (
+              <Link
+                key={job.id}
+                href={`/job-orders/${job.id}`}
+                className="block bg-white rounded-xl border border-gray-200 p-4 shadow-sm active:bg-gray-50"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <span className="text-sm font-mono text-gray-500">{job.order_number}</span>
+                  <span className="font-bold text-brand-600">{formatCurrency(job.quoted_price)}</span>
+                </div>
+                <p className="font-bold text-gray-800 text-lg mb-1">{job.customer_name}</p>
+                <p className="text-sm text-gray-600 line-clamp-2 mb-3">{job.description}</p>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">{job.garment_type} × {job.quantity}</span>
+                  {job.estimated_completion_date && (
+                    <span className="text-gray-400">กำหนด: {formatDate(job.estimated_completion_date)}</span>
+                  )}
+                </div>
+                {job.balance_due > 0 && (
+                  <div className="mt-2 pt-2 border-t border-gray-100">
+                    <span className="text-orange-600 font-medium text-sm">
+                      ค้างชำระ: {formatCurrency(job.balance_due)}
+                    </span>
+                  </div>
+                )}
+              </Link>
+            ))}
+            {(groupedByStatus[mobileActiveStatus] || []).length === 0 && (
+              <div className="text-center py-12 text-gray-400">
+                <p className="text-4xl mb-2">📭</p>
+                <p>ไม่มีงานในสถานะนี้</p>
+              </div>
+            )}
+          </div>
+
+          {/* Desktop: 4-column board */}
+          <div className="hidden md:grid md:grid-cols-2 xl:grid-cols-4 gap-4">
             {statusOrder.map(status => (
               <div
                 key={status}

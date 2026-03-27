@@ -101,29 +101,11 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile toggle */}
-      <button
-        onClick={() => setMobileOpen(!mobileOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-white rounded-xl shadow-lg border border-gray-200"
-        aria-label="เปิดเมนู"
-      >
-        <Menu size={24} />
-      </button>
-
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black/30 z-40"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
+      {/* Sidebar — desktop only (mobile uses BottomNav) */}
       <aside
-        className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 shadow-sm z-40
-          transition-all duration-300 flex flex-col
+        className={`hidden lg:flex fixed left-0 top-0 h-full bg-white border-r border-gray-200 shadow-sm z-40
+          transition-all duration-300 flex-col
           ${collapsed ? 'w-20' : 'w-64'}
-          ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         {/* Header */}
@@ -150,7 +132,6 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              onClick={() => setMobileOpen(false)}
               className={`nav-item ${isActive(item.href) ? 'nav-item-active' : ''} ${collapsed ? 'justify-center px-2' : ''}`}
               title={collapsed ? item.label : undefined}
             >

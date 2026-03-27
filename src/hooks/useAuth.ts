@@ -95,15 +95,26 @@ export function useAuth() {
   }, [])
 
   const signOut = async () => {
+    // Clear local cache immediately
+    localStorage.removeItem(ROLE_CACHE_KEY)
+    setProfile(null)
+    setCachedRole(null)
+
     try {
+      // Also sign out on client side
       const supabase = createClient()
-      await supabase.auth.signOut()
+      await supabase.auth.signOut({ scope: 'local' })
     } catch (err) {
-      console.error('SignOut error:', err)
-    } finally {
-      localStorage.removeItem(ROLE_CACHE_KEY)
-      window.location.replace('/login')
+      console.error('Client signout error:', err)
     }
+
+    // POST to server-side route which clears cookies and redirects
+    try {
+      await fetch('/api/auth/signout', { method: 'POST', redirect: 'follow' })
+    } catch {
+      // fallback: hard redirect
+    }
+    window.location.href = '/login'
   }
 
   // Use profile.role if loaded, otherwise fall back to cachedRole
