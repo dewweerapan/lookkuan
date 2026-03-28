@@ -23,6 +23,7 @@ import {
   CreditCard,
   Truck,
   ClipboardList,
+  BrainCircuit,
 } from 'lucide-react';
 import ThemeToggle from '@/components/shared/ThemeToggle';
 
@@ -85,6 +86,12 @@ const navItems: NavItem[] = [
     label: 'ประวัติการขาย',
     icon: <ShoppingCart size={22} />,
     roles: ['admin', 'manager', 'cashier'],
+  },
+  {
+    href: '/inventory/reorder',
+    label: 'AI สั่งซื้ออัจฉริยะ',
+    icon: <BrainCircuit size={22} />,
+    roles: ['admin', 'manager'],
   },
   {
     href: '/suppliers',

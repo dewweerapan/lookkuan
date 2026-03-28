@@ -99,6 +99,14 @@ const PHASES: ChangelogPhase[] = [
       { id: '2f-2', title: 'Sentry Error Monitoring', description: 'ติดตาม error จาก production', status: 'done', completedAt: '2026-03-28' },
     ],
   },
+  {
+    id: 'phase-3a',
+    title: 'Phase 3A — AI Features',
+    subtitle: 'ฟีเจอร์ AI ช่วยตัดสินใจ',
+    tasks: [
+      { id: '3a-1', title: 'AI แนะนำการสั่งซื้อ', description: 'วิเคราะห์ velocity + trend แนะนำจำนวนและเวลาสั่งซื้อ', status: 'done', completedAt: '2026-03-28' },
+    ],
+  },
 ];
 
 // ─── Helpers ────────────────────────────────────────────────────────────────

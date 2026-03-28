@@ -19,6 +19,7 @@ import {
   LogOut,
   Truck,
   ClipboardList,
+  BrainCircuit,
 } from 'lucide-react';
 
 const roleLabels: Record<string, string> = {
@@ -78,6 +79,12 @@ export default function BottomNav() {
       href: '/reports',
       icon: <FileText size={20} />,
       label: 'รายงาน',
+      roles: ['admin', 'manager'],
+    },
+    {
+      href: '/inventory/reorder',
+      icon: <BrainCircuit size={20} />,
+      label: 'AI สั่งซื้อ',
       roles: ['admin', 'manager'],
     },
     {
