@@ -7,6 +7,7 @@ import PageHeader from '@/components/shared/PageHeader';
 import Link from 'next/link';
 import StoreLogoSettings from '@/components/settings/StoreLogoSettings';
 import DataExportSettings from '@/components/settings/DataExportSettings';
+import ReceiptPrintSettings from '@/components/settings/ReceiptPrintSettings';
 
 export default function SettingsPage() {
   const { profile, hasRole } = useAuth();
@@ -65,6 +66,10 @@ export default function SettingsPage() {
 
       <div className='mb-6'>
         <StoreLogoSettings />
+      </div>
+
+      <div className='mb-6'>
+        <ReceiptPrintSettings />
       </div>
 
       <div className='mb-6'>

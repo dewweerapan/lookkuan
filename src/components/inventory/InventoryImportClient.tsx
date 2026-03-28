@@ -11,15 +11,27 @@ interface ParsedRow {
 
 const REQUIRED_COLUMNS = ['ชื่อสินค้า'];
 const ALL_COLUMNS = [
-  'ชื่อสินค้า', 'หมวดหมู่', 'ราคาขาย', 'ราคาทุน',
-  'SKU', 'บาร์โค้ด', 'ขนาด', 'สี', 'จำนวนสต็อก', 'จุดสั่งซื้อใหม่', 'สถานะ',
+  'ชื่อสินค้า',
+  'หมวดหมู่',
+  'ราคาขาย',
+  'ราคาทุน',
+  'SKU',
+  'บาร์โค้ด',
+  'ขนาด',
+  'สี',
+  'จำนวนสต็อก',
+  'จุดสั่งซื้อใหม่',
+  'สถานะ',
 ];
 
 export default function InventoryImportClient() {
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
-  const [result, setResult] = useState<{ inserted: number; updated: number } | null>(null);
+  const [result, setResult] = useState<{
+    inserted: number;
+    updated: number;
+  } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = (file: File) => {
@@ -44,7 +56,9 @@ export default function InventoryImportClient() {
         }
         setRows(parsed);
       } catch {
-        setError('ไม่สามารถอ่านไฟล์ได้ กรุณาตรวจสอบว่าเป็นไฟล์ .xlsx หรือ .csv');
+        setError(
+          'ไม่สามารถอ่านไฟล์ได้ กรุณาตรวจสอบว่าเป็นไฟล์ .xlsx หรือ .csv',
+        );
       }
     };
     reader.readAsArrayBuffer(file);
@@ -65,8 +79,12 @@ export default function InventoryImportClient() {
       const supabase = createClient();
 
       // Load existing categories
-      const { data: cats } = await supabase.from('categories').select('id, name');
-      const catMap = new Map((cats || []).map((c: any) => [c.name as string, c.id as string]));
+      const { data: cats } = await supabase
+        .from('categories')
+        .select('id, name');
+      const catMap = new Map(
+        (cats || []).map((c: any) => [c.name as string, c.id as string]),
+      );
 
       // Group rows by product name
       const productGroups = new Map<string, ParsedRow[]>();
@@ -100,7 +118,9 @@ export default function InventoryImportClient() {
         }
 
         const basePrice = Number(firstRow['ราคาขาย']) || 0;
-        const costPrice = firstRow['ราคาทุน'] ? Number(firstRow['ราคาทุน']) : null;
+        const costPrice = firstRow['ราคาทุน']
+          ? Number(firstRow['ราคาทุน'])
+          : null;
         const isActive = String(firstRow['สถานะ'] || 'ใช้งาน') !== 'ปิด';
 
         // Upsert product by name
@@ -112,21 +132,31 @@ export default function InventoryImportClient() {
 
         let productId: string;
         if (existing) {
-          await supabase.from('products').update({
-            base_price: basePrice,
-            cost_price: costPrice,
-            is_active: isActive,
-            category_id: catId,
-          }).eq('id', (existing as any).id);
+          await supabase
+            .from('products')
+            .update({
+              base_price: basePrice,
+              cost_price: costPrice,
+              is_active: isActive,
+              category_id: catId,
+            })
+            .eq('id', (existing as any).id);
           productId = (existing as any).id;
           updated++;
         } else {
           const { data: newProduct, error: pErr } = await supabase
             .from('products')
-            .insert({ name, base_price: basePrice, cost_price: costPrice, is_active: isActive, category_id: catId })
+            .insert({
+              name,
+              base_price: basePrice,
+              cost_price: costPrice,
+              is_active: isActive,
+              category_id: catId,
+            })
             .select('id')
             .single();
-          if (pErr || !newProduct) throw pErr || new Error('Insert product failed');
+          if (pErr || !newProduct)
+            throw pErr || new Error('Insert product failed');
           productId = (newProduct as any).id;
           inserted++;
         }
@@ -151,11 +181,14 @@ export default function InventoryImportClient() {
               .eq('sku', sku)
               .maybeSingle();
             if (exV) {
-              await supabase.from('product_variants').update({
-                stock_quantity: variantData.stock_quantity,
-                low_stock_threshold: variantData.low_stock_threshold,
-                barcode: variantData.barcode,
-              }).eq('id', (exV as any).id);
+              await supabase
+                .from('product_variants')
+                .update({
+                  stock_quantity: variantData.stock_quantity,
+                  low_stock_threshold: variantData.low_stock_threshold,
+                  barcode: variantData.barcode,
+                })
+                .eq('id', (exV as any).id);
             } else {
               await supabase.from('product_variants').insert(variantData);
             }
@@ -167,7 +200,9 @@ export default function InventoryImportClient() {
 
       setResult({ inserted, updated });
       setRows([]);
-      toast.success(`นำเข้าสำเร็จ: เพิ่ม ${inserted} · อัปเดต ${updated} รายการ`);
+      toast.success(
+        `นำเข้าสำเร็จ: เพิ่ม ${inserted} · อัปเดต ${updated} รายการ`,
+      );
     } catch (err: any) {
       toast.error(`เกิดข้อผิดพลาด: ${err.message}`);
     } finally {
@@ -179,9 +214,12 @@ export default function InventoryImportClient() {
     <div className='space-y-6'>
       {/* Format guide */}
       <div className='bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm'>
-        <p className='font-semibold text-blue-800 mb-1'>📋 รูปแบบไฟล์ที่รองรับ</p>
+        <p className='font-semibold text-blue-800 mb-1'>
+          📋 รูปแบบไฟล์ที่รองรับ
+        </p>
         <p className='text-blue-700'>
-          ต้องมีคอลัมน์ <strong>ชื่อสินค้า</strong> (จำเป็น) · รองรับ .xlsx และ .csv
+          ต้องมีคอลัมน์ <strong>ชื่อสินค้า</strong> (จำเป็น) · รองรับ .xlsx และ
+          .csv
         </p>
         <p className='text-blue-600 font-mono text-xs mt-2 break-all'>
           {ALL_COLUMNS.join(' | ')}
@@ -194,7 +232,11 @@ export default function InventoryImportClient() {
       {/* Upload area */}
       {rows.length === 0 && !result && (
         <div
-          onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
+          onDrop={(e) => {
+            e.preventDefault();
+            const f = e.dataTransfer.files[0];
+            if (f) handleFile(f);
+          }}
           onDragOver={(e) => e.preventDefault()}
           className='border-2 border-dashed border-gray-300 rounded-xl p-12 flex flex-col items-center justify-center gap-3 text-gray-400 hover:border-brand-400 hover:text-brand-500 transition-colors cursor-pointer'
           onClick={() => inputRef.current?.click()}
@@ -212,7 +254,10 @@ export default function InventoryImportClient() {
         type='file'
         accept='.xlsx,.xls,.csv'
         className='hidden'
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) handleFile(f);
+        }}
       />
 
       {/* Preview table */}
@@ -265,7 +310,10 @@ export default function InventoryImportClient() {
             </p>
           )}
           <div className='p-4 border-t border-gray-100 flex justify-end gap-3'>
-            <button onClick={resetFile} className='pos-btn-secondary px-4 py-2 text-sm'>
+            <button
+              onClick={resetFile}
+              className='pos-btn-secondary px-4 py-2 text-sm'
+            >
               ยกเลิก
             </button>
             <button
@@ -285,15 +333,18 @@ export default function InventoryImportClient() {
           <p className='text-5xl mb-3'>✅</p>
           <p className='text-xl font-bold text-green-800 mb-1'>นำเข้าสำเร็จ</p>
           <p className='text-green-700'>
-            เพิ่มสินค้าใหม่ <strong>{result.inserted}</strong> รายการ ·
-            อัปเดต <strong>{result.updated}</strong> รายการ
+            เพิ่มสินค้าใหม่ <strong>{result.inserted}</strong> รายการ · อัปเดต{' '}
+            <strong>{result.updated}</strong> รายการ
           </p>
           <div className='flex gap-3 justify-center mt-5'>
             <a href='/inventory' className='pos-btn-primary px-6 py-2 text-sm'>
               ดูรายการสินค้า
             </a>
             <button
-              onClick={() => { setResult(null); if (inputRef.current) inputRef.current.value = ''; }}
+              onClick={() => {
+                setResult(null);
+                if (inputRef.current) inputRef.current.value = '';
+              }}
               className='pos-btn-secondary px-6 py-2 text-sm'
             >
               นำเข้าเพิ่มเติม

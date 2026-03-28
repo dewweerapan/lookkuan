@@ -1,3 +1,5 @@
+import * as XLSX from 'xlsx';
+
 /**
  * Lightweight CSV export utility (no external dependencies)
  */
@@ -26,4 +28,17 @@ export function exportToCSV(filename: string, rows: Record<string, unknown>[], h
   a.download = `${filename}.csv`
   a.click()
   URL.revokeObjectURL(url)
+}
+
+export function exportToXLSX(
+  filename: string,
+  sheets: { name: string; rows: Record<string, unknown>[] }[],
+) {
+  const wb = XLSX.utils.book_new();
+  for (const sheet of sheets) {
+    if (sheet.rows.length === 0) continue;
+    const ws = XLSX.utils.json_to_sheet(sheet.rows);
+    XLSX.utils.book_append_sheet(wb, ws, sheet.name);
+  }
+  XLSX.writeFile(wb, `${filename}.xlsx`);
 }

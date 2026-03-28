@@ -150,6 +150,14 @@ export default async function ReportsPage() {
           <ReportsExportButton
             topProductsList={data.topProductsList}
             paymentBreakdown={data.paymentBreakdown}
+            staffPerformance={data.staffPerformance}
+            overduePayments={data.overduePayments as any}
+            monthlyTotal={data.monthlyTotal}
+            weeklyTotal={data.weeklyTotal}
+            monthlyCount={data.monthlyCount}
+            jobCompleted={data.jobCompleted}
+            jobRevenue={data.jobRevenue}
+            jobPending={data.jobPending}
           />
         }
       />

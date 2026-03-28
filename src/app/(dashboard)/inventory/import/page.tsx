@@ -9,7 +9,10 @@ export default function InventoryImportPage() {
         title='นำเข้าสินค้า'
         description='อัปโหลดไฟล์ Excel (.xlsx) หรือ CSV เพื่อนำเข้าสินค้าจำนวนมาก'
         actions={
-          <Link href='/inventory' className='pos-btn-secondary text-sm px-4 py-2'>
+          <Link
+            href='/inventory'
+            className='pos-btn-secondary text-sm px-4 py-2'
+          >
             ← กลับ
           </Link>
         }
