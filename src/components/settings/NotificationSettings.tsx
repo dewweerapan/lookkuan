@@ -53,10 +53,10 @@ export default function NotificationSettings() {
   const handleSave = async () => {
     setSaving(true);
     const rows = [
-      { key: LINE_NOTIFY_TOKEN_KEY, value: token.trim() || null },
-      { key: NOTIFY_LOW_STOCK_KEY, value: String(notifyLowStock) },
-      { key: NOTIFY_NEW_ORDER_KEY, value: String(notifyNewOrder) },
-      { key: NOTIFY_INSTALLMENT_DUE_KEY, value: String(notifyInstallment) },
+      { key: LINE_NOTIFY_TOKEN_KEY, value: token.trim() || null, updated_at: new Date().toISOString() },
+      { key: NOTIFY_LOW_STOCK_KEY, value: String(notifyLowStock), updated_at: new Date().toISOString() },
+      { key: NOTIFY_NEW_ORDER_KEY, value: String(notifyNewOrder), updated_at: new Date().toISOString() },
+      { key: NOTIFY_INSTALLMENT_DUE_KEY, value: String(notifyInstallment), updated_at: new Date().toISOString() },
     ];
     const { error } = await supabaseRef.current
       .from('store_settings')

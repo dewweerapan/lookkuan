@@ -12,7 +12,7 @@ export default function StoreLogoSettings() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const fetch = async () => {
+    const loadSettings = async () => {
       const supabase = createClient();
       const { data } = await supabase
         .from('store_settings')
@@ -22,7 +22,7 @@ export default function StoreLogoSettings() {
       setLogoUrl(data?.value ?? null);
       setLoading(false);
     };
-    fetch();
+    loadSettings();
   }, []);
 
   const handleSave = async (url: string | null) => {

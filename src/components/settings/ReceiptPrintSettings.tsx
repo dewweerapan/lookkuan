@@ -86,22 +86,22 @@ export default function ReceiptPrintSettings() {
         <div className='flex-1 space-y-4'>
           <ToggleRow
             label='แสดงโลโก้ร้าน'
-            checked={settings.receipt_show_logo === 'true'}
+            checked={settings[RECEIPT_SHOW_LOGO_KEY] === 'true'}
             onChange={() => toggle(RECEIPT_SHOW_LOGO_KEY)}
           />
           <ToggleRow
             label='แสดงที่อยู่ร้าน'
-            checked={settings.receipt_show_address === 'true'}
+            checked={settings[RECEIPT_SHOW_ADDRESS_KEY] === 'true'}
             onChange={() => toggle(RECEIPT_SHOW_ADDRESS_KEY)}
           />
           <ToggleRow
             label='แสดงเบอร์โทรศัพท์'
-            checked={settings.receipt_show_phone === 'true'}
+            checked={settings[RECEIPT_SHOW_PHONE_KEY] === 'true'}
             onChange={() => toggle(RECEIPT_SHOW_PHONE_KEY)}
           />
           <ToggleRow
             label='แสดงช่องทางชำระเงิน'
-            checked={settings.receipt_show_payment_method === 'true'}
+            checked={settings[RECEIPT_SHOW_PAYMENT_METHOD_KEY] === 'true'}
             onChange={() => toggle(RECEIPT_SHOW_PAYMENT_METHOD_KEY)}
           />
 
@@ -111,7 +111,7 @@ export default function ReceiptPrintSettings() {
             </label>
             <input
               type='text'
-              value={settings.receipt_footer_message}
+              value={settings[RECEIPT_FOOTER_MESSAGE_KEY]}
               onChange={(e) =>
                 setSettings((prev) => ({
                   ...prev,
@@ -138,16 +138,16 @@ export default function ReceiptPrintSettings() {
             ตัวอย่างใบเสร็จ
           </p>
           <div className='border border-dashed border-gray-300 rounded-lg p-3 text-center text-xs space-y-1 font-mono bg-gray-50'>
-            {settings.receipt_show_logo === 'true' && (
+            {settings[RECEIPT_SHOW_LOGO_KEY] === 'true' && (
               <div className='w-8 h-8 bg-gray-200 rounded-full mx-auto mb-1 flex items-center justify-center text-lg'>
                 🏪
               </div>
             )}
             <p className='font-bold text-sm'>LookKuan</p>
-            {settings.receipt_show_address === 'true' && (
+            {settings[RECEIPT_SHOW_ADDRESS_KEY] === 'true' && (
               <p className='text-gray-500'>123 ถ.สุขุมวิท กรุงเทพฯ</p>
             )}
-            {settings.receipt_show_phone === 'true' && (
+            {settings[RECEIPT_SHOW_PHONE_KEY] === 'true' && (
               <p className='text-gray-500'>Tel: 02-000-0000</p>
             )}
             <div className='border-t border-dashed border-gray-300 my-1' />
@@ -159,14 +159,14 @@ export default function ReceiptPrintSettings() {
               <span>รวม</span>
               <span>฿250</span>
             </div>
-            {settings.receipt_show_payment_method === 'true' && (
+            {settings[RECEIPT_SHOW_PAYMENT_METHOD_KEY] === 'true' && (
               <p className='text-gray-500'>ชำระ: เงินสด</p>
             )}
-            {settings.receipt_footer_message && (
+            {settings[RECEIPT_FOOTER_MESSAGE_KEY] && (
               <>
                 <div className='border-t border-dashed border-gray-300 my-1' />
                 <p className='text-gray-500'>
-                  {settings.receipt_footer_message}
+                  {settings[RECEIPT_FOOTER_MESSAGE_KEY]}
                 </p>
               </>
             )}
