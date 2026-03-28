@@ -10,7 +10,7 @@ import {
   RECEIPT_FOOTER_MESSAGE_KEY,
   RECEIPT_SHOW_PAYMENT_METHOD_KEY,
 } from '@/lib/constants';
-import { upsertStoreSettings } from '@/lib/storeSettings';
+import { upsertStoreSettings, getStoreSettings } from '@/lib/storeSettings';
 
 const DEFAULTS = {
   [RECEIPT_SHOW_LOGO_KEY]: 'true',
@@ -30,18 +30,13 @@ export default function ReceiptPrintSettings() {
   useEffect(() => {
     const load = async () => {
       const supabase = createClient();
-      const { data } = await supabase
-        .from('store_settings')
-        .select('key, value')
-        .in('key', Object.keys(DEFAULTS));
-      if (data) {
-        const map: Partial<Settings> = {};
-        data.forEach((row: { key: string; value: string | null }) => {
-          (map as Record<string, string>)[row.key] =
-            row.value ?? (DEFAULTS as Record<string, string>)[row.key];
-        });
-        setSettings((prev) => ({ ...prev, ...map }));
-      }
+      const data = await getStoreSettings(supabase, Object.keys(DEFAULTS));
+      const map: Partial<Settings> = {};
+      Object.entries(data).forEach(([key, value]) => {
+        (map as Record<string, string>)[key] =
+          value ?? (DEFAULTS as Record<string, string>)[key];
+      });
+      setSettings((prev) => ({ ...prev, ...map }));
       setLoading(false);
     };
     load();

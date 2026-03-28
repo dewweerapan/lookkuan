@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import ImageUpload from '@/components/shared/ImageUpload';
 import { toast } from 'sonner';
 import { STORE_LOGO_URL_KEY } from '@/lib/constants';
-import { upsertStoreSettings } from '@/lib/storeSettings';
+import { upsertStoreSettings, getStoreSetting } from '@/lib/storeSettings';
 
 export default function StoreLogoSettings() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -15,12 +15,7 @@ export default function StoreLogoSettings() {
   useEffect(() => {
     const loadSettings = async () => {
       const supabase = createClient();
-      const { data } = await supabase
-        .from('store_settings')
-        .select('value')
-        .eq('key', STORE_LOGO_URL_KEY)
-        .maybeSingle();
-      setLogoUrl(data?.value ?? null);
+      setLogoUrl(await getStoreSetting(supabase, STORE_LOGO_URL_KEY));
       setLoading(false);
     };
     loadSettings();

@@ -9,7 +9,7 @@ import {
   NOTIFY_NEW_ORDER_KEY,
   NOTIFY_INSTALLMENT_DUE_KEY,
 } from '@/lib/constants';
-import { upsertStoreSettings } from '@/lib/storeSettings';
+import { upsertStoreSettings, getStoreSettings } from '@/lib/storeSettings';
 
 const SETTINGS_KEYS = [
   LINE_NOTIFY_TOKEN_KEY,
@@ -31,21 +31,14 @@ export default function NotificationSettings() {
 
   useEffect(() => {
     let mounted = true;
-    supabaseRef.current
-      .from('store_settings')
-      .select('key, value')
-      .in('key', SETTINGS_KEYS)
-      .then(({ data }) => {
-        if (!mounted) return;
-        if (data) {
-          const map = Object.fromEntries(data.map((r) => [r.key, r.value]));
-          setToken(map[LINE_NOTIFY_TOKEN_KEY] ?? '');
-          setNotifyLowStock(map[NOTIFY_LOW_STOCK_KEY] === 'true');
-          setNotifyNewOrder(map[NOTIFY_NEW_ORDER_KEY] === 'true');
-          setNotifyInstallment(map[NOTIFY_INSTALLMENT_DUE_KEY] === 'true');
-        }
-        setLoading(false);
-      });
+    getStoreSettings(supabaseRef.current, SETTINGS_KEYS).then((map) => {
+      if (!mounted) return;
+      setToken(map[LINE_NOTIFY_TOKEN_KEY] ?? '');
+      setNotifyLowStock(map[NOTIFY_LOW_STOCK_KEY] === 'true');
+      setNotifyNewOrder(map[NOTIFY_NEW_ORDER_KEY] === 'true');
+      setNotifyInstallment(map[NOTIFY_INSTALLMENT_DUE_KEY] === 'true');
+      setLoading(false);
+    });
     return () => {
       mounted = false;
     };

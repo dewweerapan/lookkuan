@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { ROLES, LINE_NOTIFY_TOKEN_KEY } from '@/lib/constants';
+import { getStoreSetting } from '@/lib/storeSettings';
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -20,20 +21,15 @@ export async function POST(req: NextRequest) {
   const { message } = body;
   if (!message) return NextResponse.json({ error: 'message is required' }, { status: 400 });
 
-  const [{ data: profile }, { data: setting }] = await Promise.all([
+  const [{ data: profile }, token] = await Promise.all([
     supabase.from('profiles').select('role').eq('id', user.id).single(),
-    supabase
-      .from('store_settings')
-      .select('value')
-      .eq('key', LINE_NOTIFY_TOKEN_KEY)
-      .maybeSingle(),
+    getStoreSetting(supabase, LINE_NOTIFY_TOKEN_KEY),
   ]);
 
   if (!profile || (profile.role !== ROLES.ADMIN && profile.role !== ROLES.MANAGER)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const token = setting?.value;
   if (!token) {
     return NextResponse.json(
       { error: 'Line Notify token is not configured' },

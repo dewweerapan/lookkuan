@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createClient } from '@/lib/supabase/client';
 import { STORE_LOGO_URL_KEY } from '@/lib/constants';
+import { getStoreSetting } from '@/lib/storeSettings';
 import {
   LayoutDashboard,
   Package,
@@ -100,12 +101,7 @@ export default function Sidebar() {
 
   useEffect(() => {
     const supabase = createClient();
-    supabase
-      .from('store_settings')
-      .select('value')
-      .eq('key', STORE_LOGO_URL_KEY)
-      .maybeSingle()
-      .then(({ data }) => setStoreLogo(data?.value ?? null));
+    getStoreSetting(supabase, STORE_LOGO_URL_KEY).then((url) => setStoreLogo(url));
   }, []);
 
   // hasRole already falls back to cached localStorage role, so no need to check loading
