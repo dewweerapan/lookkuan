@@ -5,10 +5,18 @@ import { createClient } from '@/lib/supabase/client';
 import { useCartStore } from '@/stores/cartStore';
 import { useAuth } from '@/hooks/useAuth';
 import { formatCurrency, generateSaleNumber, playSound } from '@/lib/utils';
-import { PAYMENT_METHOD_LABELS } from '@/lib/constants';
+import {
+  PAYMENT_METHOD_LABELS,
+  RECEIPT_SHOW_ADDRESS_KEY,
+  RECEIPT_SHOW_PHONE_KEY,
+  RECEIPT_FOOTER_MESSAGE_KEY,
+  STORE_NAME,
+} from '@/lib/constants';
 import ConfirmDialog from '@/components/shared/ConfirmDialog';
 import CameraScanner from '@/components/pos/CameraScanner';
 import PromptPayQR from '@/components/pos/PromptPayQR';
+import ReceiptPreviewModal from '@/components/pos/ReceiptPreviewModal';
+import { getStoreSettings } from '@/lib/storeSettings';
 import { toast } from 'sonner';
 import type { Category, Product, ProductVariant } from '@/types/database';
 
@@ -127,6 +135,23 @@ export default function POSClient({ categories, products }: Props) {
   const [cashReceived, setCashReceived] = useState('');
   const [showVoidConfirm, setShowVoidConfirm] = useState(false);
 
+  // Receipt preview state
+  const [showReceiptPreview, setShowReceiptPreview] = useState(false);
+  const [receiptSettings, setReceiptSettings] = useState({
+    showAddress: true,
+    showPhone: true,
+    footerMessage: 'ขอบคุณที่ใช้บริการ',
+  });
+  // Snapshot of the last completed sale for the preview modal
+  const [lastSaleSnapshot, setLastSaleSnapshot] = useState<{
+    items: typeof cart.items;
+    subtotal: number;
+    discount: number;
+    tax: number;
+    total: number;
+    paymentMethod: string;
+  } | null>(null);
+
   // Customer state
   const [customerSearch, setCustomerSearch] = useState('');
   const [customerResults, setCustomerResults] = useState<
@@ -184,6 +209,22 @@ export default function POSClient({ categories, products }: Props) {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleBarcodeScan]);
+
+  // Load receipt settings once on mount
+  useEffect(() => {
+    const supabase = createClient();
+    getStoreSettings(supabase, [
+      RECEIPT_SHOW_ADDRESS_KEY,
+      RECEIPT_SHOW_PHONE_KEY,
+      RECEIPT_FOOTER_MESSAGE_KEY,
+    ]).then((data) => {
+      setReceiptSettings({
+        showAddress: data[RECEIPT_SHOW_ADDRESS_KEY] !== 'false',
+        showPhone: data[RECEIPT_SHOW_PHONE_KEY] !== 'false',
+        footerMessage: data[RECEIPT_FOOTER_MESSAGE_KEY] ?? 'ขอบคุณที่ใช้บริการ',
+      });
+    }).catch(() => {/* keep defaults */});
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -312,6 +353,18 @@ export default function POSClient({ categories, products }: Props) {
       } else {
         toast.success('ขายสำเร็จ!', { duration: 3000 });
       }
+
+      // Capture snapshot before clearing cart for receipt preview
+      setLastSaleSnapshot({
+        items: [...cart.items],
+        subtotal,
+        discount: discountAmount,
+        tax: 0,
+        total,
+        paymentMethod: PAYMENT_METHOD_LABELS[paymentMethod] ?? paymentMethod,
+      });
+      setShowReceiptPreview(true);
+
       cart.clearCart();
       setShowPayment(false);
       setCashReceived('');
@@ -349,6 +402,28 @@ export default function POSClient({ categories, products }: Props) {
             setShowCamera(false);
           }}
           onClose={() => setShowCamera(false)}
+        />
+      )}
+
+      {showReceiptPreview && lastSaleSnapshot && (
+        <ReceiptPreviewModal
+          items={lastSaleSnapshot.items}
+          subtotal={lastSaleSnapshot.subtotal}
+          discount={lastSaleSnapshot.discount}
+          tax={lastSaleSnapshot.tax}
+          total={lastSaleSnapshot.total}
+          paymentMethod={lastSaleSnapshot.paymentMethod}
+          storeName={STORE_NAME}
+          storeAddress={process.env.NEXT_PUBLIC_STORE_ADDRESS}
+          storePhone={process.env.NEXT_PUBLIC_STORE_PHONE}
+          footerMessage={receiptSettings.footerMessage}
+          showAddress={receiptSettings.showAddress}
+          showPhone={receiptSettings.showPhone}
+          onPrint={() => {
+            window.print();
+            setShowReceiptPreview(false);
+          }}
+          onClose={() => setShowReceiptPreview(false)}
         />
       )}
 
