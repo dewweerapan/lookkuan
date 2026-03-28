@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { formatCurrency } from '@/lib/utils';
 import SearchInput from '@/components/shared/SearchInput';
 import EmptyState from '@/components/shared/EmptyState';
@@ -11,13 +12,54 @@ interface InventoryClientProps {
   products: (Product & { category: Category | null; variants: any[] })[];
   categories: Category[];
   defaultFilter?: string;
+  totalPages: number;
+  currentPage: number;
+}
+
+function Pagination({ currentPage, totalPages }: { currentPage: number; totalPages: number }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  if (totalPages <= 1) return null;
+
+  const goTo = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', String(page));
+    router.push(`${window.location.pathname}?${params.toString()}`);
+  };
+
+  return (
+    <div className="flex items-center justify-center gap-2 mt-6 pb-2">
+      <button
+        onClick={() => goTo(currentPage - 1)}
+        disabled={currentPage <= 1}
+        className="px-4 py-2 text-sm border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50 transition-colors"
+      >
+        ← ก่อนหน้า
+      </button>
+      <span className="text-sm text-gray-500 px-2">
+        หน้า <span className="font-semibold text-gray-800">{currentPage}</span> / {totalPages}
+      </span>
+      <button
+        onClick={() => goTo(currentPage + 1)}
+        disabled={currentPage >= totalPages}
+        className="px-4 py-2 text-sm border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50 transition-colors"
+      >
+        ถัดไป →
+      </button>
+    </div>
+  );
 }
 
 export default function InventoryClient({
   products,
   categories,
   defaultFilter,
+  totalPages,
+  currentPage,
 }: InventoryClientProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [showLowStockOnly, setShowLowStockOnly] = useState(
@@ -84,13 +126,25 @@ export default function InventoryClient({
         <div className='flex-1'>
           <SearchInput
             value={search}
-            onChange={setSearch}
+            onChange={(val) => {
+              setSearch(val);
+              // Reset to page 1 when search changes
+              const params = new URLSearchParams(searchParams.toString());
+              params.delete('page');
+              router.push(`${window.location.pathname}?${params.toString()}`);
+            }}
             placeholder='ค้นหาสินค้า, SKU, บาร์โค้ด...'
           />
         </div>
         <select
           value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
+          onChange={(e) => {
+            setCategoryFilter(e.target.value);
+            // Reset to page 1 when category changes
+            const params = new URLSearchParams(searchParams.toString());
+            params.delete('page');
+            router.push(`${window.location.pathname}?${params.toString()}`);
+          }}
           className='pos-input sm:w-48'
         >
           <option value='all'>ทุกหมวดหมู่</option>
@@ -276,6 +330,7 @@ export default function InventoryClient({
           </div>
         </>
       )}
+      <Pagination currentPage={currentPage} totalPages={totalPages} />
     </div>
   );
 }

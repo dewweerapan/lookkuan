@@ -1,17 +1,59 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { formatCurrency } from '@/lib/utils';
 import { exportToCSV } from '@/lib/export';
 import SearchInput from '@/components/shared/SearchInput';
 import EmptyState from '@/components/shared/EmptyState';
 import type { Customer } from '@/types/database';
 
+function Pagination({ currentPage, totalPages }: { currentPage: number; totalPages: number }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  if (totalPages <= 1) return null;
+
+  const goTo = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', String(page));
+    router.push(`${window.location.pathname}?${params.toString()}`);
+  };
+
+  return (
+    <div className="flex items-center justify-center gap-2 mt-6 pb-2">
+      <button
+        onClick={() => goTo(currentPage - 1)}
+        disabled={currentPage <= 1}
+        className="px-4 py-2 text-sm border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50 transition-colors"
+      >
+        ← ก่อนหน้า
+      </button>
+      <span className="text-sm text-gray-500 px-2">
+        หน้า <span className="font-semibold text-gray-800">{currentPage}</span> / {totalPages}
+      </span>
+      <button
+        onClick={() => goTo(currentPage + 1)}
+        disabled={currentPage >= totalPages}
+        className="px-4 py-2 text-sm border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50 transition-colors"
+      >
+        ถัดไป →
+      </button>
+    </div>
+  );
+}
+
 export default function CustomersClient({
   customers,
+  totalPages,
+  currentPage,
 }: {
   customers: Customer[];
+  totalPages: number;
+  currentPage: number;
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState('');
 
   const filtered = customers.filter((c) => {
@@ -36,7 +78,13 @@ export default function CustomersClient({
         <div className='flex-1'>
           <SearchInput
             value={search}
-            onChange={setSearch}
+            onChange={(val) => {
+              setSearch(val);
+              // Reset to page 1 when search changes
+              const params = new URLSearchParams(searchParams.toString());
+              params.delete('page');
+              router.push(`${window.location.pathname}?${params.toString()}`);
+            }}
             placeholder='ค้นหาลูกค้า, เบอร์โทร, อีเมล...'
           />
         </div>
@@ -174,6 +222,7 @@ export default function CustomersClient({
           </div>
         </>
       )}
+      <Pagination currentPage={currentPage} totalPages={totalPages} />
     </div>
   );
 }

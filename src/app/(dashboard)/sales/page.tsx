@@ -2,24 +2,40 @@ import { createClient } from '@/lib/supabase/server';
 import { formatCurrency, formatDateTime } from '@/lib/utils';
 import PageHeader from '@/components/shared/PageHeader';
 import SalesRefundButton from '@/components/sales/SalesRefundButton';
+import SalesPagination from '@/components/sales/SalesPagination';
 
-async function getSales() {
+const PAGE_SIZE = 50;
+
+interface SaleRow {
+  id: string;
+  sale_number: string;
+  total: number;
+  payment_method: string;
+  status: string;
+  created_at: string;
+  cashier: { full_name: string } | null;
+}
+
+async function getSales(page: number) {
   const supabase = await createClient();
   const thirtyDaysAgo = new Date(
     Date.now() - 30 * 24 * 60 * 60 * 1000,
   ).toISOString();
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
 
-  const { data } = await supabase
+  const { data, count } = await supabase
     .from('sales')
     .select(
       'id, sale_number, total, payment_method, status, created_at, cashier:profiles!cashier_id(full_name)',
+      { count: 'exact' },
     )
     .neq('status', 'voided')
     .gte('created_at', thirtyDaysAgo)
     .order('created_at', { ascending: false })
-    .limit(100);
+    .range(from, to);
 
-  return data || [];
+  return { sales: data || [], totalCount: count ?? 0 };
 }
 
 const PAYMENT_LABELS: Record<string, string> = {
@@ -29,8 +45,14 @@ const PAYMENT_LABELS: Record<string, string> = {
   credit_card: '💳 บัตรเครดิต',
 };
 
-export default async function SalesHistoryPage() {
-  const sales = await getSales();
+export default async function SalesHistoryPage({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const currentPage = Math.max(1, Number(searchParams?.page ?? 1));
+  const { sales, totalCount } = await getSales(currentPage);
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
   return (
     <div>
@@ -38,7 +60,7 @@ export default async function SalesHistoryPage() {
 
       {/* Mobile Cards */}
       <div className='block sm:hidden space-y-3'>
-        {sales.map((sale: any) => (
+        {(sales as unknown as SaleRow[]).map((sale) => (
           <div
             key={sale.id}
             className='bg-white rounded-xl border border-gray-200 p-4'
@@ -49,7 +71,7 @@ export default async function SalesHistoryPage() {
                   {sale.sale_number}
                 </span>
                 <p className='text-sm text-gray-600'>
-                  {(sale.cashier as any)?.full_name || '-'}
+                  {sale.cashier?.full_name || '-'}
                 </p>
               </div>
               <span className='font-bold text-brand-600 text-lg'>
@@ -105,10 +127,10 @@ export default async function SalesHistoryPage() {
             </tr>
           </thead>
           <tbody>
-            {sales.map((sale: any) => (
+            {(sales as unknown as SaleRow[]).map((sale) => (
               <tr key={sale.id}>
                 <td className='font-mono text-sm'>{sale.sale_number}</td>
-                <td>{(sale.cashier as any)?.full_name || '-'}</td>
+                <td>{sale.cashier?.full_name || '-'}</td>
                 <td>
                   {PAYMENT_LABELS[sale.payment_method] || sale.payment_method}
                 </td>
@@ -150,6 +172,8 @@ export default async function SalesHistoryPage() {
           </div>
         )}
       </div>
+
+      <SalesPagination currentPage={currentPage} totalPages={totalPages} />
     </div>
   );
 }

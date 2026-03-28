@@ -4,10 +4,18 @@ import Link from 'next/link';
 import PageHeader from '@/components/shared/PageHeader';
 import InventoryClient from '@/components/inventory/InventoryClient';
 import InventoryExportButton from '@/components/inventory/InventoryExportButton';
+import type { Product, ProductVariant } from '@/types/database';
 
-async function getProducts() {
+type ProductWithVariants = Product & { variants: ProductVariant[] };
+
+const PAGE_SIZE = 50;
+
+async function getProducts(page: number) {
   const supabase = await createClient();
-  const { data: products, error } = await supabase
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+
+  const { data: products, error, count } = await supabase
     .from('products')
     .select(
       `
@@ -15,15 +23,17 @@ async function getProducts() {
       category:categories(id, name),
       variants:product_variants(*)
     `,
+      { count: 'exact' },
     )
     .eq('is_active', true)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range(from, to);
 
   if (error) {
     console.error('Error fetching products:', error);
-    return [];
+    return { products: [], totalCount: 0 };
   }
-  return products || [];
+  return { products: products || [], totalCount: count ?? 0 };
 }
 
 async function getCategories() {
@@ -39,39 +49,40 @@ async function getCategories() {
 export default async function InventoryPage({
   searchParams,
 }: {
-  searchParams: { filter?: string };
+  searchParams: { filter?: string; page?: string };
 }) {
-  const [products, categories] = await Promise.all([
-    getProducts(),
+  const currentPage = Math.max(1, Number(searchParams?.page ?? 1));
+  const [{ products, totalCount }, categories] = await Promise.all([
+    getProducts(currentPage),
     getCategories(),
   ]);
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
   const showLowStockOnly = searchParams.filter === 'low_stock';
 
-  const totalItems = products.reduce((sum: number, p: any) => {
+  const typedProducts = products as ProductWithVariants[];
+
+  const totalItems = typedProducts.reduce((sum, p) => {
     return (
       sum +
-      (p.variants?.reduce(
-        (vSum: number, v: any) => vSum + v.stock_quantity,
-        0,
-      ) || 0)
+      (p.variants?.reduce((vSum, v) => vSum + v.stock_quantity, 0) || 0)
     );
   }, 0);
 
-  const totalValue = products.reduce((sum: number, p: any) => {
+  const totalValue = typedProducts.reduce((sum, p) => {
     return (
       sum +
-      (p.variants?.reduce((vSum: number, v: any) => {
+      (p.variants?.reduce((vSum, v) => {
         const price = v.price_override || p.base_price;
         return vSum + price * v.stock_quantity;
       }, 0) || 0)
     );
   }, 0);
 
-  const lowStockCount = products.reduce((sum: number, p: any) => {
+  const lowStockCount = typedProducts.reduce((sum, p) => {
     return (
       sum +
       (p.variants?.filter(
-        (v: any) => v.stock_quantity <= v.low_stock_threshold && v.is_active,
+        (v) => v.stock_quantity <= v.low_stock_threshold && v.is_active,
       ).length || 0)
     );
   }, 0);
@@ -80,7 +91,7 @@ export default async function InventoryPage({
     <div>
       <PageHeader
         title='สินค้าและสต็อก'
-        description={`สินค้าทั้งหมด ${products.length} รายการ`}
+        description={`สินค้าทั้งหมด ${totalCount} รายการ`}
         actions={
           <div className='flex gap-3 flex-wrap'>
             <InventoryExportButton products={products} />
@@ -136,6 +147,8 @@ export default async function InventoryPage({
         products={products}
         categories={categories}
         defaultFilter={showLowStockOnly ? 'low_stock' : undefined}
+        totalPages={totalPages}
+        currentPage={currentPage}
       />
     </div>
   );
