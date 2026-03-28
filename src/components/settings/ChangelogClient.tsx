@@ -65,9 +65,9 @@ const PHASES: ChangelogPhase[] = [
     title: 'Phase 2C — โปรโมชัน',
     subtitle: 'ส่วนลดและโปรโมชันอัตโนมัติ',
     tasks: [
-      { id: '2c-1', title: 'Database Migration', description: 'ตาราง promotions, promotion_targets', status: 'pending' },
-      { id: '2c-2', title: 'จัดการโปรโมชัน', description: 'CRUD ส่วนลด %, ส่วนลดบาท, ซื้อ X แถม Y', status: 'pending' },
-      { id: '2c-3', title: 'Auto-Apply ใน POS', description: 'คำนวณและใช้โปรโมชันที่ดีสุดอัตโนมัติ', status: 'pending' },
+      { id: '2c-1', title: 'Database Migration', description: 'ตาราง promotions, promotion_targets', status: 'done', completedAt: '2026-03-28' },
+      { id: '2c-2', title: 'จัดการโปรโมชัน', description: 'CRUD ส่วนลด %, ส่วนลดบาท, ซื้อ X แถม Y', status: 'done', completedAt: '2026-03-28' },
+      { id: '2c-3', title: 'Auto-Apply ใน POS', description: 'คำนวณและใช้โปรโมชันที่ดีสุดอัตโนมัติ', status: 'done', completedAt: '2026-03-28' },
     ],
   },
   {
@@ -75,9 +75,9 @@ const PHASES: ChangelogPhase[] = [
     title: 'Phase 2D — ซัพพลายเออร์',
     subtitle: 'จัดการซัพพลายเออร์และใบสั่งซื้อ',
     tasks: [
-      { id: '2d-1', title: 'Database Migration', description: 'ตาราง suppliers, purchase_orders', status: 'pending' },
-      { id: '2d-2', title: 'จัดการซัพพลายเออร์', description: 'รายชื่อ, ข้อมูลติดต่อ, ประวัติ', status: 'pending' },
-      { id: '2d-3', title: 'ใบสั่งซื้อ + รับสินค้า', description: 'สร้างใบสั่งซื้อ, รับสินค้า → อัปเดต stock', status: 'pending' },
+      { id: '2d-1', title: 'Database Migration', description: 'ตาราง suppliers, purchase_orders', status: 'done', completedAt: '2026-03-28' },
+      { id: '2d-2', title: 'จัดการซัพพลายเออร์', description: 'รายชื่อ, ข้อมูลติดต่อ, ประวัติ', status: 'done', completedAt: '2026-03-28' },
+      { id: '2d-3', title: 'ใบสั่งซื้อ + รับสินค้า', description: 'สร้างใบสั่งซื้อ, รับสินค้า → อัปเดต stock', status: 'done', completedAt: '2026-03-28' },
     ],
   },
   {
@@ -85,9 +85,9 @@ const PHASES: ChangelogPhase[] = [
     title: 'Phase 2E — Advanced Analytics',
     subtitle: 'วิเคราะห์ธุรกิจเชิงลึก',
     tasks: [
-      { id: '2e-1', title: 'ABC Analysis', description: 'แยกสินค้า A/B/C ตาม % รายได้', status: 'pending' },
-      { id: '2e-2', title: 'Sales Heatmap', description: 'แผนที่ความร้อนยอดขาย วัน × ชั่วโมง', status: 'pending' },
-      { id: '2e-3', title: 'Customer Retention', description: 'Cohort analysis ลูกค้าซื้อซ้ำ', status: 'pending' },
+      { id: '2e-1', title: 'ABC Analysis', description: 'แยกสินค้า A/B/C ตาม % รายได้', status: 'done', completedAt: '2026-03-28' },
+      { id: '2e-2', title: 'Sales Heatmap', description: 'แผนที่ความร้อนยอดขาย วัน × ชั่วโมง', status: 'done', completedAt: '2026-03-28' },
+      { id: '2e-3', title: 'Customer Retention', description: 'Cohort analysis ลูกค้าซื้อซ้ำ', status: 'done', completedAt: '2026-03-28' },
     ],
   },
   {
@@ -95,8 +95,8 @@ const PHASES: ChangelogPhase[] = [
     title: 'Phase 2F — Infrastructure',
     subtitle: 'CI/CD และ Error Monitoring',
     tasks: [
-      { id: '2f-1', title: 'GitHub Actions CI/CD', description: 'Lint + Type check + Build + Test on push', status: 'pending' },
-      { id: '2f-2', title: 'Sentry Error Monitoring', description: 'ติดตาม error จาก production', status: 'pending' },
+      { id: '2f-1', title: 'GitHub Actions CI/CD', description: 'Lint + Type check + Build + Test on push', status: 'active' },
+      { id: '2f-2', title: 'Sentry Error Monitoring', description: 'ติดตาม error จาก production', status: 'active' },
     ],
   },
 ];

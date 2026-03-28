@@ -50,7 +50,6 @@ export interface ProductVariant {
   price_override: number | null
   shelf_location: string | null
   is_active: boolean
-  shelf_location?: string | null
   created_at: string
   updated_at: string
   // Relations
