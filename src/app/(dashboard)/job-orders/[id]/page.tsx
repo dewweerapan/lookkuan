@@ -34,10 +34,39 @@ async function getJobOrder(id: string) {
     }
   }
 
+  // Step 3: Fetch audit logs for this job order
+  const { data: auditLogs } = await supabase
+    .from('audit_logs')
+    .select('id, action, old_value, new_value, created_at, user_id')
+    .eq('entity_type', 'job_order')
+    .eq('entity_id', id)
+    .eq('action', 'update_job_status')
+    .order('created_at', { ascending: false })
+
+  // Step 4: Fetch audit log user names
+  const auditUserIds = (auditLogs || [])
+    .map((l: any) => l.user_id)
+    .filter(Boolean)
+    .filter((id: string, i: number, arr: string[]) => arr.indexOf(id) === i)
+  let auditUserMap: Record<string, string> = {}
+  if (auditUserIds.length > 0) {
+    const { data: auditUsers } = await supabase
+      .from('profiles')
+      .select('id, full_name')
+      .in('id', auditUserIds)
+    if (auditUsers) {
+      auditUserMap = Object.fromEntries(auditUsers.map(u => [u.id, u.full_name]))
+    }
+  }
+
   return {
     ...job,
     received_staff: job.received_by ? staffMap[job.received_by] ?? null : null,
     assigned_staff: job.assigned_to ? staffMap[job.assigned_to] ?? null : null,
+    auditLogs: (auditLogs || []).map((l: any) => ({
+      ...l,
+      user_name: auditUserMap[l.user_id] || 'ระบบ',
+    })),
   }
 }
 
@@ -126,6 +155,31 @@ export default async function JobOrderDetailPage({ params }: { params: { id: str
               </div>
             </div>
           </div>
+
+          {/* Audit Trail */}
+          {job.auditLogs && job.auditLogs.length > 0 && (
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <h2 className="text-lg font-bold text-gray-800 mb-4">📋 ประวัติการเปลี่ยนสถานะ</h2>
+              <div className="space-y-3">
+                {job.auditLogs.map((log: any) => (
+                  <div key={log.id} className="flex items-start gap-3">
+                    <div className="w-2 h-2 rounded-full bg-brand-400 mt-2 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <p className="text-sm font-semibold text-gray-700">
+                          {JOB_STATUS_LABELS[log.old_value?.status as JobStatus] || log.old_value?.status || '?'}
+                          {' → '}
+                          {JOB_STATUS_LABELS[log.new_value?.status as JobStatus] || log.new_value?.status || '?'}
+                        </p>
+                        <span className="text-xs text-gray-400 flex-shrink-0">{formatDateTime(log.created_at)}</span>
+                      </div>
+                      <p className="text-xs text-gray-500">โดย {log.user_name}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Sidebar - Customer + Payment */}
