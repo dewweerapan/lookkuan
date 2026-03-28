@@ -100,10 +100,14 @@ export default function Sidebar() {
   const [storeLogo, setStoreLogo] = useState<string | null>(null);
 
   useEffect(() => {
+    let mounted = true;
     const supabase = createClient();
     getStoreSetting(supabase, STORE_LOGO_URL_KEY)
-      .then((url) => setStoreLogo(url))
+      .then((url) => { if (mounted) setStoreLogo(url); })
       .catch(() => {});
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // hasRole already falls back to cached localStorage role, so no need to check loading
