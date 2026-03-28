@@ -1,4 +1,4 @@
-'use client';
+import RetryButton from './RetryButton';
 
 export default function OfflinePage() {
   return (
@@ -10,12 +10,7 @@ export default function OfflinePage() {
       <p className='text-gray-500 mb-6 max-w-sm'>
         กรุณาตรวจสอบการเชื่อมต่อเครือข่ายและลองใหม่อีกครั้ง
       </p>
-      <button
-        onClick={() => window.location.reload()}
-        className='px-6 py-3 bg-brand-500 text-white rounded-xl font-medium hover:bg-brand-600 transition-colors'
-      >
-        ลองใหม่อีกครั้ง
-      </button>
+      <RetryButton />
       <p className='mt-6 text-sm text-gray-400'>
         หน้าที่เคยเยี่ยมชมแล้วอาจยังใช้งานได้ในโหมดออฟไลน์
       </p>

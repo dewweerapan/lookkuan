@@ -5,6 +5,8 @@ import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
+const LOW_STOCK_THRESHOLD = 3;
+
 type Variant = {
   id: string;
   sku: string;
@@ -21,6 +23,7 @@ export default function ShelfMapClient({
   variants: Variant[];
 }) {
   const router = useRouter();
+  const supabase = useMemo(() => createClient(), []);
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
@@ -30,7 +33,7 @@ export default function ShelfMapClient({
   const [dragOverShelf, setDragOverShelf] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  // Group by shelf_location
+  // Group by shelf_location with pre-computed stats
   const shelves = useMemo(() => {
     const map = new Map<string, Variant[]>();
     for (const v of localVariants) {
@@ -38,7 +41,14 @@ export default function ShelfMapClient({
       if (!map.has(loc)) map.set(loc, []);
       map.get(loc)!.push(v);
     }
-    return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
+    return Array.from(map.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([loc, items]) => ({
+        loc,
+        items,
+        totalStock: items.reduce((s, v) => s + v.stock_quantity, 0),
+        lowStock: items.some((v) => v.stock_quantity <= LOW_STOCK_THRESHOLD),
+      }));
   }, [localVariants]);
 
   // Which shelves match the search
@@ -58,14 +68,10 @@ export default function ShelfMapClient({
     return matched;
   }, [search, localVariants]);
 
-  const isHighlighted = (loc: string) =>
-    search.trim() ? matchedShelves.has(loc) : false;
-  const isDimmed = (loc: string) =>
-    search.trim() ? !matchedShelves.has(loc) : false;
-
-  const selectedVariants = selected
-    ? (shelves.find(([loc]) => loc === selected)?.[1] ?? [])
-    : [];
+  const selectedVariants = useMemo(
+    () => shelves.find((s) => s.loc === selected)?.items ?? [],
+    [shelves, selected],
+  );
 
   // Drag & drop handlers
   const handleDragStart = useCallback((variantId: string) => {
@@ -100,13 +106,11 @@ export default function ShelfMapClient({
           v.id === draggingId ? { ...v, shelf_location: targetShelf } : v,
         ),
       );
-      // Update selected panel to new shelf
       setSelected(targetShelf);
       setDraggingId(null);
 
       // Persist to DB
       setSaving(true);
-      const supabase = createClient();
       const { error } = await supabase
         .from('product_variants')
         .update({ shelf_location: targetShelf })
@@ -121,7 +125,7 @@ export default function ShelfMapClient({
         router.refresh();
       }
     },
-    [draggingId, localVariants, router],
+    [draggingId, localVariants, router, supabase],
   );
 
   const handleDragEnd = useCallback(() => {
@@ -212,16 +216,11 @@ export default function ShelfMapClient({
             แผนผังชั้นวาง ({shelves.length} ชั้น)
           </p>
           <div className='grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2'>
-            {shelves.map(([loc, items]) => {
-              const highlighted = isHighlighted(loc);
-              const dimmed = isDimmed(loc);
+            {shelves.map(({ loc, items, totalStock, lowStock }) => {
+              const highlighted = matchedShelves.has(loc);
+              const dimmed = search.trim() ? !matchedShelves.has(loc) : false;
               const isSelected = selected === loc;
               const isDragTarget = dragOverShelf === loc && draggingId !== null;
-              const totalStock = items.reduce(
-                (s, v) => s + v.stock_quantity,
-                0,
-              );
-              const lowStock = items.some((v) => v.stock_quantity <= 3);
 
               return (
                 <button
@@ -275,7 +274,7 @@ export default function ShelfMapClient({
           <div className='flex flex-wrap gap-4 mt-4 text-xs text-gray-400'>
             <span className='flex items-center gap-1'>
               <span className='w-2 h-2 bg-red-400 rounded-full inline-block' />{' '}
-              สต็อกใกล้หมด (≤3)
+              สต็อกใกล้หมด (≤{LOW_STOCK_THRESHOLD})
             </span>
             {search && (
               <span className='flex items-center gap-1'>
@@ -347,7 +346,7 @@ export default function ShelfMapClient({
                       className={`text-sm font-bold ml-2 flex-shrink-0 ${
                         v.stock_quantity === 0
                           ? 'text-red-500'
-                          : v.stock_quantity <= 3
+                          : v.stock_quantity <= LOW_STOCK_THRESHOLD
                             ? 'text-yellow-600'
                             : 'text-gray-700'
                       }`}

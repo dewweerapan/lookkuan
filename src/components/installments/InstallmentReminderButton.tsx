@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { STORE_NAME } from '@/lib/constants';
+import { formatCurrency } from '@/lib/utils';
 
 interface Props {
   planNumber: string;
@@ -25,43 +27,38 @@ export default function InstallmentReminderButton({
   const handleSend = async () => {
     setSending(true);
 
-    let message: string;
-    if (overduePending > 0) {
-      message =
-        `[LookKuan] แจ้งเตือนค้างชำระ\n` +
-        `ลูกค้า: ${customerName} (${customerPhone})\n` +
-        `แผนผ่อน: ${planNumber}\n` +
-        `ค้างชำระ: ${overduePending} งวด\n` +
-        `กรุณาชำระโดยด่วน`;
-    } else {
-      message =
-        `[LookKuan] แจ้งเตือนครบกำหนด\n` +
-        `ลูกค้า: ${customerName} (${customerPhone})\n` +
-        `แผนผ่อน: ${planNumber}\n` +
-        (nextDueDate ? `งวดถัดไป: ${nextDueDate}` : '') +
-        (nextDueAmount
-          ? ` จำนวน ฿${nextDueAmount.toLocaleString('th-TH')}`
-          : '');
-    }
+    const prefix = `[${STORE_NAME}]`;
+    const customerInfo =
+      `ลูกค้า: ${customerName} (${customerPhone})\n` + `แผนผ่อน: ${planNumber}\n`;
 
-    const res = await fetch('/api/notifications/line', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message }),
-    });
-    setSending(false);
+    const message =
+      overduePending > 0
+        ? `${prefix} แจ้งเตือนค้างชำระ\n` +
+          customerInfo +
+          `ค้างชำระ: ${overduePending} งวด\n` +
+          `กรุณาชำระโดยด่วน`
+        : `${prefix} แจ้งเตือนครบกำหนด\n` +
+          customerInfo +
+          (nextDueDate ? `งวดถัดไป: ${nextDueDate}` : '') +
+          (nextDueAmount ? ` จำนวน ${formatCurrency(nextDueAmount)}` : '');
 
-    if (res.ok) {
-      toast.success('ส่งแจ้งเตือน Line สำเร็จ');
-    } else {
-      const data = await res.json().catch(() => ({}));
-      if (data.error?.includes('not configured')) {
-        toast.error(
-          'ยังไม่ได้ตั้งค่า Line Notify Token (ตั้งค่า → การแจ้งเตือน)',
-        );
+    try {
+      const res = await fetch('/api/notifications/line', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message }),
+      });
+
+      if (res.ok) {
+        toast.success('ส่งแจ้งเตือน Line สำเร็จ');
+      } else if (res.status === 422) {
+        toast.error('ยังไม่ได้ตั้งค่า Line Notify Token (ตั้งค่า → การแจ้งเตือน)');
       } else {
+        const data = await res.json().catch(() => ({}));
         toast.error(data.error || 'ส่งแจ้งเตือนไม่สำเร็จ');
       }
+    } finally {
+      setSending(false);
     }
   };
 

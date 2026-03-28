@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 
@@ -12,6 +12,7 @@ const SETTINGS_KEYS = [
 ];
 
 export default function NotificationSettings() {
+  const supabase = useMemo(() => createClient(), []);
   const [token, setToken] = useState('');
   const [notifyLowStock, setNotifyLowStock] = useState(false);
   const [notifyNewOrder, setNotifyNewOrder] = useState(false);
@@ -22,25 +23,29 @@ export default function NotificationSettings() {
   const [showToken, setShowToken] = useState(false);
 
   useEffect(() => {
-    const supabase = createClient();
+    let mounted = true;
     supabase
       .from('store_settings')
       .select('key, value')
       .in('key', SETTINGS_KEYS)
       .then(({ data }) => {
-        if (!data) return;
-        const map = Object.fromEntries(data.map((r) => [r.key, r.value]));
-        setToken(map.line_notify_token ?? '');
-        setNotifyLowStock(map.notify_low_stock === 'true');
-        setNotifyNewOrder(map.notify_new_order === 'true');
-        setNotifyInstallment(map.notify_installment_due === 'true');
+        if (!mounted) return;
+        if (data) {
+          const map = Object.fromEntries(data.map((r) => [r.key, r.value]));
+          setToken(map.line_notify_token ?? '');
+          setNotifyLowStock(map.notify_low_stock === 'true');
+          setNotifyNewOrder(map.notify_new_order === 'true');
+          setNotifyInstallment(map.notify_installment_due === 'true');
+        }
         setLoading(false);
       });
-  }, []);
+    return () => {
+      mounted = false;
+    };
+  }, [supabase]);
 
   const handleSave = async () => {
     setSaving(true);
-    const supabase = createClient();
     const rows = [
       { key: 'line_notify_token', value: token.trim() || null },
       { key: 'notify_low_stock', value: String(notifyLowStock) },
@@ -87,7 +92,6 @@ export default function NotificationSettings() {
         ตั้งค่าการแจ้งเตือนผ่าน Line Notify
       </p>
 
-      {/* Line Notify token */}
       <div className='mb-5'>
         <label className='pos-label'>Line Notify Token</label>
         <div className='flex gap-2'>

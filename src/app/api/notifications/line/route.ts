@@ -1,40 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { ROLES } from '@/lib/constants';
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
 
-  // Auth check — admin/manager only
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single();
+  let body: { message?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+  }
 
-  if (!profile || !['admin', 'manager'].includes(profile.role)) {
+  const { message } = body;
+  if (!message) return NextResponse.json({ error: 'message is required' }, { status: 400 });
+
+  const [{ data: profile }, { data: setting }] = await Promise.all([
+    supabase.from('profiles').select('role').eq('id', user.id).single(),
+    supabase
+      .from('store_settings')
+      .select('value')
+      .eq('key', 'line_notify_token')
+      .maybeSingle(),
+  ]);
+
+  if (!profile || (profile.role !== ROLES.ADMIN && profile.role !== ROLES.MANAGER)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  // Read message from body
-  const { message } = await req.json();
-  if (!message) return NextResponse.json({ error: 'message is required' }, { status: 400 });
-
-  // Get Line Notify token from store_settings
-  const { data: setting } = await supabase
-    .from('store_settings')
-    .select('value')
-    .eq('key', 'line_notify_token')
-    .maybeSingle();
-
   const token = setting?.value;
   if (!token) {
-    return NextResponse.json({ error: 'Line Notify token is not configured' }, { status: 422 });
+    return NextResponse.json(
+      { error: 'Line Notify token is not configured' },
+      { status: 422 },
+    );
   }
 
-  // Send via Line Notify API
   const form = new URLSearchParams({ message: `\n${message}` });
   const response = await fetch('https://notify-api.line.me/api/notify', {
     method: 'POST',
@@ -47,7 +53,10 @@ export async function POST(req: NextRequest) {
 
   if (!response.ok) {
     const text = await response.text();
-    return NextResponse.json({ error: `Line API error: ${text}` }, { status: response.status });
+    return NextResponse.json(
+      { error: `Line API error: ${text}` },
+      { status: response.status },
+    );
   }
 
   return NextResponse.json({ success: true });

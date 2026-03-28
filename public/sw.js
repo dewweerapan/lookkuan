@@ -2,18 +2,20 @@
 const CACHE_NAME = 'lookkuan-v1';
 const OFFLINE_URL = '/offline';
 
-// App shell resources to pre-cache
-const APP_SHELL = ['/', '/offline', '/manifest.json'];
+// Pre-cache static app shell only (no SSR routes — they would cache stale HTML)
+const APP_SHELL = ['/offline', '/manifest.json'];
 
-// Install: pre-cache app shell
+// Install: pre-cache app shell, then activate immediately
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)),
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll(APP_SHELL))
+      .then(() => self.skipWaiting()),
   );
-  self.skipWaiting();
 });
 
-// Activate: clean old caches
+// Activate: clean old caches, then claim all clients
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
@@ -22,9 +24,9 @@ self.addEventListener('activate', (event) => {
         Promise.all(
           keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)),
         ),
-      ),
+      )
+      .then(() => self.clients.claim()),
   );
-  self.clients.claim();
 });
 
 // Fetch strategy
@@ -35,7 +37,7 @@ self.addEventListener('fetch', (event) => {
   // Only handle same-origin requests
   if (url.origin !== self.location.origin) return;
 
-  // Skip API, Supabase, and auth routes
+  // Skip API, Next.js internals, and Supabase
   if (
     url.pathname.startsWith('/api/') ||
     url.pathname.startsWith('/_next/') ||
@@ -54,13 +56,15 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.match(request).then((cached) => {
         if (cached) return cached;
-        return fetch(request).then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          }
-          return response;
-        });
+        return fetch(request)
+          .then((response) => {
+            if (response.ok) {
+              const clone = response.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+            }
+            return response;
+          })
+          .catch(() => new Response('', { status: 503 }));
       }),
     );
     return;
@@ -69,11 +73,16 @@ self.addEventListener('fetch', (event) => {
   // HTML navigation: network-first with offline fallback
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).catch(() =>
-        caches
-          .match(OFFLINE_URL)
-          .then((cached) => cached || new Response('Offline', { status: 503 })),
-      ),
+      fetch(request)
+        .then((response) => {
+          if (!response.ok) throw new Error('HTTP error');
+          return response;
+        })
+        .catch(() =>
+          caches
+            .match(OFFLINE_URL)
+            .then((cached) => cached || new Response('Offline', { status: 503 })),
+        ),
     );
   }
 });
