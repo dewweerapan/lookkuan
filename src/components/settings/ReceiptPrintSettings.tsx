@@ -57,6 +57,7 @@ export default function ReceiptPrintSettings() {
           value,
           updated_at: now,
         })),
+        { onConflict: 'key' },
       );
       toast.success('บันทึกการตั้งค่าใบเสร็จสำเร็จ');
     } catch {

@@ -30,13 +30,10 @@ export default function StoreLogoSettings() {
     setSaving(true);
     try {
       const supabase = createClient();
+      const now = new Date().toISOString();
       await supabase
         .from('store_settings')
-        .upsert({
-          key: STORE_LOGO_URL_KEY,
-          value: url,
-          updated_at: new Date().toISOString(),
-        });
+        .upsert({ key: STORE_LOGO_URL_KEY, value: url, updated_at: now }, { onConflict: 'key' });
       toast.success('บันทึกโลโก้ร้านสำเร็จ');
     } catch {
       toast.error('เกิดข้อผิดพลาดในการบันทึก');
