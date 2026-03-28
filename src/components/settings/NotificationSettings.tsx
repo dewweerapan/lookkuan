@@ -10,6 +10,7 @@ import {
   NOTIFY_INSTALLMENT_DUE_KEY,
 } from '@/lib/constants';
 import { upsertStoreSettings, getStoreSettings } from '@/lib/storeSettings';
+import { useMounted } from '@/hooks/useMounted';
 
 const SETTINGS_KEYS = [
   LINE_NOTIFY_TOKEN_KEY,
@@ -28,12 +29,12 @@ export default function NotificationSettings() {
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [showToken, setShowToken] = useState(false);
+  const mounted = useMounted();
 
   useEffect(() => {
-    let mounted = true;
     getStoreSettings(supabaseRef.current, SETTINGS_KEYS)
       .then((map) => {
-        if (!mounted) return;
+        if (!mounted.current) return;
         setToken(map[LINE_NOTIFY_TOKEN_KEY] ?? '');
         setNotifyLowStock(map[NOTIFY_LOW_STOCK_KEY] === 'true');
         setNotifyNewOrder(map[NOTIFY_NEW_ORDER_KEY] === 'true');
@@ -41,12 +42,9 @@ export default function NotificationSettings() {
         setLoading(false);
       })
       .catch(() => {
-        if (!mounted) return;
+        if (!mounted.current) return;
         setLoading(false);
       });
-    return () => {
-      mounted = false;
-    };
   }, []);
 
   const handleSave = async () => {

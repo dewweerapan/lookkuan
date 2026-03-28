@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { createClient } from '@/lib/supabase/client';
 import { STORE_LOGO_URL_KEY } from '@/lib/constants';
 import { getStoreSetting } from '@/lib/storeSettings';
+import { useMounted } from '@/hooks/useMounted';
 import {
   LayoutDashboard,
   Package,
@@ -98,16 +99,13 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [storeLogo, setStoreLogo] = useState<string | null>(null);
+  const mounted = useMounted();
 
   useEffect(() => {
-    let mounted = true;
     const supabase = createClient();
     getStoreSetting(supabase, STORE_LOGO_URL_KEY)
-      .then((url) => { if (mounted) setStoreLogo(url); })
+      .then((url) => { if (mounted.current) setStoreLogo(url); })
       .catch(() => {});
-    return () => {
-      mounted = false;
-    };
   }, []);
 
   // hasRole already falls back to cached localStorage role, so no need to check loading

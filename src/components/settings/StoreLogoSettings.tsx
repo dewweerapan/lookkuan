@@ -6,29 +6,27 @@ import ImageUpload from '@/components/shared/ImageUpload';
 import { toast } from 'sonner';
 import { STORE_LOGO_URL_KEY } from '@/lib/constants';
 import { upsertStoreSettings, getStoreSetting } from '@/lib/storeSettings';
+import { useMounted } from '@/hooks/useMounted';
 
 export default function StoreLogoSettings() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const mounted = useMounted();
 
   useEffect(() => {
-    let mounted = true;
     const loadSettings = async () => {
       try {
         const supabase = createClient();
         const url = await getStoreSetting(supabase, STORE_LOGO_URL_KEY);
-        if (mounted) setLogoUrl(url);
+        if (mounted.current) setLogoUrl(url);
       } catch {
         // leave logoUrl as null
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted.current) setLoading(false);
       }
     };
     loadSettings();
-    return () => {
-      mounted = false;
-    };
   }, []);
 
   const handleSave = async (url: string | null) => {

@@ -11,6 +11,7 @@ import {
   RECEIPT_SHOW_PAYMENT_METHOD_KEY,
 } from '@/lib/constants';
 import { upsertStoreSettings, getStoreSettings } from '@/lib/storeSettings';
+import { useMounted } from '@/hooks/useMounted';
 
 const DEFAULTS = {
   [RECEIPT_SHOW_LOGO_KEY]: 'true',
@@ -26,14 +27,14 @@ export default function ReceiptPrintSettings() {
   const [settings, setSettings] = useState<Settings>({ ...DEFAULTS });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const mounted = useMounted();
 
   useEffect(() => {
-    let mounted = true;
     const load = async () => {
       try {
         const supabase = createClient();
         const data = await getStoreSettings(supabase, Object.keys(DEFAULTS));
-        if (!mounted) return;
+        if (!mounted.current) return;
         const map: Partial<Settings> = {};
         Object.entries(data).forEach(([key, value]) => {
           (map as Record<string, string>)[key] =
@@ -43,13 +44,10 @@ export default function ReceiptPrintSettings() {
       } catch {
         // leave DEFAULTS on error
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted.current) setLoading(false);
       }
     };
     load();
-    return () => {
-      mounted = false;
-    };
   }, []);
 
   const handleSave = async () => {
