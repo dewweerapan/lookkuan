@@ -5,6 +5,7 @@ import { JOB_STATUS_LABELS, JOB_STATUS_COLORS, type JobStatus } from '@/lib/cons
 import PageHeader from '@/components/shared/PageHeader'
 import JobOrderActions from '@/components/job-orders/JobOrderActions'
 import JobOrderShare from '@/components/job-orders/JobOrderShare'
+import JobOrderPrint from '@/components/job-orders/JobOrderPrint'
 
 async function getJobOrder(id: string) {
   const supabase = await createClient()
@@ -52,7 +53,16 @@ export default async function JobOrderDetailPage({ params }: { params: { id: str
       <PageHeader
         title={`งานปัก ${job.order_number}`}
         backHref="/job-orders"
-        actions={<JobOrderActions jobOrder={job} />}
+        actions={
+          <div className="flex gap-3 flex-wrap">
+            <JobOrderPrint
+              job={job}
+              storeName={process.env.NEXT_PUBLIC_STORE_NAME}
+              storePhone={process.env.NEXT_PUBLIC_STORE_PHONE}
+            />
+            <JobOrderActions jobOrder={job} />
+          </div>
+        }
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
