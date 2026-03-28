@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { formatCurrency, formatDateTime } from '@/lib/utils'
 import PageHeader from '@/components/shared/PageHeader'
 import ProductDetailClient from '@/components/inventory/ProductDetailClient'
+import type { ProductVariant } from '@/types/database'
 
 async function getProduct(id: string) {
   const supabase = await createClient()
@@ -54,8 +55,8 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
     notFound()
   }
 
-  const totalStock = product.variants?.reduce((s: number, v: any) => s + v.stock_quantity, 0) || 0
-  const totalValue = product.variants?.reduce((s: number, v: any) => {
+  const totalStock = product.variants?.reduce((s: number, v: ProductVariant) => s + v.stock_quantity, 0) || 0
+  const totalValue = product.variants?.reduce((s: number, v: ProductVariant) => {
     const price = v.price_override || product.base_price
     return s + price * v.stock_quantity
   }, 0) || 0

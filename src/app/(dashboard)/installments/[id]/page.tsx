@@ -5,6 +5,17 @@ import PageHeader from '@/components/shared/PageHeader';
 import InstallmentPaymentActions from '@/components/installments/InstallmentPaymentActions';
 import InstallmentReminderButton from '@/components/installments/InstallmentReminderButton';
 
+interface InstallmentPayment {
+  id: string;
+  plan_id: string;
+  installment_number: number;
+  due_date: string;
+  amount: number;
+  status: 'pending' | 'paid' | 'overdue';
+  paid_at: string | null;
+  note: string | null;
+}
+
 const STATUS_LABELS: Record<string, string> = {
   active: 'กำลังผ่อน',
   completed: 'ชำระครบ',
@@ -46,19 +57,18 @@ export default async function InstallmentDetailPage({
   const plan = await getInstallmentPlan(params.id);
   if (!plan) notFound();
 
-  const paidCount = plan.payments.filter(
-    (p: any) => p.status === 'paid',
-  ).length;
-  const totalPaid = plan.payments
-    .filter((p: any) => p.status === 'paid')
-    .reduce((sum: number, p: any) => sum + Number(p.amount), 0);
+  const payments = plan.payments as InstallmentPayment[];
+  const paidCount = payments.filter((p) => p.status === 'paid').length;
+  const totalPaid = payments
+    .filter((p) => p.status === 'paid')
+    .reduce((sum, p) => sum + Number(p.amount), 0);
   const today = new Date().toISOString().split('T')[0];
 
-  const overduePending = plan.payments.filter(
-    (p: any) => p.status === 'pending' && p.due_date < today,
+  const overduePending = payments.filter(
+    (p) => p.status === 'pending' && p.due_date < today,
   ).length;
-  const nextPending = plan.payments.find(
-    (p: any) => p.status === 'pending' && p.due_date >= today,
+  const nextPending = payments.find(
+    (p) => p.status === 'pending' && p.due_date >= today,
   );
 
   return (
@@ -88,7 +98,7 @@ export default async function InstallmentDetailPage({
               />
             </div>
             <div className='space-y-2'>
-              {plan.payments.map((payment: any) => {
+              {payments.map((payment) => {
                 const isOverdue =
                   payment.status === 'pending' && payment.due_date < today;
                 return (

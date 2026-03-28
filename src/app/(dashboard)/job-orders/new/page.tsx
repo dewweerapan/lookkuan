@@ -100,9 +100,9 @@ export default function NewJobOrderPage() {
       toast.success('สร้างใบสั่งงานปักสำเร็จ');
       router.push('/job-orders');
       router.refresh();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error creating job order:', error);
-      toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
+      toast.error(`เกิดข้อผิดพลาด: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }

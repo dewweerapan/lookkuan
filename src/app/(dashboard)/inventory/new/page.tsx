@@ -7,6 +7,7 @@ import { generateSKU } from '@/lib/utils';
 import PageHeader from '@/components/shared/PageHeader';
 import ImageUpload from '@/components/shared/ImageUpload';
 import { toast } from 'sonner';
+import type { Category } from '@/types/database';
 
 interface VariantInput {
   color: string;
@@ -20,7 +21,7 @@ interface VariantInput {
 export default function NewProductPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoaded, setCategoriesLoaded] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
@@ -88,7 +89,7 @@ export default function NewProductPage() {
     setVariants((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const updateVariant = (index: number, field: string, value: any) => {
+  const updateVariant = (index: number, field: keyof VariantInput, value: string | number) => {
     setVariants((prev) =>
       prev.map((v, i) => (i === index ? { ...v, [field]: value } : v)),
     );
@@ -176,9 +177,9 @@ export default function NewProductPage() {
       toast.success('เพิ่มสินค้าสำเร็จ');
       router.push('/inventory');
       router.refresh();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error creating product:', error);
-      toast.error(`เกิดข้อผิดพลาด: ${error.message || 'กรุณาลองใหม่'}`);
+      toast.error(`เกิดข้อผิดพลาด: ${error instanceof Error ? error.message : 'กรุณาลองใหม่'}`);
     } finally {
       setLoading(false);
     }

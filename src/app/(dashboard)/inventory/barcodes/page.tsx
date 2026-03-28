@@ -1,6 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import PageHeader from '@/components/shared/PageHeader'
 import BarcodePrintClient from '@/components/inventory/BarcodePrintClient'
+import type { Product, ProductVariant } from '@/types/database'
+
+type ProductWithVariants = Product & { variants: ProductVariant[] }
 
 export default async function BarcodesPage() {
   const supabase = await createClient()
@@ -18,7 +21,7 @@ export default async function BarcodesPage() {
         description="เลือกสินค้าและพิมพ์สติ๊กเกอร์บาร์โค้ดติดสินค้า"
         backHref="/inventory"
       />
-      <BarcodePrintClient products={(products || []) as any} />
+      <BarcodePrintClient products={(products || []) as unknown as ProductWithVariants[]} />
     </div>
   )
 }

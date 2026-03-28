@@ -15,7 +15,12 @@ async function getInstallmentPlans() {
   return data || [];
 }
 
-async function getStats(plans: any[]) {
+interface PlanRow {
+  status: string;
+  balance_amount: number;
+}
+
+async function getStats(plans: PlanRow[]) {
   const active = plans.filter((p) => p.status === 'active').length;
   const overdue = plans.filter((p) => p.status === 'overdue').length;
   const totalBalance = plans

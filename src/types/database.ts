@@ -48,6 +48,7 @@ export interface ProductVariant {
   stock_quantity: number
   low_stock_threshold: number
   price_override: number | null
+  shelf_location: string | null
   is_active: boolean
   created_at: string
   updated_at: string
@@ -178,8 +179,8 @@ export interface AuditLog {
   action: string
   entity_type: string
   entity_id: string
-  old_value: any | null
-  new_value: any | null
+  old_value: Record<string, unknown> | null
+  new_value: Record<string, unknown> | null
   ip_address: string | null
   created_at: string
   // Relations

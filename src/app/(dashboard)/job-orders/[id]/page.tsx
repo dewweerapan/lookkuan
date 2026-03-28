@@ -6,6 +6,16 @@ import {
   JOB_STATUS_COLORS,
   type JobStatus,
 } from '@/lib/constants';
+
+interface AuditLogEntry {
+  id: string;
+  action: string;
+  old_value: Record<string, unknown> | null;
+  new_value: Record<string, unknown> | null;
+  created_at: string;
+  user_id: string;
+  user_name: string;
+}
 import PageHeader from '@/components/shared/PageHeader';
 import JobOrderActions from '@/components/job-orders/JobOrderActions';
 import JobOrderShare from '@/components/job-orders/JobOrderShare';
@@ -51,7 +61,7 @@ async function getJobOrder(id: string) {
 
   // Step 4: Fetch audit log user names
   const auditUserIds = (auditLogs || [])
-    .map((l: any) => l.user_id)
+    .map((l) => l.user_id)
     .filter(Boolean)
     .filter((id: string, i: number, arr: string[]) => arr.indexOf(id) === i);
   let auditUserMap: Record<string, string> = {};
@@ -75,7 +85,7 @@ async function getJobOrder(id: string) {
     assigned_staff: job.assigned_to
       ? (staffMap[job.assigned_to] ?? null)
       : null,
-    auditLogs: (auditLogs || []).map((l: any) => ({
+    auditLogs: (auditLogs || []).map((l): AuditLogEntry => ({
       ...l,
       user_name: auditUserMap[l.user_id] || 'ระบบ',
     })),
@@ -217,7 +227,7 @@ export default async function JobOrderDetailPage({
                 📋 ประวัติการเปลี่ยนสถานะ
               </h2>
               <div className='space-y-3'>
-                {job.auditLogs.map((log: any) => (
+                {job.auditLogs.map((log: AuditLogEntry) => (
                   <div key={log.id} className='flex items-start gap-3'>
                     <div className='w-2 h-2 rounded-full bg-brand-400 mt-2 flex-shrink-0' />
                     <div className='flex-1 min-w-0'>
@@ -226,13 +236,13 @@ export default async function JobOrderDetailPage({
                           {JOB_STATUS_LABELS[
                             log.old_value?.status as JobStatus
                           ] ||
-                            log.old_value?.status ||
+                            (log.old_value?.status as string) ||
                             '?'}
                           {' → '}
                           {JOB_STATUS_LABELS[
                             log.new_value?.status as JobStatus
                           ] ||
-                            log.new_value?.status ||
+                            (log.new_value?.status as string) ||
                             '?'}
                         </p>
                         <span className='text-xs text-gray-400 flex-shrink-0'>
@@ -289,24 +299,24 @@ export default async function JobOrderDetailPage({
                 📋 ประวัติการเปลี่ยนสถานะ
               </h2>
               <div className='space-y-3'>
-                {job.auditLogs.map((log: any, i: number) => (
+                {job.auditLogs.map((log: AuditLogEntry, i: number) => (
                   <div key={log.id} className='flex items-center gap-3 text-sm'>
                     <div className='w-2 h-2 rounded-full bg-brand-400 flex-shrink-0 mt-0.5' />
                     <div className='flex-1'>
                       <span
-                        className={`status-badge text-xs mr-1 ${JOB_STATUS_COLORS[(log.old_value as any)?.status as JobStatus]}`}
+                        className={`status-badge text-xs mr-1 ${JOB_STATUS_COLORS[log.old_value?.status as JobStatus]}`}
                       >
                         {JOB_STATUS_LABELS[
-                          (log.old_value as any)?.status as JobStatus
-                        ] || (log.old_value as any)?.status}
+                          log.old_value?.status as JobStatus
+                        ] || (log.old_value?.status as string)}
                       </span>
                       <span className='text-gray-400 mx-1'>→</span>
                       <span
-                        className={`status-badge text-xs ${JOB_STATUS_COLORS[(log.new_value as any)?.status as JobStatus]}`}
+                        className={`status-badge text-xs ${JOB_STATUS_COLORS[log.new_value?.status as JobStatus]}`}
                       >
                         {JOB_STATUS_LABELS[
-                          (log.new_value as any)?.status as JobStatus
-                        ] || (log.new_value as any)?.status}
+                          log.new_value?.status as JobStatus
+                        ] || (log.new_value?.status as string)}
                       </span>
                     </div>
                     <div className='text-right text-gray-400 text-xs flex-shrink-0'>

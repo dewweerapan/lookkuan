@@ -83,7 +83,7 @@ export default function InventoryImportClient() {
         .from('categories')
         .select('id, name');
       const catMap = new Map(
-        (cats || []).map((c: any) => [c.name as string, c.id as string]),
+        (cats || []).map((c) => [c.name as string, c.id as string]),
       );
 
       // Group rows by product name
@@ -109,8 +109,8 @@ export default function InventoryImportClient() {
               .select('id')
               .single();
             if (newCat) {
-              catMap.set(catName, (newCat as any).id);
-              catId = (newCat as any).id;
+              catMap.set(catName, (newCat as { id: string }).id);
+              catId = (newCat as { id: string }).id;
             }
           } else {
             catId = catMap.get(catName) || null;
@@ -140,8 +140,8 @@ export default function InventoryImportClient() {
               is_active: isActive,
               category_id: catId,
             })
-            .eq('id', (existing as any).id);
-          productId = (existing as any).id;
+            .eq('id', (existing as { id: string }).id);
+          productId = (existing as { id: string }).id;
           updated++;
         } else {
           const { data: newProduct, error: pErr } = await supabase
@@ -157,7 +157,7 @@ export default function InventoryImportClient() {
             .single();
           if (pErr || !newProduct)
             throw pErr || new Error('Insert product failed');
-          productId = (newProduct as any).id;
+          productId = (newProduct as { id: string }).id;
           inserted++;
         }
 
@@ -188,7 +188,7 @@ export default function InventoryImportClient() {
                   low_stock_threshold: variantData.low_stock_threshold,
                   barcode: variantData.barcode,
                 })
-                .eq('id', (exV as any).id);
+                .eq('id', (exV as { id: string }).id);
             } else {
               await supabase.from('product_variants').insert(variantData);
             }
@@ -203,8 +203,8 @@ export default function InventoryImportClient() {
       toast.success(
         `นำเข้าสำเร็จ: เพิ่ม ${inserted} · อัปเดต ${updated} รายการ`,
       );
-    } catch (err: any) {
-      toast.error(`เกิดข้อผิดพลาด: ${err.message}`);
+    } catch (err) {
+      toast.error(`เกิดข้อผิดพลาด: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setImporting(false);
     }

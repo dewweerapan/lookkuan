@@ -116,8 +116,8 @@ export default function NewInstallmentPage() {
 
       toast.success(`สร้างแผนผ่อน ${planNumber} สำเร็จ`);
       router.push(`/installments/${plan!.id}`);
-    } catch (err: any) {
-      toast.error(`เกิดข้อผิดพลาด: ${err.message}`);
+    } catch (err) {
+      toast.error(`เกิดข้อผิดพลาด: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }

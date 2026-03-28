@@ -7,19 +7,31 @@ interface Props {
   onClose: () => void
 }
 
+// Minimal interface for the html5-qrcode scanner (no official @types package)
+interface Html5QrcodeScanner {
+  isScanning: boolean
+  start(
+    cameraId: string,
+    config: { fps: number; qrbox: { width: number; height: number } },
+    onSuccess: (decodedText: string) => void,
+    onError: () => void,
+  ): Promise<void>
+  stop(): Promise<void>
+}
+
 export default function CameraScanner({ onScan, onClose }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [scanning, setScanning] = useState(false)
-  const scannerRef = useRef<any>(null)
+  const scannerRef = useRef<Html5QrcodeScanner | null>(null)
   const containerId = 'camera-scanner-container'
 
   useEffect(() => {
-    let html5QrCode: any = null
+    let html5QrCode: Html5QrcodeScanner | null = null
 
     const startScanner = async () => {
       try {
         const { Html5Qrcode } = await import('html5-qrcode')
-        html5QrCode = new Html5Qrcode(containerId)
+        html5QrCode = new Html5Qrcode(containerId) as unknown as Html5QrcodeScanner
         scannerRef.current = html5QrCode
 
         const cameras = await Html5Qrcode.getCameras()
@@ -41,8 +53,8 @@ export default function CameraScanner({ onScan, onClose }: Props) {
           () => {} // Ignore decode errors (continuous scanning)
         )
         setScanning(true)
-      } catch (err: any) {
-        setError(err?.message || 'ไม่สามารถเปิดกล้องได้')
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'ไม่สามารถเปิดกล้องได้')
       }
     }
 

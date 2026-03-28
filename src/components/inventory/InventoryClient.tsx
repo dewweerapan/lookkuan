@@ -6,10 +6,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { formatCurrency } from '@/lib/utils';
 import SearchInput from '@/components/shared/SearchInput';
 import EmptyState from '@/components/shared/EmptyState';
-import type { Product, Category } from '@/types/database';
+import type { Product, Category, ProductVariant } from '@/types/database';
 
 interface InventoryClientProps {
-  products: (Product & { category: Category | null; variants: any[] })[];
+  products: (Product & { category: Category | null; variants: ProductVariant[] })[];
   categories: Category[];
   defaultFilter?: string;
   totalPages: number;
@@ -70,7 +70,7 @@ export default function InventoryClient({
     () =>
       products.filter((p) =>
         p.variants?.some(
-          (v: any) => v.stock_quantity <= v.low_stock_threshold && v.is_active,
+          (v) => v.stock_quantity <= v.low_stock_threshold && v.is_active,
         ),
       ),
     [products],
@@ -83,7 +83,7 @@ export default function InventoryClient({
         !search ||
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         p.sku_prefix.toLowerCase().includes(search.toLowerCase()) ||
-        p.variants?.some((v: any) =>
+        p.variants?.some((v) =>
           v.sku.toLowerCase().includes(search.toLowerCase()),
         );
 
@@ -181,11 +181,11 @@ export default function InventoryClient({
             {filtered.map((product) => {
               const totalStock =
                 product.variants?.reduce(
-                  (sum: number, v: any) => sum + v.stock_quantity,
+                  (sum: number, v) => sum + v.stock_quantity,
                   0,
                 ) || 0;
               const hasLowStock = product.variants?.some(
-                (v: any) =>
+                (v) =>
                   v.stock_quantity <= v.low_stock_threshold && v.is_active,
               );
               return (
@@ -257,11 +257,11 @@ export default function InventoryClient({
                 {filtered.map((product) => {
                   const totalStock =
                     product.variants?.reduce(
-                      (sum: number, v: any) => sum + v.stock_quantity,
+                      (sum: number, v) => sum + v.stock_quantity,
                       0,
                     ) || 0;
                   const hasLowStock = product.variants?.some(
-                    (v: any) =>
+                    (v) =>
                       v.stock_quantity <= v.low_stock_threshold && v.is_active,
                   );
 

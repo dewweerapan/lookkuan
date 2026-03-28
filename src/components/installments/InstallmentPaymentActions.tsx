@@ -44,8 +44,8 @@ export default function InstallmentPaymentActions({
 
       toast.success('บันทึกการชำระสำเร็จ');
       router.refresh();
-    } catch (err: any) {
-      toast.error(`เกิดข้อผิดพลาด: ${err.message}`);
+    } catch (err) {
+      toast.error(`เกิดข้อผิดพลาด: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }

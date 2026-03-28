@@ -1,5 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import POSClient from '@/components/pos/POSClient'
+import type { Product, ProductVariant } from '@/types/database'
+
+type ProductWithVariants = Product & { variants: ProductVariant[] }
 
 // Server Component — fetches data server-side (fast, no timeout)
 export default async function POSPage() {
@@ -21,7 +24,7 @@ export default async function POSPage() {
   return (
     <POSClient
       categories={categories || []}
-      products={(products || []) as any}
+      products={(products || []) as unknown as ProductWithVariants[]}
     />
   )
 }

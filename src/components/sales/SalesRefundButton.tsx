@@ -77,8 +77,8 @@ export default function SalesRefundButton({
       toast.success(`คืนสินค้าบิล ${saleNumber} สำเร็จ`);
       setOpen(false);
       router.refresh();
-    } catch (err: any) {
-      toast.error(`เกิดข้อผิดพลาด: ${err.message}`);
+    } catch (err) {
+      toast.error(`เกิดข้อผิดพลาด: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }

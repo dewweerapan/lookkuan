@@ -34,6 +34,7 @@ function makeVariant(
     stock_quantity: 10,
     low_stock_threshold: 3,
     price_override: null,
+    shelf_location: null,
     is_active: true,
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z',
