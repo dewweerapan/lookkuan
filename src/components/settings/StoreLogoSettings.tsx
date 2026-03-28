@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import ImageUpload from '@/components/shared/ImageUpload';
 import { toast } from 'sonner';
 import { STORE_LOGO_URL_KEY } from '@/lib/constants';
+import { upsertStoreSettings } from '@/lib/storeSettings';
 
 export default function StoreLogoSettings() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -30,10 +31,7 @@ export default function StoreLogoSettings() {
     setSaving(true);
     try {
       const supabase = createClient();
-      const now = new Date().toISOString();
-      await supabase
-        .from('store_settings')
-        .upsert({ key: STORE_LOGO_URL_KEY, value: url, updated_at: now }, { onConflict: 'key' });
+      await upsertStoreSettings(supabase, { [STORE_LOGO_URL_KEY]: url });
       toast.success('บันทึกโลโก้ร้านสำเร็จ');
     } catch {
       toast.error('เกิดข้อผิดพลาดในการบันทึก');

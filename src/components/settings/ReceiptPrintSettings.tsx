@@ -10,6 +10,7 @@ import {
   RECEIPT_FOOTER_MESSAGE_KEY,
   RECEIPT_SHOW_PAYMENT_METHOD_KEY,
 } from '@/lib/constants';
+import { upsertStoreSettings } from '@/lib/storeSettings';
 
 const DEFAULTS = {
   [RECEIPT_SHOW_LOGO_KEY]: 'true',
@@ -50,15 +51,7 @@ export default function ReceiptPrintSettings() {
     setSaving(true);
     try {
       const supabase = createClient();
-      const now = new Date().toISOString();
-      await supabase.from('store_settings').upsert(
-        Object.entries(settings).map(([key, value]) => ({
-          key,
-          value,
-          updated_at: now,
-        })),
-        { onConflict: 'key' },
-      );
+      await upsertStoreSettings(supabase, settings);
       toast.success('บันทึกการตั้งค่าใบเสร็จสำเร็จ');
     } catch {
       toast.error('เกิดข้อผิดพลาดในการบันทึก');
