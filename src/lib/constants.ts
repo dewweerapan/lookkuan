@@ -8,6 +8,11 @@ export const NOTIFY_LOW_STOCK_KEY = 'notify_low_stock'
 export const NOTIFY_NEW_ORDER_KEY = 'notify_new_order'
 export const NOTIFY_INSTALLMENT_DUE_KEY = 'notify_installment_due'
 export const STORE_LOGO_URL_KEY = 'store_logo_url'
+export const RECEIPT_SHOW_LOGO_KEY = 'receipt_show_logo'
+export const RECEIPT_SHOW_ADDRESS_KEY = 'receipt_show_address'
+export const RECEIPT_SHOW_PHONE_KEY = 'receipt_show_phone'
+export const RECEIPT_FOOTER_MESSAGE_KEY = 'receipt_footer_message'
+export const RECEIPT_SHOW_PAYMENT_METHOD_KEY = 'receipt_show_payment_method'
 
 export const ROLES = {
   ADMIN: 'admin',

@@ -12,10 +12,7 @@ async function getShelfData() {
     )
     .not('shelf_location', 'is', null)
     .order('shelf_location');
-  return (data || []).map((v) => ({
-    ...v,
-    product: v.product as unknown as Variant['product'],
-  }));
+  return (data || []) as unknown as Variant[];
 }
 
 export default async function InventoryMapPage() {

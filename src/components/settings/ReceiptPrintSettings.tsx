@@ -3,13 +3,20 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
+import {
+  RECEIPT_SHOW_LOGO_KEY,
+  RECEIPT_SHOW_ADDRESS_KEY,
+  RECEIPT_SHOW_PHONE_KEY,
+  RECEIPT_FOOTER_MESSAGE_KEY,
+  RECEIPT_SHOW_PAYMENT_METHOD_KEY,
+} from '@/lib/constants';
 
 const DEFAULTS = {
-  receipt_show_logo: 'true',
-  receipt_show_address: 'true',
-  receipt_show_phone: 'true',
-  receipt_footer_message: 'ขอบคุณที่ใช้บริการ',
-  receipt_show_payment_method: 'true',
+  [RECEIPT_SHOW_LOGO_KEY]: 'true',
+  [RECEIPT_SHOW_ADDRESS_KEY]: 'true',
+  [RECEIPT_SHOW_PHONE_KEY]: 'true',
+  [RECEIPT_FOOTER_MESSAGE_KEY]: 'ขอบคุณที่ใช้บริการ',
+  [RECEIPT_SHOW_PAYMENT_METHOD_KEY]: 'true',
 };
 
 type Settings = typeof DEFAULTS;
