@@ -1,19 +1,25 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
-import { LINE_NOTIFY_TOKEN_KEY } from '@/lib/constants';
+import {
+  LINE_NOTIFY_TOKEN_KEY,
+  NOTIFY_LOW_STOCK_KEY,
+  NOTIFY_NEW_ORDER_KEY,
+  NOTIFY_INSTALLMENT_DUE_KEY,
+} from '@/lib/constants';
 
 const SETTINGS_KEYS = [
   LINE_NOTIFY_TOKEN_KEY,
-  'notify_low_stock',
-  'notify_new_order',
-  'notify_installment_due',
+  NOTIFY_LOW_STOCK_KEY,
+  NOTIFY_NEW_ORDER_KEY,
+  NOTIFY_INSTALLMENT_DUE_KEY,
 ];
 
 export default function NotificationSettings() {
-  const supabase = useMemo(() => createClient(), []);
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
+  if (!supabaseRef.current) supabaseRef.current = createClient();
   const [token, setToken] = useState('');
   const [notifyLowStock, setNotifyLowStock] = useState(false);
   const [notifyNewOrder, setNotifyNewOrder] = useState(false);
@@ -25,7 +31,7 @@ export default function NotificationSettings() {
 
   useEffect(() => {
     let mounted = true;
-    supabase
+    supabaseRef.current!
       .from('store_settings')
       .select('key, value')
       .in('key', SETTINGS_KEYS)
@@ -34,26 +40,26 @@ export default function NotificationSettings() {
         if (data) {
           const map = Object.fromEntries(data.map((r) => [r.key, r.value]));
           setToken(map[LINE_NOTIFY_TOKEN_KEY] ?? '');
-          setNotifyLowStock(map.notify_low_stock === 'true');
-          setNotifyNewOrder(map.notify_new_order === 'true');
-          setNotifyInstallment(map.notify_installment_due === 'true');
+          setNotifyLowStock(map[NOTIFY_LOW_STOCK_KEY] === 'true');
+          setNotifyNewOrder(map[NOTIFY_NEW_ORDER_KEY] === 'true');
+          setNotifyInstallment(map[NOTIFY_INSTALLMENT_DUE_KEY] === 'true');
         }
         setLoading(false);
       });
     return () => {
       mounted = false;
     };
-  }, [supabase]);
+  }, []);
 
   const handleSave = async () => {
     setSaving(true);
     const rows = [
       { key: LINE_NOTIFY_TOKEN_KEY, value: token.trim() || null },
-      { key: 'notify_low_stock', value: String(notifyLowStock) },
-      { key: 'notify_new_order', value: String(notifyNewOrder) },
-      { key: 'notify_installment_due', value: String(notifyInstallment) },
+      { key: NOTIFY_LOW_STOCK_KEY, value: String(notifyLowStock) },
+      { key: NOTIFY_NEW_ORDER_KEY, value: String(notifyNewOrder) },
+      { key: NOTIFY_INSTALLMENT_DUE_KEY, value: String(notifyInstallment) },
     ];
-    const { error } = await supabase
+    const { error } = await supabaseRef.current!
       .from('store_settings')
       .upsert(rows, { onConflict: 'key' });
     setSaving(false);

@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import PageHeader from '@/components/shared/PageHeader';
-import ShelfMapClient from '@/components/inventory/ShelfMapClient';
+import ShelfMapClient, { type Variant } from '@/components/inventory/ShelfMapClient';
 import Link from 'next/link';
 
 async function getShelfData() {
@@ -12,10 +12,7 @@ async function getShelfData() {
     )
     .not('shelf_location', 'is', null)
     .order('shelf_location');
-  return (data || []).map((v) => ({
-    ...v,
-    product: Array.isArray(v.product) ? (v.product[0] ?? null) : v.product,
-  }));
+  return (data || []) as unknown as Variant[];
 }
 
 export default async function InventoryMapPage() {

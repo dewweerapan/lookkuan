@@ -20,21 +20,18 @@ export async function POST(req: NextRequest) {
   const { message } = body;
   if (!message) return NextResponse.json({ error: 'message is required' }, { status: 400 });
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single();
+  const [{ data: profile }, { data: setting }] = await Promise.all([
+    supabase.from('profiles').select('role').eq('id', user.id).single(),
+    supabase
+      .from('store_settings')
+      .select('value')
+      .eq('key', LINE_NOTIFY_TOKEN_KEY)
+      .maybeSingle(),
+  ]);
 
   if (!profile || (profile.role !== ROLES.ADMIN && profile.role !== ROLES.MANAGER)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
-
-  const { data: setting } = await supabase
-    .from('store_settings')
-    .select('value')
-    .eq('key', LINE_NOTIFY_TOKEN_KEY)
-    .maybeSingle();
 
   const token = setting?.value;
   if (!token) {

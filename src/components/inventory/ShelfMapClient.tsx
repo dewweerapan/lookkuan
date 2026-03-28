@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
-type Variant = {
+export type Variant = {
   id: string;
   sku: string;
   size: string | null;
@@ -68,10 +68,11 @@ export default function ShelfMapClient({
     return matched;
   }, [search, localVariants]);
 
-  const selectedVariants = useMemo(
-    () => shelves.find((s) => s.loc === selected)?.items ?? [],
+  const selectedShelf = useMemo(
+    () => shelves.find((s) => s.loc === selected) ?? null,
     [shelves, selected],
   );
+  const selectedVariants = selectedShelf?.items ?? [];
 
   // Drag & drop handlers
   const handleDragStart = useCallback((variantId: string) => {
@@ -109,7 +110,6 @@ export default function ShelfMapClient({
       setSelected(targetShelf);
       setDraggingId(null);
 
-      // Persist to DB
       setSaving(true);
       const { error } = await supabaseRef.current!
         .from('product_variants')
@@ -361,7 +361,7 @@ export default function ShelfMapClient({
                 <span>{selectedVariants.length} รายการ</span>
                 <span>
                   รวม{' '}
-                  {shelves.find((s) => s.loc === selected)?.totalStock ?? 0}{' '}
+                  {selectedShelf?.totalStock ?? 0}{' '}
                   ชิ้น
                 </span>
               </div>

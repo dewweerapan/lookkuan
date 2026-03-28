@@ -4,6 +4,9 @@ export const STORE_ADDRESS = process.env.NEXT_PUBLIC_STORE_ADDRESS || ''
 export const TAX_RATE = Number(process.env.NEXT_PUBLIC_TAX_RATE) || 0.07
 
 export const LINE_NOTIFY_TOKEN_KEY = 'line_notify_token'
+export const NOTIFY_LOW_STOCK_KEY = 'notify_low_stock'
+export const NOTIFY_NEW_ORDER_KEY = 'notify_new_order'
+export const NOTIFY_INSTALLMENT_DUE_KEY = 'notify_installment_due'
 
 export const ROLES = {
   ADMIN: 'admin',
