@@ -183,7 +183,17 @@ export default function JobOrdersClient({ jobOrders: initialJobOrders }: Props) 
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-500">{job.garment_type} × {job.quantity}</span>
                   {job.estimated_completion_date && (
-                    <span className="text-gray-400">กำหนด: {formatDate(job.estimated_completion_date)}</span>
+                    <span className={`text-sm ${
+                      !['completed', 'delivered', 'cancelled'].includes(job.status) &&
+                      new Date(job.estimated_completion_date) <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+                        ? 'text-orange-600 font-semibold'
+                        : 'text-gray-400'
+                    }`}>
+                      {!['completed', 'delivered', 'cancelled'].includes(job.status) &&
+                        new Date(job.estimated_completion_date) <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) &&
+                        '⏰ '}
+                      กำหนด: {formatDate(job.estimated_completion_date)}
+                    </span>
                   )}
                 </div>
                 {job.balance_due > 0 && (
@@ -252,7 +262,15 @@ export default function JobOrdersClient({ jobOrders: initialJobOrders }: Props) 
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-500">{job.garment_type} × {job.quantity}</span>
                         {job.estimated_completion_date && (
-                          <span className="text-gray-400">
+                          <span className={
+                            !['completed', 'delivered', 'cancelled'].includes(job.status) &&
+                            new Date(job.estimated_completion_date) <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+                              ? 'text-orange-600 font-semibold text-xs'
+                              : 'text-gray-400 text-xs'
+                          }>
+                            {!['completed', 'delivered', 'cancelled'].includes(job.status) &&
+                              new Date(job.estimated_completion_date) <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) &&
+                              '⏰ '}
                             กำหนด: {formatDate(job.estimated_completion_date)}
                           </span>
                         )}
@@ -320,8 +338,20 @@ export default function JobOrdersClient({ jobOrders: initialJobOrders }: Props) 
                     </span>
                   </td>
                   <td className="text-right font-semibold">{formatCurrency(job.quoted_price)}</td>
-                  <td className="text-sm text-gray-500">
-                    {job.estimated_completion_date ? formatDate(job.estimated_completion_date) : '-'}
+                  <td className="text-sm">
+                    {job.estimated_completion_date ? (
+                      <span className={
+                        !['completed', 'delivered', 'cancelled'].includes(job.status) &&
+                        new Date(job.estimated_completion_date) <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+                          ? 'text-orange-600 font-semibold'
+                          : 'text-gray-500'
+                      }>
+                        {!['completed', 'delivered', 'cancelled'].includes(job.status) &&
+                          new Date(job.estimated_completion_date) <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) &&
+                          '⏰ '}
+                        {formatDate(job.estimated_completion_date)}
+                      </span>
+                    ) : '-'}
                   </td>
                   <td>
                     <Link

@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, formatDate } from '@/lib/utils'
 import Link from 'next/link'
 
 async function getDashboardStats() {
@@ -25,6 +25,18 @@ async function getDashboardStats() {
   ])
 
   const todaySales = todaySalesData?.reduce((sum, s) => sum + Number(s.total), 0) || 0
+
+  // Due-soon jobs: within 3 days, not completed/delivered/cancelled
+  const threeDaysFromNow = new Date()
+  threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3)
+  const { data: dueSoonJobs } = await supabase
+    .from('job_orders')
+    .select('id, order_number, customer_name, estimated_completion_date, status')
+    .in('status', ['pending', 'in_progress'])
+    .not('estimated_completion_date', 'is', null)
+    .lte('estimated_completion_date', threeDaysFromNow.toISOString().split('T')[0])
+    .order('estimated_completion_date', { ascending: true })
+
   const allVariants = lowStockItems || []
   const filteredLowStock = allVariants
     .filter((v: any) => v.stock_quantity <= v.low_stock_threshold)
@@ -36,6 +48,7 @@ async function getDashboardStats() {
     pendingJobs: pendingJobs || 0,
     lowStockItems: filteredLowStock,
     totalProducts: totalProducts || 0,
+    dueSoonJobs: dueSoonJobs || [],
   }
 }
 
@@ -120,6 +133,38 @@ export default async function DashboardPage() {
           </Link>
         ))}
       </div>
+
+      {/* Due Soon Jobs Alert */}
+      {stats.dueSoonJobs.length > 0 && (
+        <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-6 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-2xl">⏰</span>
+            <h3 className="text-lg font-bold text-orange-800">
+              งานใกล้ถึงกำหนด ({stats.dueSoonJobs.length} งาน)
+            </h3>
+          </div>
+          <div className="space-y-2">
+            {stats.dueSoonJobs.map((job: any) => (
+              <Link
+                key={job.id}
+                href={`/job-orders/${job.id}`}
+                className="flex items-center justify-between bg-white rounded-lg p-3 hover:shadow-sm transition-shadow"
+              >
+                <div>
+                  <p className="font-semibold text-gray-800">{job.order_number}</p>
+                  <p className="text-sm text-gray-500">{job.customer_name}</p>
+                </div>
+                <span className="text-sm font-semibold text-orange-600">
+                  {formatDate(job.estimated_completion_date)}
+                </span>
+              </Link>
+            ))}
+          </div>
+          <Link href="/job-orders" className="inline-block mt-3 text-orange-700 font-semibold hover:text-orange-800 text-sm">
+            ดูงานทั้งหมด →
+          </Link>
+        </div>
+      )}
 
       {/* Low Stock Alert */}
       {stats.lowStockItems.length > 0 && (
