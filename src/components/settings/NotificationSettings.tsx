@@ -4,7 +4,12 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 
-const SETTINGS_KEYS = ['line_notify_token', 'notify_low_stock', 'notify_new_order', 'notify_installment_due'];
+const SETTINGS_KEYS = [
+  'line_notify_token',
+  'notify_low_stock',
+  'notify_new_order',
+  'notify_installment_due',
+];
 
 export default function NotificationSettings() {
   const [token, setToken] = useState('');
@@ -42,7 +47,9 @@ export default function NotificationSettings() {
       { key: 'notify_new_order', value: String(notifyNewOrder) },
       { key: 'notify_installment_due', value: String(notifyInstallment) },
     ];
-    const { error } = await supabase.from('store_settings').upsert(rows, { onConflict: 'key' });
+    const { error } = await supabase
+      .from('store_settings')
+      .upsert(rows, { onConflict: 'key' });
     setSaving(false);
     if (error) {
       toast.error('บันทึกไม่สำเร็จ');
@@ -56,7 +63,9 @@ export default function NotificationSettings() {
     const res = await fetch('/api/notifications/line', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: 'LookKuan: ทดสอบการแจ้งเตือน Line Notify ✅' }),
+      body: JSON.stringify({
+        message: 'LookKuan: ทดสอบการแจ้งเตือน Line Notify ✅',
+      }),
     });
     setTesting(false);
     if (res.ok) {
@@ -71,7 +80,9 @@ export default function NotificationSettings() {
 
   return (
     <div className='bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6'>
-      <h2 className='text-xl font-bold text-gray-800 dark:text-gray-100 mb-1'>🔔 การแจ้งเตือน</h2>
+      <h2 className='text-xl font-bold text-gray-800 dark:text-gray-100 mb-1'>
+        🔔 การแจ้งเตือน
+      </h2>
       <p className='text-sm text-gray-500 dark:text-gray-400 mb-6'>
         ตั้งค่าการแจ้งเตือนผ่าน Line Notify
       </p>
@@ -106,18 +117,33 @@ export default function NotificationSettings() {
         </div>
         <p className='text-xs text-gray-400 mt-1.5'>
           สมัครได้ที่{' '}
-          <span className='font-mono text-brand-600'>notify-bot.line.me</span> → Token สำหรับตัวเอง
+          <span className='font-mono text-brand-600'>notify-bot.line.me</span> →
+          Token สำหรับตัวเอง
         </p>
       </div>
 
       {/* Event toggles */}
       <div className='space-y-3 mb-6'>
-        <p className='text-sm font-semibold text-gray-600 dark:text-gray-400'>แจ้งเตือนเมื่อ</p>
+        <p className='text-sm font-semibold text-gray-600 dark:text-gray-400'>
+          แจ้งเตือนเมื่อ
+        </p>
 
         {[
-          { label: 'สต็อกสินค้าใกล้หมด', value: notifyLowStock, set: setNotifyLowStock },
-          { label: 'มีออเดอร์งานปักใหม่', value: notifyNewOrder, set: setNotifyNewOrder },
-          { label: 'งวดผ่อนชำระครบกำหนด', value: notifyInstallment, set: setNotifyInstallment },
+          {
+            label: 'สต็อกสินค้าใกล้หมด',
+            value: notifyLowStock,
+            set: setNotifyLowStock,
+          },
+          {
+            label: 'มีออเดอร์งานปักใหม่',
+            value: notifyNewOrder,
+            set: setNotifyNewOrder,
+          },
+          {
+            label: 'งวดผ่อนชำระครบกำหนด',
+            value: notifyInstallment,
+            set: setNotifyInstallment,
+          },
         ].map(({ label, value, set }) => (
           <label key={label} className='flex items-center gap-3 cursor-pointer'>
             <button
@@ -134,7 +160,9 @@ export default function NotificationSettings() {
                 }`}
               />
             </button>
-            <span className='text-base text-gray-700 dark:text-gray-300'>{label}</span>
+            <span className='text-base text-gray-700 dark:text-gray-300'>
+              {label}
+            </span>
           </label>
         ))}
       </div>
@@ -146,7 +174,11 @@ export default function NotificationSettings() {
         </div>
       )}
 
-      <button onClick={handleSave} disabled={saving} className='pos-btn-primary w-full'>
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className='pos-btn-primary w-full'
+      >
         {saving ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่า'}
       </button>
     </div>

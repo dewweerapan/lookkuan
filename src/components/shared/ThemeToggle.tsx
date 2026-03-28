@@ -4,7 +4,11 @@ import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { Moon, Sun, Monitor } from 'lucide-react';
 
-export default function ThemeToggle({ collapsed = false }: { collapsed?: boolean }) {
+export default function ThemeToggle({
+  collapsed = false,
+}: {
+  collapsed?: boolean;
+}) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -19,12 +23,12 @@ export default function ThemeToggle({ collapsed = false }: { collapsed?: boolean
   ];
 
   const cycleTheme = () => {
-    const idx = options.findIndex(o => o.value === theme);
+    const idx = options.findIndex((o) => o.value === theme);
     const next = options[(idx + 1) % options.length];
     setTheme(next.value);
   };
 
-  const current = options.find(o => o.value === theme) ?? options[2];
+  const current = options.find((o) => o.value === theme) ?? options[2];
 
   return (
     <button

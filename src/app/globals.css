@@ -45,7 +45,11 @@
     line-height: 1.6;
   }
   /* Ensure minimum touch target size for elderly users */
-  button, a, [role="button"], input[type="submit"], input[type="button"] {
+  button,
+  a,
+  [role='button'],
+  input[type='submit'],
+  input[type='button'] {
     min-height: 44px;
     min-width: 44px;
   }
@@ -145,7 +149,8 @@
   body * {
     visibility: hidden;
   }
-  .print-area, .print-area * {
+  .print-area,
+  .print-area * {
     visibility: visible;
   }
   .print-area {
@@ -168,12 +173,19 @@
 
 /* Mobile viewport height fix */
 @supports (height: 100dvh) {
-  .h-dvh { height: 100dvh; }
+  .h-dvh {
+    height: 100dvh;
+  }
 }
 
 /* No scrollbar utility */
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {

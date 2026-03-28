@@ -15,12 +15,17 @@ type Variant = {
   product: { id: string; name: string; base_price: number } | null;
 };
 
-export default function ShelfMapClient({ variants: initialVariants }: { variants: Variant[] }) {
+export default function ShelfMapClient({
+  variants: initialVariants,
+}: {
+  variants: Variant[];
+}) {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
-  const [localVariants, setLocalVariants] = useState<Variant[]>(initialVariants);
+  const [localVariants, setLocalVariants] =
+    useState<Variant[]>(initialVariants);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverShelf, setDragOverShelf] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -53,11 +58,13 @@ export default function ShelfMapClient({ variants: initialVariants }: { variants
     return matched;
   }, [search, localVariants]);
 
-  const isHighlighted = (loc: string) => search.trim() ? matchedShelves.has(loc) : false;
-  const isDimmed = (loc: string) => search.trim() ? !matchedShelves.has(loc) : false;
+  const isHighlighted = (loc: string) =>
+    search.trim() ? matchedShelves.has(loc) : false;
+  const isDimmed = (loc: string) =>
+    search.trim() ? !matchedShelves.has(loc) : false;
 
   const selectedVariants = selected
-    ? shelves.find(([loc]) => loc === selected)?.[1] ?? []
+    ? (shelves.find(([loc]) => loc === selected)?.[1] ?? [])
     : [];
 
   // Drag & drop handlers
@@ -74,43 +81,48 @@ export default function ShelfMapClient({ variants: initialVariants }: { variants
     setDragOverShelf(null);
   }, []);
 
-  const handleDrop = useCallback(async (e: React.DragEvent, targetShelf: string) => {
-    e.preventDefault();
-    setDragOverShelf(null);
-    if (!draggingId) return;
+  const handleDrop = useCallback(
+    async (e: React.DragEvent, targetShelf: string) => {
+      e.preventDefault();
+      setDragOverShelf(null);
+      if (!draggingId) return;
 
-    const variant = localVariants.find(v => v.id === draggingId);
-    if (!variant || variant.shelf_location === targetShelf) {
+      const variant = localVariants.find((v) => v.id === draggingId);
+      if (!variant || variant.shelf_location === targetShelf) {
+        setDraggingId(null);
+        return;
+      }
+
+      // Optimistic update
+      const previousVariants = localVariants;
+      setLocalVariants((prev) =>
+        prev.map((v) =>
+          v.id === draggingId ? { ...v, shelf_location: targetShelf } : v,
+        ),
+      );
+      // Update selected panel to new shelf
+      setSelected(targetShelf);
       setDraggingId(null);
-      return;
-    }
 
-    // Optimistic update
-    const previousVariants = localVariants;
-    setLocalVariants(prev =>
-      prev.map(v => v.id === draggingId ? { ...v, shelf_location: targetShelf } : v)
-    );
-    // Update selected panel to new shelf
-    setSelected(targetShelf);
-    setDraggingId(null);
+      // Persist to DB
+      setSaving(true);
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('product_variants')
+        .update({ shelf_location: targetShelf })
+        .eq('id', draggingId);
 
-    // Persist to DB
-    setSaving(true);
-    const supabase = createClient();
-    const { error } = await supabase
-      .from('product_variants')
-      .update({ shelf_location: targetShelf })
-      .eq('id', draggingId);
-
-    setSaving(false);
-    if (error) {
-      setLocalVariants(previousVariants);
-      toast.error('ไม่สามารถย้ายสินค้าได้');
-    } else {
-      toast.success(`ย้าย ${variant.sku} → ชั้น ${targetShelf} สำเร็จ`);
-      router.refresh();
-    }
-  }, [draggingId, localVariants, router]);
+      setSaving(false);
+      if (error) {
+        setLocalVariants(previousVariants);
+        toast.error('ไม่สามารถย้ายสินค้าได้');
+      } else {
+        toast.success(`ย้าย ${variant.sku} → ชั้น ${targetShelf} สำเร็จ`);
+        router.refresh();
+      }
+    },
+    [draggingId, localVariants, router],
+  );
 
   const handleDragEnd = useCallback(() => {
     setDraggingId(null);
@@ -134,11 +146,16 @@ export default function ShelfMapClient({ variants: initialVariants }: { variants
       {/* Toolbar */}
       <div className='flex items-center gap-3'>
         <div className='relative flex-1'>
-          <span className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'>🔍</span>
+          <span className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-400'>
+            🔍
+          </span>
           <input
             type='text'
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setSelected(null); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setSelected(null);
+            }}
             placeholder='ค้นหาชื่อสินค้า / SKU / ตำแหน่งชั้น'
             className='w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500'
           />
@@ -152,7 +169,10 @@ export default function ShelfMapClient({ variants: initialVariants }: { variants
           )}
         </div>
         <button
-          onClick={() => { setEditMode(e => !e); setDraggingId(null); }}
+          onClick={() => {
+            setEditMode((e) => !e);
+            setDraggingId(null);
+          }}
           className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border transition-all ${
             editMode
               ? 'bg-brand-500 text-white border-brand-500 shadow-sm'
@@ -166,14 +186,19 @@ export default function ShelfMapClient({ variants: initialVariants }: { variants
       {editMode && (
         <div className='flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 text-sm text-amber-700'>
           <span>☝️</span>
-          <span>ลากสินค้าในรายการขวามือไปวางที่ชั้นวางอื่นเพื่อย้ายตำแหน่ง</span>
-          {saving && <span className='ml-auto text-amber-600'>กำลังบันทึก...</span>}
+          <span>
+            ลากสินค้าในรายการขวามือไปวางที่ชั้นวางอื่นเพื่อย้ายตำแหน่ง
+          </span>
+          {saving && (
+            <span className='ml-auto text-amber-600'>กำลังบันทึก...</span>
+          )}
         </div>
       )}
 
       {search && matchedShelves.size > 0 && (
         <p className='text-sm text-brand-600 font-medium'>
-          พบสินค้าใน {matchedShelves.size} ชั้นวาง: {Array.from(matchedShelves).join(', ')}
+          พบสินค้าใน {matchedShelves.size} ชั้นวาง:{' '}
+          {Array.from(matchedShelves).join(', ')}
         </p>
       )}
       {search && matchedShelves.size === 0 && (
@@ -192,14 +217,19 @@ export default function ShelfMapClient({ variants: initialVariants }: { variants
               const dimmed = isDimmed(loc);
               const isSelected = selected === loc;
               const isDragTarget = dragOverShelf === loc && draggingId !== null;
-              const totalStock = items.reduce((s, v) => s + v.stock_quantity, 0);
+              const totalStock = items.reduce(
+                (s, v) => s + v.stock_quantity,
+                0,
+              );
               const lowStock = items.some((v) => v.stock_quantity <= 3);
 
               return (
                 <button
                   key={loc}
                   onClick={() => setSelected(isSelected ? null : loc)}
-                  onDragOver={editMode ? (e) => handleDragOver(e, loc) : undefined}
+                  onDragOver={
+                    editMode ? (e) => handleDragOver(e, loc) : undefined
+                  }
                   onDragLeave={editMode ? handleDragLeave : undefined}
                   onDrop={editMode ? (e) => handleDrop(e, loc) : undefined}
                   className={`
@@ -209,17 +239,26 @@ export default function ShelfMapClient({ variants: initialVariants }: { variants
                     ${isDragTarget ? 'border-green-400 bg-green-50 scale-105 shadow-lg' : ''}
                     ${highlighted && !isSelected && !isDragTarget ? 'border-yellow-400 bg-yellow-50 shadow-md scale-105' : ''}
                     ${dimmed ? 'opacity-30' : ''}
-                    ${!isSelected && !highlighted && !dimmed && !isDragTarget
-                      ? 'border-gray-200 bg-white hover:border-brand-300 hover:bg-brand-50/50'
-                      : ''}
+                    ${
+                      !isSelected && !highlighted && !dimmed && !isDragTarget
+                        ? 'border-gray-200 bg-white hover:border-brand-300 hover:bg-brand-50/50'
+                        : ''
+                    }
                   `}
                 >
                   <span className='text-lg font-bold text-gray-700'>{loc}</span>
-                  <span className='text-xs text-gray-400'>{items.length} SKU</span>
+                  <span className='text-xs text-gray-400'>
+                    {items.length} SKU
+                  </span>
                   {lowStock && (
-                    <span className='absolute top-1 right-1 w-2 h-2 bg-red-400 rounded-full' title='สต็อกใกล้หมด' />
+                    <span
+                      className='absolute top-1 right-1 w-2 h-2 bg-red-400 rounded-full'
+                      title='สต็อกใกล้หมด'
+                    />
                   )}
-                  <span className={`text-xs font-medium mt-0.5 ${totalStock === 0 ? 'text-red-500' : 'text-gray-500'}`}>
+                  <span
+                    className={`text-xs font-medium mt-0.5 ${totalStock === 0 ? 'text-red-500' : 'text-gray-500'}`}
+                  >
                     {totalStock} ชิ้น
                   </span>
                   {isDragTarget && (
@@ -235,16 +274,19 @@ export default function ShelfMapClient({ variants: initialVariants }: { variants
           {/* Legend */}
           <div className='flex flex-wrap gap-4 mt-4 text-xs text-gray-400'>
             <span className='flex items-center gap-1'>
-              <span className='w-2 h-2 bg-red-400 rounded-full inline-block' /> สต็อกใกล้หมด (≤3)
+              <span className='w-2 h-2 bg-red-400 rounded-full inline-block' />{' '}
+              สต็อกใกล้หมด (≤3)
             </span>
             {search && (
               <span className='flex items-center gap-1'>
-                <span className='w-4 h-4 rounded border-2 border-yellow-400 bg-yellow-50 inline-block' /> ตรงกับการค้นหา
+                <span className='w-4 h-4 rounded border-2 border-yellow-400 bg-yellow-50 inline-block' />{' '}
+                ตรงกับการค้นหา
               </span>
             )}
             {editMode && (
               <span className='flex items-center gap-1'>
-                <span className='w-4 h-4 rounded border-2 border-green-400 bg-green-50 inline-block' /> เป้าหมายการย้าย
+                <span className='w-4 h-4 rounded border-2 border-green-400 bg-green-50 inline-block' />{' '}
+                เป้าหมายการย้าย
               </span>
             )}
           </div>
@@ -255,8 +297,15 @@ export default function ShelfMapClient({ variants: initialVariants }: { variants
           <div className='w-72 flex-shrink-0'>
             <div className='bg-white rounded-xl border border-gray-200 p-4'>
               <div className='flex items-center justify-between mb-3'>
-                <h3 className='font-bold text-gray-800 text-lg'>ชั้นวาง {selected}</h3>
-                <button onClick={() => setSelected(null)} className='text-gray-400 hover:text-gray-600 text-sm'>✕</button>
+                <h3 className='font-bold text-gray-800 text-lg'>
+                  ชั้นวาง {selected}
+                </h3>
+                <button
+                  onClick={() => setSelected(null)}
+                  className='text-gray-400 hover:text-gray-600 text-sm'
+                >
+                  ✕
+                </button>
               </div>
 
               {editMode && (
@@ -270,19 +319,28 @@ export default function ShelfMapClient({ variants: initialVariants }: { variants
                   <div
                     key={v.id}
                     draggable={editMode}
-                    onDragStart={editMode ? () => handleDragStart(v.id) : undefined}
+                    onDragStart={
+                      editMode ? () => handleDragStart(v.id) : undefined
+                    }
                     onDragEnd={editMode ? handleDragEnd : undefined}
                     className={`flex items-start justify-between py-2 border-b border-gray-100 last:border-0 transition-all ${
-                      editMode ? 'cursor-grab active:cursor-grabbing rounded-lg px-1 hover:bg-brand-50/50 active:opacity-50' : ''
+                      editMode
+                        ? 'cursor-grab active:cursor-grabbing rounded-lg px-1 hover:bg-brand-50/50 active:opacity-50'
+                        : ''
                     } ${draggingId === v.id ? 'opacity-40' : ''}`}
                   >
                     {editMode && (
-                      <span className='text-gray-300 mr-1.5 mt-0.5 flex-shrink-0 select-none'>⠿</span>
+                      <span className='text-gray-300 mr-1.5 mt-0.5 flex-shrink-0 select-none'>
+                        ⠿
+                      </span>
                     )}
                     <div className='flex-1 min-w-0'>
-                      <p className='text-sm font-medium text-gray-700 truncate'>{v.product?.name ?? '—'}</p>
+                      <p className='text-sm font-medium text-gray-700 truncate'>
+                        {v.product?.name ?? '—'}
+                      </p>
                       <p className='text-xs text-gray-400'>
-                        {[v.size, v.color].filter(Boolean).join(' / ')} · {v.sku}
+                        {[v.size, v.color].filter(Boolean).join(' / ')} ·{' '}
+                        {v.sku}
                       </p>
                     </div>
                     <span
@@ -302,7 +360,11 @@ export default function ShelfMapClient({ variants: initialVariants }: { variants
 
               <div className='mt-3 pt-3 border-t border-gray-100 flex justify-between text-xs text-gray-500'>
                 <span>{selectedVariants.length} รายการ</span>
-                <span>รวม {selectedVariants.reduce((s, v) => s + v.stock_quantity, 0)} ชิ้น</span>
+                <span>
+                  รวม{' '}
+                  {selectedVariants.reduce((s, v) => s + v.stock_quantity, 0)}{' '}
+                  ชิ้น
+                </span>
               </div>
             </div>
           </div>

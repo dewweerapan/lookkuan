@@ -39,7 +39,9 @@ export default function InstallmentReminderButton({
         `ลูกค้า: ${customerName} (${customerPhone})\n` +
         `แผนผ่อน: ${planNumber}\n` +
         (nextDueDate ? `งวดถัดไป: ${nextDueDate}` : '') +
-        (nextDueAmount ? ` จำนวน ฿${nextDueAmount.toLocaleString('th-TH')}` : '');
+        (nextDueAmount
+          ? ` จำนวน ฿${nextDueAmount.toLocaleString('th-TH')}`
+          : '');
     }
 
     const res = await fetch('/api/notifications/line', {
@@ -54,7 +56,9 @@ export default function InstallmentReminderButton({
     } else {
       const data = await res.json().catch(() => ({}));
       if (data.error?.includes('not configured')) {
-        toast.error('ยังไม่ได้ตั้งค่า Line Notify Token (ตั้งค่า → การแจ้งเตือน)');
+        toast.error(
+          'ยังไม่ได้ตั้งค่า Line Notify Token (ตั้งค่า → การแจ้งเตือน)',
+        );
       } else {
         toast.error(data.error || 'ส่งแจ้งเตือนไม่สำเร็จ');
       }
