@@ -96,7 +96,7 @@ export default function InventoryImportClient() {
         productGroups.set(name, list);
       }
 
-      for (const [name, productRows] of productGroups.entries()) {
+      for (const [name, productRows] of Array.from(productGroups.entries())) {
         const firstRow = productRows[0];
         const catName = String(firstRow['หมวดหมู่'] || '').trim();
         let catId: string | null = null;

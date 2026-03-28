@@ -24,7 +24,10 @@ export default async function InventoryMapPage() {
         title='ผังสินค้า'
         description='ตำแหน่งสินค้าบนชั้นวาง'
         actions={
-          <Link href='/inventory' className='pos-btn-secondary text-sm px-4 py-2'>
+          <Link
+            href='/inventory'
+            className='pos-btn-secondary text-sm px-4 py-2'
+          >
             ← กลับ
           </Link>
         }

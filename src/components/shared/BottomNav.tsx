@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
+import ThemeToggle from '@/components/shared/ThemeToggle'
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -64,7 +65,7 @@ export default function BottomNav() {
       {/* Slide-up drawer */}
       <div className={`
         fixed bottom-16 left-0 right-0 z-50 lg:hidden
-        bg-white rounded-t-2xl shadow-2xl border-t border-gray-200
+        bg-white dark:bg-gray-900 rounded-t-2xl shadow-2xl border-t border-gray-200 dark:border-gray-800
         transition-transform duration-300
         ${showDrawer ? 'translate-y-0' : 'translate-y-full'}
       `}>
@@ -90,8 +91,8 @@ export default function BottomNav() {
               onClick={() => setShowDrawer(false)}
               className={`flex items-center gap-4 px-4 py-3.5 rounded-xl text-base font-medium transition-colors ${
                 isActive(item.href)
-                  ? 'bg-brand-50 text-brand-700 font-semibold'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-brand-50 dark:bg-brand-950 text-brand-700 dark:text-brand-400 font-semibold'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
             >
               <span className="text-gray-500">{item.icon}</span>
@@ -99,10 +100,11 @@ export default function BottomNav() {
             </Link>
           ))}
 
+          <ThemeToggle />
           <button
             onClick={signOut}
             className="flex items-center gap-4 px-4 py-3.5 rounded-xl text-base font-medium
-                     text-red-600 hover:bg-red-50 w-full transition-colors"
+                     text-red-600 hover:bg-red-50 dark:hover:bg-red-950 w-full transition-colors"
           >
             <LogOut size={20} />
             ออกจากระบบ
@@ -114,7 +116,7 @@ export default function BottomNav() {
       {/* Bottom Navigation Bar */}
       <nav className="
         fixed bottom-0 left-0 right-0 z-40 lg:hidden
-        bg-white border-t-2 border-gray-200 shadow-lg
+        bg-white dark:bg-gray-900 border-t-2 border-gray-200 dark:border-gray-800 shadow-lg
         safe-area-pb
       ">
         <div className="flex items-stretch h-16">

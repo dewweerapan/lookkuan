@@ -20,6 +20,7 @@ import {
   Menu,
   CreditCard,
 } from 'lucide-react';
+import ThemeToggle from '@/components/shared/ThemeToggle';
 
 interface NavItem {
   href: string;
@@ -128,14 +129,14 @@ export default function Sidebar() {
     <>
       {/* Sidebar — desktop only (mobile uses BottomNav) */}
       <aside
-        className={`hidden lg:flex fixed left-0 top-0 h-full bg-white border-r border-gray-200 shadow-sm z-40
+        className={`hidden lg:flex fixed left-0 top-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-sm z-40
           transition-all duration-300 flex-col
           ${collapsed ? 'w-20' : 'w-64'}
         `}
       >
         {/* Header */}
         <div
-          className={`p-4 border-b border-gray-100 flex items-center ${collapsed ? 'justify-center' : 'justify-between'}`}
+          className={`p-4 border-b border-gray-100 dark:border-gray-800 flex items-center ${collapsed ? 'justify-center' : 'justify-between'}`}
         >
           {!collapsed && (
             <div className='flex items-center gap-2'>
@@ -147,8 +148,8 @@ export default function Sidebar() {
                 />
               ) : null}
               <div>
-                <h1 className='text-xl font-bold text-brand-600'>LookKuan</h1>
-                <p className='text-xs text-gray-400'>ระบบจัดการร้าน</p>
+                <h1 className='text-xl font-bold text-brand-600 dark:text-brand-400'>LookKuan</h1>
+                <p className='text-xs text-gray-400 dark:text-gray-500'>ระบบจัดการร้าน</p>
               </div>
             </div>
           )}
@@ -187,20 +188,21 @@ export default function Sidebar() {
         </nav>
 
         {/* User info */}
-        <div className='p-3 border-t border-gray-100'>
+        <div className='p-3 border-t border-gray-100 dark:border-gray-800'>
           {!collapsed && profile && (
             <div className='px-3 py-2 mb-2'>
-              <p className='font-semibold text-gray-800 text-sm truncate'>
+              <p className='font-semibold text-gray-800 dark:text-gray-100 text-sm truncate'>
                 {profile.full_name}
               </p>
-              <p className='text-xs text-gray-500'>
+              <p className='text-xs text-gray-500 dark:text-gray-400'>
                 {roleLabels[profile.role] || profile.role}
               </p>
             </div>
           )}
+          <ThemeToggle collapsed={collapsed} />
           <button
             onClick={signOut}
-            className={`nav-item text-red-600 hover:bg-red-50 hover:text-red-700 w-full ${collapsed ? 'justify-center px-2' : ''}`}
+            className={`nav-item text-red-600 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-700 w-full ${collapsed ? 'justify-center px-2' : ''}`}
             title='ออกจากระบบ'
           >
             <LogOut size={22} />

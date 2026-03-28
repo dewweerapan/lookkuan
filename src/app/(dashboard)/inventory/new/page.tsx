@@ -14,6 +14,7 @@ interface VariantInput {
   stock_quantity: number;
   low_stock_threshold: number;
   price_override: string;
+  shelf_location: string;
 }
 
 export default function NewProductPage() {
@@ -39,6 +40,7 @@ export default function NewProductPage() {
       stock_quantity: 0,
       low_stock_threshold: 5,
       price_override: '',
+      shelf_location: '',
     },
   ]);
 
@@ -76,6 +78,7 @@ export default function NewProductPage() {
         stock_quantity: 0,
         low_stock_threshold: 5,
         price_override: '',
+        shelf_location: '',
       },
     ]);
   };
@@ -144,6 +147,7 @@ export default function NewProductPage() {
             stock_quantity: v.stock_quantity || 0,
             low_stock_threshold: v.low_stock_threshold || 5,
             price_override: v.price_override ? Number(v.price_override) : null,
+            shelf_location: v.shelf_location || null,
           };
         });
 
@@ -159,6 +163,7 @@ export default function NewProductPage() {
           stock_quantity: 0,
           low_stock_threshold: 5,
           price_override: null,
+          shelf_location: null,
         });
       }
 
@@ -315,7 +320,7 @@ export default function NewProductPage() {
                     </button>
                   )}
                 </div>
-                <div className='grid grid-cols-2 sm:grid-cols-4 gap-3'>
+                <div className='grid grid-cols-2 sm:grid-cols-5 gap-3'>
                   <div>
                     <label className='text-sm font-medium text-gray-600 mb-1 block'>
                       สี
@@ -375,6 +380,25 @@ export default function NewProductPage() {
                       className='pos-input text-base py-2'
                       placeholder='ใช้ราคาหลัก'
                       min='0'
+                    />
+                  </div>
+                  <div>
+                    <label className='text-sm font-medium text-gray-600 mb-1 block'>
+                      ชั้นวาง
+                    </label>
+                    <input
+                      type='text'
+                      value={variant.shelf_location}
+                      onChange={(e) =>
+                        updateVariant(
+                          index,
+                          'shelf_location',
+                          e.target.value.toUpperCase(),
+                        )
+                      }
+                      className='pos-input text-base py-2'
+                      placeholder='เช่น A1'
+                      maxLength={10}
                     />
                   </div>
                 </div>

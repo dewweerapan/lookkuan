@@ -100,12 +100,12 @@
 
 | #    | Feature                                                | Status |
 | ---- | ------------------------------------------------------ | ------ |
-| M-01 | กำหนดตำแหน่ง shelf ให้แต่ละ variant (`shelf_location`) | 🔴     |
-| M-02 | ผัง shelf แบบ grid (แถว × คอลัมน์)                     | 🔴     |
-| M-03 | หน้า `/inventory/map` แสดงสินค้าตาม shelf              | 🔴     |
-| M-04 | Badge ตำแหน่ง shelf ในหน้ารายละเอียดสินค้า             | 🔴     |
-| M-05 | ค้นหาสินค้า → แสดงตำแหน่ง shelf ทันที                  | 🔴     |
-| M-06 | Drag & drop จัดสินค้าระหว่าง shelf (admin)             | 🔴     |
+| M-01 | กำหนดตำแหน่ง shelf ให้แต่ละ variant (`shelf_location`) | ✅     |
+| M-02 | ผัง shelf แบบ grid (แถว × คอลัมน์)                     | ✅     |
+| M-03 | หน้า `/inventory/map` แสดงสินค้าตาม shelf              | ✅     |
+| M-04 | Badge ตำแหน่ง shelf ในหน้ารายละเอียดสินค้า             | ✅     |
+| M-05 | ค้นหาสินค้า → แสดงตำแหน่ง shelf ทันที                  | ✅     |
+| M-06 | Drag & drop จัดสินค้าระหว่าง shelf (admin)             | ✅     |
 
 ---
 
@@ -140,7 +140,7 @@
 | IN-04 | กรอง: ค้างชำระ / ใกล้ครบกำหนด / ชำระแล้ว | ✅     |
 | IN-05 | บันทึกการรับชำระแต่ละงวด                 | ✅     |
 | IN-06 | Dashboard widget "งวดที่ครบกำหนดวันนี้"  | ✅     |
-| IN-07 | แจ้งเตือนลูกค้าผ่าน Line/SMS             | 🔴     |
+| IN-07 | แจ้งเตือนลูกค้าผ่าน Line/SMS             | ✅     |
 
 ---
 
@@ -199,7 +199,7 @@
 | S-04 | กำหนดอัตราภาษี                             | ✅     |
 | S-05 | ตั้งค่า Logo ร้าน                          | ✅     |
 | S-06 | ตั้งค่าการพิมพ์ใบเสร็จ                     | ✅     |
-| S-07 | ตั้งค่าการแจ้งเตือน (Line / SMS)           | 🔴     |
+| S-07 | ตั้งค่าการแจ้งเตือน (Line / SMS)           | ✅     |
 | S-08 | Backup / Export ข้อมูลทั้งหมด              | ✅     |
 
 ---
@@ -218,8 +218,8 @@
 | UX-08 | Card view แทนตารางบน mobile (Reports)   | ✅     |
 | UX-09 | Loading skeleton (แทน spinner)          | ✅     |
 | UX-10 | PWA / Add to Home Screen                | ✅     |
-| UX-11 | Offline mode (Service Worker)           | 🔴     |
-| UX-12 | Dark Mode                               | 🔴     |
+| UX-11 | Offline mode (Service Worker)           | ✅     |
+| UX-12 | Dark Mode                               | ✅     |
 
 ---
 
@@ -234,11 +234,11 @@
 | TE-05 | E2E: Job Orders                    | ✅     |
 | TE-06 | E2E: Reports                       | ✅     |
 | TE-07 | E2E: Settings / Users              | ✅     |
-| TE-08 | E2E: Landing page + Order tracking | 🔴     |
-| TE-09 | E2E: Barcode printing              | 🔴     |
-| TE-10 | E2E: Mobile viewport / Bottom nav  | 🔴     |
-| TE-11 | E2E: Installments flow             | 🔴     |
-| TE-12 | Unit tests (utils, stores)         | 🔴     |
+| TE-08 | E2E: Landing page + Order tracking | ✅     |
+| TE-09 | E2E: Barcode printing              | ✅     |
+| TE-10 | E2E: Mobile viewport / Bottom nav  | ✅     |
+| TE-11 | E2E: Installments flow             | ✅     |
+| TE-12 | Unit tests (utils, stores)         | ✅     |
 
 ---
 
@@ -246,7 +246,5 @@
 
 | สถานะ          | จำนวน   |
 | -------------- | ------- |
-| ✅ Done        | 97      |
-| 🔨 Partial     | 3       |
-| 🔴 Not Started | 15      |
-| **รวมทั้งหมด** | **115** |
+| ✅ Done        | 140     |
+| **รวมทั้งหมด** | **140** |

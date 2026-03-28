@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Toaster } from 'sonner';
+import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
+import Providers from '@/components/Providers';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -40,18 +42,21 @@ export default function RootLayout({
           crossOrigin='anonymous'
         />
       </head>
-      <body className='min-h-screen bg-gray-50'>
-        {children}
-        <Toaster
-          position='top-center'
-          richColors
-          toastOptions={{
-            style: {
-              fontSize: '16px',
-              padding: '16px',
-            },
-          }}
-        />
+      <body className='min-h-screen bg-gray-50 dark:bg-gray-950'>
+        <Providers>
+          {children}
+          <ServiceWorkerRegister />
+          <Toaster
+            position='top-center'
+            richColors
+            toastOptions={{
+              style: {
+                fontSize: '16px',
+                padding: '16px',
+              },
+            }}
+          />
+        </Providers>
       </body>
     </html>
   );

@@ -93,6 +93,9 @@ export default async function InventoryPage({
             <Link href='/inventory/barcodes' className='pos-btn-secondary'>
               🏷️ พิมพ์บาร์โค้ด
             </Link>
+            <Link href='/inventory/map' className='pos-btn-secondary'>
+              🗺️ ผังสินค้า
+            </Link>
             <Link href='/inventory/import' className='pos-btn-secondary'>
               📥 นำเข้าสินค้า
             </Link>

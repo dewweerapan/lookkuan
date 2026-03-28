@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { formatCurrency, formatDate, formatDateTime } from '@/lib/utils';
 import PageHeader from '@/components/shared/PageHeader';
 import InstallmentPaymentActions from '@/components/installments/InstallmentPaymentActions';
+import InstallmentReminderButton from '@/components/installments/InstallmentReminderButton';
 
 const STATUS_LABELS: Record<string, string> = {
   active: 'กำลังผ่อน',
@@ -52,6 +53,13 @@ export default async function InstallmentDetailPage({
     .filter((p: any) => p.status === 'paid')
     .reduce((sum: number, p: any) => sum + Number(p.amount), 0);
   const today = new Date().toISOString().split('T')[0];
+
+  const overduePending = plan.payments.filter(
+    (p: any) => p.status === 'pending' && p.due_date < today,
+  ).length;
+  const nextPending = plan.payments.find(
+    (p: any) => p.status === 'pending' && p.due_date >= today,
+  );
 
   return (
     <div>
@@ -222,6 +230,18 @@ export default async function InstallmentDetailPage({
               </div>
             </div>
           </div>
+
+          {/* Reminder */}
+          {plan.status !== 'completed' && plan.status !== 'cancelled' && (
+            <InstallmentReminderButton
+              planNumber={plan.plan_number}
+              customerName={plan.customer_name}
+              customerPhone={plan.customer_phone}
+              nextDueDate={nextPending?.due_date ?? null}
+              nextDueAmount={nextPending ? Number(nextPending.amount) : null}
+              overduePending={overduePending}
+            />
+          )}
         </div>
       </div>
     </div>

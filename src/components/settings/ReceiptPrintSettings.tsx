@@ -29,7 +29,8 @@ export default function ReceiptPrintSettings() {
       if (data) {
         const map: Partial<Settings> = {};
         data.forEach((row: { key: string; value: string | null }) => {
-          (map as Record<string, string>)[row.key] = row.value ?? (DEFAULTS as Record<string, string>)[row.key];
+          (map as Record<string, string>)[row.key] =
+            row.value ?? (DEFAULTS as Record<string, string>)[row.key];
         });
         setSettings((prev) => ({ ...prev, ...map }));
       }
@@ -157,7 +158,9 @@ export default function ReceiptPrintSettings() {
             {settings.receipt_footer_message && (
               <>
                 <div className='border-t border-dashed border-gray-300 my-1' />
-                <p className='text-gray-500'>{settings.receipt_footer_message}</p>
+                <p className='text-gray-500'>
+                  {settings.receipt_footer_message}
+                </p>
               </>
             )}
           </div>

@@ -66,6 +66,7 @@ const config: Config = {
           700: '#C2410C',
           800: '#9A3412',
           900: '#7C2D12',
+          950: '#431407',
         },
         // สีสำหรับ High Contrast
         success: { DEFAULT: '#16A34A', light: '#BBF7D0' },

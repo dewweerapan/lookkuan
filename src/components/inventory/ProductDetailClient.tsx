@@ -102,6 +102,7 @@ export default function ProductDetailClient({ product, movements }: Props) {
                 <th>SKU / Barcode</th>
                 <th>สี</th>
                 <th>ไซส์</th>
+                <th>ชั้นวาง</th>
                 <th className="text-right">ราคา</th>
                 <th className="text-right">สต็อก</th>
                 <th></th>
@@ -113,6 +114,15 @@ export default function ProductDetailClient({ product, movements }: Props) {
                   <td className="font-mono text-sm">{v.sku}</td>
                   <td>{v.color}</td>
                   <td>{v.size}</td>
+                  <td>
+                    {v.shelf_location ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-brand-50 text-brand-700 border border-brand-200 rounded-full text-xs font-bold font-mono">
+                        🗺️ {v.shelf_location}
+                      </span>
+                    ) : (
+                      <span className="text-gray-300 text-xs">—</span>
+                    )}
+                  </td>
                   <td className="text-right font-semibold">
                     {v.price_override ? formatCurrency(v.price_override) : formatCurrency(product.base_price)}
                   </td>
