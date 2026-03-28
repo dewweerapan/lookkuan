@@ -1,6 +1,6 @@
-import type { Metadata, Viewport } from 'next'
-import { Toaster } from 'sonner'
-import './globals.css'
+import type { Metadata, Viewport } from 'next';
+import { Toaster } from 'sonner';
+import './globals.css';
 
 export const metadata: Metadata = {
   title: 'LookKuan - ระบบจัดการร้านเสื้อผ้า',
@@ -14,32 +14,36 @@ export const metadata: Metadata = {
   icons: {
     apple: '/icons/icon-192.png',
   },
-}
+};
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 3,       // allow zoom for accessibility
+  maximumScale: 3, // allow zoom for accessibility
   userScalable: true,
   themeColor: '#F97316',
-  viewportFit: 'cover',  // support iPhone notch/home bar
-}
+  viewportFit: 'cover', // support iPhone notch/home bar
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
-    <html lang="th" suppressHydrationWarning>
+    <html lang='th' suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel='preconnect' href='https://fonts.googleapis.com' />
+        <link
+          rel='preconnect'
+          href='https://fonts.gstatic.com'
+          crossOrigin='anonymous'
+        />
       </head>
-      <body className="min-h-screen bg-gray-50">
+      <body className='min-h-screen bg-gray-50'>
         {children}
         <Toaster
-          position="top-center"
+          position='top-center'
           richColors
           toastOptions={{
             style: {
@@ -50,5 +54,5 @@ export default function RootLayout({
         />
       </body>
     </html>
-  )
+  );
 }
