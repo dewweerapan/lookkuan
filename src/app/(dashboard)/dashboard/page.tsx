@@ -20,17 +20,21 @@ async function getDashboardStats() {
     supabase.from('job_orders').select('*', { count: 'exact', head: true })
       .in('status', ['pending', 'in_progress']),
     supabase.from('product_variants').select('id, sku, stock_quantity, low_stock_threshold, product:products(name)')
-      .lt('stock_quantity', 10).eq('is_active', true).limit(10),
+      .eq('is_active', true).order('stock_quantity', { ascending: true }).limit(50),
     supabase.from('products').select('*', { count: 'exact', head: true }).eq('is_active', true),
   ])
 
   const todaySales = todaySalesData?.reduce((sum, s) => sum + Number(s.total), 0) || 0
+  const allVariants = lowStockItems || []
+  const filteredLowStock = allVariants
+    .filter((v: any) => v.stock_quantity <= v.low_stock_threshold)
+    .slice(0, 10)
 
   return {
     todaySales,
     todayTransactions: todayTransactions || 0,
     pendingJobs: pendingJobs || 0,
-    lowStockItems: lowStockItems || [],
+    lowStockItems: filteredLowStock,
     totalProducts: totalProducts || 0,
   }
 }

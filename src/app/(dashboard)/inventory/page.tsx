@@ -33,8 +33,9 @@ async function getCategories() {
   return data || []
 }
 
-export default async function InventoryPage() {
+export default async function InventoryPage({ searchParams }: { searchParams: { filter?: string } }) {
   const [products, categories] = await Promise.all([getProducts(), getCategories()])
+  const showLowStockOnly = searchParams.filter === 'low_stock'
 
   const totalItems = products.reduce((sum: number, p: any) => {
     return sum + (p.variants?.reduce((vSum: number, v: any) => vSum + v.stock_quantity, 0) || 0)
@@ -92,7 +93,7 @@ export default async function InventoryPage() {
         </div>
       </div>
 
-      <InventoryClient products={products} categories={categories} />
+      <InventoryClient products={products} categories={categories} defaultFilter={showLowStockOnly ? 'low_stock' : undefined} />
     </div>
   )
 }
