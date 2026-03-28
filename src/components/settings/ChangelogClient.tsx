@@ -47,7 +47,7 @@ const PHASES: ChangelogPhase[] = [
     tasks: [
       { id: '2a-1', title: 'Commit ไฟล์ค้าง', description: 'ReceiptPrintSettings, Sidebar, DEVELOPMENT_PLAN', status: 'done', completedAt: '2026-03-28' },
       { id: '2a-2', title: 'Fix Hydration Warnings', description: 'แก้ SSR mismatch ใน JobOrderPrint, Installments', status: 'done', completedAt: '2026-03-28' },
-      { id: '2a-3', title: 'Fix TypeScript Types', description: 'แทนที่ any ด้วย interface ที่ถูกต้อง', status: 'active' },
+      { id: '2a-3', title: 'Fix TypeScript Types', description: 'แทนที่ any ด้วย interface ที่ถูกต้อง', status: 'done', completedAt: '2026-03-28' },
     ],
   },
   {
@@ -55,9 +55,9 @@ const PHASES: ChangelogPhase[] = [
     title: 'Phase 2B — Performance & UX',
     subtitle: 'ปรับปรุงความเร็วและ UX',
     tasks: [
-      { id: '2b-1', title: 'Pagination', description: 'หน้า Inventory, Customers, Sales — โหลดทีละ 50', status: 'active' },
-      { id: '2b-2', title: 'Receipt Preview Modal', description: 'แสดง preview ก่อนพิมพ์ใบเสร็จใน POS', status: 'active' },
-      { id: '2b-3', title: 'Optimistic UI Job Orders', description: 'เปลี่ยนสถานะใน Kanban ไม่รอ server', status: 'active' },
+      { id: '2b-1', title: 'Pagination', description: 'หน้า Inventory, Customers, Sales — โหลดทีละ 50', status: 'done', completedAt: '2026-03-28' },
+      { id: '2b-2', title: 'Receipt Preview Modal', description: 'แสดง preview ก่อนพิมพ์ใบเสร็จใน POS', status: 'done', completedAt: '2026-03-28' },
+      { id: '2b-3', title: 'Optimistic UI Job Orders', description: 'เปลี่ยนสถานะใน Kanban ไม่รอ server', status: 'done', completedAt: '2026-03-28' },
     ],
   },
   {
