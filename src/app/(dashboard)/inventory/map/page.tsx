@@ -12,6 +12,7 @@ async function getShelfData() {
     )
     .not('shelf_location', 'is', null)
     .order('shelf_location');
+  // Supabase infers product as an array for FK joins; cast to match Variant's single-object shape
   return (data || []) as unknown as Variant[];
 }
 

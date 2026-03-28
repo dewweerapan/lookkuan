@@ -87,22 +87,22 @@ export default function ReceiptPrintSettings() {
           <ToggleRow
             label='แสดงโลโก้ร้าน'
             checked={settings.receipt_show_logo === 'true'}
-            onChange={() => toggle('receipt_show_logo')}
+            onChange={() => toggle(RECEIPT_SHOW_LOGO_KEY)}
           />
           <ToggleRow
             label='แสดงที่อยู่ร้าน'
             checked={settings.receipt_show_address === 'true'}
-            onChange={() => toggle('receipt_show_address')}
+            onChange={() => toggle(RECEIPT_SHOW_ADDRESS_KEY)}
           />
           <ToggleRow
             label='แสดงเบอร์โทรศัพท์'
             checked={settings.receipt_show_phone === 'true'}
-            onChange={() => toggle('receipt_show_phone')}
+            onChange={() => toggle(RECEIPT_SHOW_PHONE_KEY)}
           />
           <ToggleRow
             label='แสดงช่องทางชำระเงิน'
             checked={settings.receipt_show_payment_method === 'true'}
-            onChange={() => toggle('receipt_show_payment_method')}
+            onChange={() => toggle(RECEIPT_SHOW_PAYMENT_METHOD_KEY)}
           />
 
           <div>
@@ -115,7 +115,7 @@ export default function ReceiptPrintSettings() {
               onChange={(e) =>
                 setSettings((prev) => ({
                   ...prev,
-                  receipt_footer_message: e.target.value,
+                  [RECEIPT_FOOTER_MESSAGE_KEY]: e.target.value,
                 }))
               }
               placeholder='เช่น ขอบคุณที่ใช้บริการ'
