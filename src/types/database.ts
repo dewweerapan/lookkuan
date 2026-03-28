@@ -265,3 +265,45 @@ export interface RiskMetric {
   discountTotal: number
   cashDiscrepancy: number
 }
+
+export interface Supplier {
+  id: string
+  name: string
+  contact_name: string | null
+  phone: string | null
+  email: string | null
+  address: string | null
+  payment_terms: string | null
+  notes: string | null
+  is_active: boolean
+  created_at: string
+}
+
+export interface PurchaseOrder {
+  id: string
+  supplier_id: string
+  order_number: string
+  status: 'pending' | 'ordered' | 'received' | 'cancelled'
+  total_amount: number
+  ordered_at: string
+  expected_date: string | null
+  received_at: string | null
+  created_by: string | null
+  notes: string | null
+  supplier?: Supplier
+}
+
+export interface PurchaseOrderItem {
+  id: string
+  purchase_order_id: string
+  variant_id: string
+  quantity_ordered: number
+  quantity_received: number
+  unit_cost: number
+  variant?: {
+    sku: string
+    color: string
+    size: string
+    product: { name: string }[]
+  }
+}

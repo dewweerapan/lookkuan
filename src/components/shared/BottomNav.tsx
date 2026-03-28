@@ -17,6 +17,8 @@ import {
   FileText,
   Settings,
   LogOut,
+  Truck,
+  ClipboardList,
 } from 'lucide-react';
 
 const roleLabels: Record<string, string> = {
@@ -76,6 +78,18 @@ export default function BottomNav() {
       href: '/reports',
       icon: <FileText size={20} />,
       label: 'รายงาน',
+      roles: ['admin', 'manager'],
+    },
+    {
+      href: '/suppliers',
+      icon: <Truck size={20} />,
+      label: 'ซัพพลายเออร์',
+      roles: ['admin', 'manager'],
+    },
+    {
+      href: '/purchase-orders',
+      icon: <ClipboardList size={20} />,
+      label: 'ใบสั่งซื้อ',
       roles: ['admin', 'manager'],
     },
     {

@@ -21,6 +21,8 @@ import {
   ChevronLeft,
   ChevronRight,
   CreditCard,
+  Truck,
+  ClipboardList,
 } from 'lucide-react';
 import ThemeToggle from '@/components/shared/ThemeToggle';
 
@@ -83,6 +85,18 @@ const navItems: NavItem[] = [
     label: 'ประวัติการขาย',
     icon: <ShoppingCart size={22} />,
     roles: ['admin', 'manager', 'cashier'],
+  },
+  {
+    href: '/suppliers',
+    label: 'ซัพพลายเออร์',
+    icon: <Truck size={22} />,
+    roles: ['admin', 'manager'],
+  },
+  {
+    href: '/purchase-orders',
+    label: 'ใบสั่งซื้อ',
+    icon: <ClipboardList size={22} />,
+    roles: ['admin', 'manager'],
   },
   {
     href: '/settings',
