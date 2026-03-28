@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 
 export default function PinLoginPage() {
   const [pin, setPin] = useState('')
@@ -27,8 +26,8 @@ export default function PinLoginPage() {
     setError('')
   }, [])
 
-  const handleSubmit = useCallback(async () => {
-    if (pin.length < 4) {
+  const handleSubmit = useCallback(async (currentPin: string) => {
+    if (currentPin.length < 4) {
       setError('กรุณาใส่รหัส PIN อย่างน้อย 4 หลัก')
       return
     }
@@ -37,29 +36,16 @@ export default function PinLoginPage() {
     setError('')
 
     try {
-      const supabaseClient = createClient()
-      // Look up user by PIN code
-      const { data: profile, error: lookupError } = await supabaseClient
-        .from('profiles')
-        .select('id, email, full_name, role')
-        .eq('pin_code', pin)
-        .eq('is_active', true)
-        .single()
-
-      if (lookupError || !profile) {
-        setError('รหัส PIN ไม่ถูกต้อง')
-        setPin('')
-        return
-      }
-
-      // Sign in with the associated email and PIN as password
-      const { error: authError } = await supabaseClient.auth.signInWithPassword({
-        email: profile.email,
-        password: pin,
+      const res = await fetch('/api/auth/pin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: currentPin }),
       })
 
-      if (authError) {
-        setError('ไม่สามารถเข้าสู่ระบบได้ กรุณาติดต่อผู้ดูแล')
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || 'รหัส PIN ไม่ถูกต้อง')
         setPin('')
         return
       }
@@ -72,12 +58,18 @@ export default function PinLoginPage() {
     } finally {
       setLoading(false)
     }
-  }, [pin, router])
+  }, [router])
 
   // Auto-submit when 6 digits entered
-  if (pin.length === 6 && !loading) {
-    handleSubmit()
-  }
+  const handleDigit = useCallback((digit: string) => {
+    if (loading) return
+    const newPin = pin.length < 6 ? pin + digit : pin
+    setPin(newPin)
+    setError('')
+    if (newPin.length === 6) {
+      handleSubmit(newPin)
+    }
+  }, [pin, loading, handleSubmit])
 
   const digits = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '']
 
@@ -141,7 +133,7 @@ export default function PinLoginPage() {
             return (
               <button
                 key={digit}
-                onClick={() => handlePinInput(digit)}
+                onClick={() => handleDigit(digit)}
                 disabled={loading}
                 className="h-16 rounded-xl bg-white border-2 border-gray-200 text-gray-800
                          font-bold text-2xl hover:bg-gray-50 active:bg-brand-50
