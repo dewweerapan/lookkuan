@@ -102,7 +102,13 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-4 text-center">
+          <a href="/forgot-password" className="text-gray-500 hover:text-brand-600 text-sm">
+            ลืมรหัสผ่าน?
+          </a>
+        </div>
+
+        <div className="mt-4 text-center">
           <a href="/pin-login" className="text-brand-600 hover:text-brand-700 text-base font-medium">
             เข้าสู่ระบบด้วยรหัส PIN (สำหรับพนักงานหน้าร้าน)
           </a>
