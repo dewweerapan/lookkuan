@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { formatCurrency, formatDate } from '@/lib/utils'
 
 interface JobPrintData {
@@ -24,6 +25,11 @@ interface Props {
 }
 
 export default function JobOrderPrint({ job, storeName = 'LookKuan', storePhone }: Props) {
+  const [printDate, setPrintDate] = useState<string | null>(null)
+  useEffect(() => {
+    setPrintDate(new Date().toISOString())
+  }, [])
+
   const handlePrint = () => window.print()
 
   return (
@@ -59,7 +65,7 @@ export default function JobOrderPrint({ job, storeName = 'LookKuan', storePhone 
               <span style={{ fontSize: '20px', fontWeight: 'bold' }}>{job.order_number}</span>
             </div>
             <div style={{ color: '#555', fontSize: '13px' }}>
-              วันที่: {formatDate(new Date().toISOString())}
+              วันที่: {printDate ? formatDate(printDate) : ''}
             </div>
           </div>
 

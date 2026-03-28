@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -31,8 +31,15 @@ export default function NewInstallmentPage() {
     down_payment: '',
     num_installments: '3',
     interval_days: '30',
-    start_date: new Date().toISOString().split('T')[0],
+    start_date: '',
   });
+
+  useEffect(() => {
+    setForm((prev) => ({
+      ...prev,
+      start_date: new Date().toISOString().split('T')[0],
+    }));
+  }, []);
 
   const update = (field: string, value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
