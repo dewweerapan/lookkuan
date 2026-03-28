@@ -103,6 +103,14 @@ export default function SettingsPage() {
           <p className='text-gray-500 mt-1'>เพิ่ม แก้ไข ลบหมวดหมู่สินค้า</p>
         </Link>
         <Link
+          href='/settings/promotions'
+          className='bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow'
+        >
+          <div className='text-3xl mb-3'>🏷️</div>
+          <h3 className='text-lg font-bold text-gray-800'>โปรโมชัน</h3>
+          <p className='text-gray-500 mt-1'>จัดการส่วนลดและโปรโมชันอัตโนมัติ</p>
+        </Link>
+        <Link
           href='/settings/changelog'
           className='bg-gradient-to-br from-brand-50 to-brand-100 rounded-xl border border-brand-200 p-6 hover:shadow-md transition-shadow sm:col-span-2'
         >

@@ -307,3 +307,17 @@ export interface PurchaseOrderItem {
     product: { name: string }[]
   }
 }
+
+export interface Promotion {
+  id: string
+  name: string
+  description: string | null
+  type: 'percent_off' | 'fixed_off' | 'min_purchase_discount'
+  value: number
+  min_purchase: number
+  start_date: string | null
+  end_date: string | null
+  is_active: boolean
+  created_by: string | null
+  created_at: string
+}

@@ -18,7 +18,8 @@ import PromptPayQR from '@/components/pos/PromptPayQR';
 import ReceiptPreviewModal from '@/components/pos/ReceiptPreviewModal';
 import { getStoreSettings } from '@/lib/storeSettings';
 import { toast } from 'sonner';
-import type { Category, Product, ProductVariant } from '@/types/database';
+import type { Category, Product, ProductVariant, Promotion } from '@/types/database';
+import { getBestPromotion, type AppliedPromotion } from '@/lib/promotions';
 
 type PaymentMethod = 'cash' | 'transfer' | 'promptpay' | 'credit_card';
 type ProductWithVariants = Product & { variants: ProductVariant[] };
@@ -163,6 +164,10 @@ export default function POSClient({ categories, products }: Props) {
   } | null>(null);
   const [customerSearching, setCustomerSearching] = useState(false);
 
+  // Promotions state
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [bestPromotion, setBestPromotion] = useState<AppliedPromotion | null>(null);
+
   const searchRef = useRef<HTMLInputElement>(null);
   const barcodeBuffer = useRef('');
   const barcodeTimer = useRef<NodeJS.Timeout>();
@@ -225,6 +230,29 @@ export default function POSClient({ categories, products }: Props) {
       });
     }).catch(() => {/* keep defaults */});
   }, []);
+
+  // Load active promotions once on mount
+  useEffect(() => {
+    const supabase = createClient();
+    const load = async () => {
+      try {
+        const { data } = await supabase
+          .from('promotions')
+          .select('*')
+          .eq('is_active', true);
+        if (data) setPromotions(data);
+      } catch {
+        // ignore — promotions are optional
+      }
+    };
+    load();
+  }, []);
+
+  // Recompute best promotion whenever cart or promotions change
+  useEffect(() => {
+    const subtotal = cart.getSubtotal();
+    setBestPromotion(getBestPromotion(promotions, subtotal));
+  }, [cart.items, promotions]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -293,7 +321,8 @@ export default function POSClient({ categories, products }: Props) {
 
   const handleProcessSale = async () => {
     if (cart.items.length === 0) return;
-    const total = cart.getTotal();
+    const promoDiscount = bestPromotion?.discountAmount ?? 0;
+    const total = Math.max(0, cart.getTotal() - promoDiscount);
     if (paymentMethod === 'cash' && Number(cashReceived) < total) {
       toast.error('จำนวนเงินที่รับไม่พอ');
       return;
@@ -303,7 +332,7 @@ export default function POSClient({ categories, products }: Props) {
       const supabase = createClient();
       const saleNumber = generateSaleNumber();
       const subtotal = cart.getSubtotal();
-      const discountAmount = cart.getTotalDiscount();
+      const discountAmount = cart.getTotalDiscount() + promoDiscount;
       const changeAmount =
         paymentMethod === 'cash' ? Number(cashReceived) - total : 0;
 
@@ -381,9 +410,10 @@ export default function POSClient({ categories, products }: Props) {
     }
   };
 
+  const promoAdjustedTotal = Math.max(0, cart.getTotal() - (bestPromotion?.discountAmount ?? 0));
   const changeAmount =
     paymentMethod === 'cash' && cashReceived
-      ? Math.max(0, Number(cashReceived) - cart.getTotal())
+      ? Math.max(0, Number(cashReceived) - promoAdjustedTotal)
       : 0;
 
   return (
@@ -641,14 +671,23 @@ export default function POSClient({ categories, products }: Props) {
             <div className='p-4 border-t-2 border-gray-200 bg-gray-50'>
               {cart.getTotalDiscount() > 0 && (
                 <div className='flex justify-between text-base text-red-600 mb-1'>
-                  <span>ส่วนลด</span>
+                  <span>ส่วนลดรายการ</span>
                   <span>-{formatCurrency(cart.getTotalDiscount())}</span>
+                </div>
+              )}
+              {bestPromotion && (
+                <div className='flex items-center justify-between mb-2 px-3 py-2 bg-green-50 border border-green-200 rounded-xl'>
+                  <div className='flex items-center gap-1.5'>
+                    <span className='text-base'>🏷️</span>
+                    <span className='text-sm font-semibold text-green-700'>{bestPromotion.description}</span>
+                  </div>
+                  <span className='text-sm font-bold text-green-700'>-{formatCurrency(bestPromotion.discountAmount)}</span>
                 </div>
               )}
               <div className='flex justify-between text-2xl font-bold text-gray-800 mb-4'>
                 <span>รวม</span>
                 <span className='text-brand-600'>
-                  {formatCurrency(cart.getTotal())}
+                  {formatCurrency(Math.max(0, cart.getTotal() - (bestPromotion?.discountAmount ?? 0)))}
                 </span>
               </div>
               <button
@@ -662,10 +701,16 @@ export default function POSClient({ categories, products }: Props) {
 
           {showPayment && (
             <div className='p-4 border-t-2 border-gray-200 bg-green-50 space-y-4'>
+              {bestPromotion && (
+                <div className='flex items-center justify-between px-3 py-2 bg-green-100 border border-green-300 rounded-xl'>
+                  <span className='text-sm font-semibold text-green-700'>🏷️ {bestPromotion.description}</span>
+                  <span className='text-sm font-bold text-green-700'>-{formatCurrency(bestPromotion.discountAmount)}</span>
+                </div>
+              )}
               <div className='flex justify-between text-2xl font-bold'>
                 <span>ยอดรวม</span>
                 <span className='text-brand-600'>
-                  {formatCurrency(cart.getTotal())}
+                  {formatCurrency(Math.max(0, cart.getTotal() - (bestPromotion?.discountAmount ?? 0)))}
                 </span>
               </div>
 
@@ -782,14 +827,14 @@ export default function POSClient({ categories, products }: Props) {
                     ))}
                     <button
                       onClick={() =>
-                        setCashReceived(String(Math.ceil(cart.getTotal())))
+                        setCashReceived(String(Math.ceil(promoAdjustedTotal)))
                       }
                       className='py-3 rounded-xl bg-brand-100 border-2 border-brand-300 text-lg font-bold text-brand-700'
                     >
                       พอดี
                     </button>
                   </div>
-                  {Number(cashReceived) >= cart.getTotal() && (
+                  {Number(cashReceived) >= promoAdjustedTotal && (
                     <div className='mt-3 p-3 bg-green-100 rounded-xl text-center'>
                       <p className='text-base text-green-700'>เงินทอน</p>
                       <p className='text-3xl font-bold text-green-800'>
@@ -802,7 +847,7 @@ export default function POSClient({ categories, products }: Props) {
               {paymentMethod === 'promptpay' && (
                 <PromptPayQR
                   phone={process.env.NEXT_PUBLIC_STORE_PHONE || ''}
-                  amount={cart.getTotal()}
+                  amount={promoAdjustedTotal}
                   storeName={process.env.NEXT_PUBLIC_STORE_NAME}
                 />
               )}
@@ -821,7 +866,7 @@ export default function POSClient({ categories, products }: Props) {
                   disabled={
                     processing ||
                     (paymentMethod === 'cash' &&
-                      Number(cashReceived) < cart.getTotal())
+                      Number(cashReceived) < promoAdjustedTotal)
                   }
                   className='flex-1 pos-btn-success py-4 text-lg disabled:opacity-50'
                 >
@@ -853,7 +898,7 @@ export default function POSClient({ categories, products }: Props) {
             {cart.getItemCount() > 0 ? cart.getItemCount() : 'ตะกร้า'}
           </span>
           {cart.getItemCount() > 0 && (
-            <span className='font-bold'>{formatCurrency(cart.getTotal())}</span>
+            <span className='font-bold'>{formatCurrency(promoAdjustedTotal)}</span>
           )}
         </button>
       )}
