@@ -114,7 +114,7 @@ export function useAuth() {
     } catch {
       // fallback: hard redirect
     }
-    window.location.href = '/login'
+    window.location.href = '/'
   }
 
   // Use profile.role if loaded, otherwise fall back to cachedRole
