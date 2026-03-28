@@ -95,8 +95,8 @@ const PHASES: ChangelogPhase[] = [
     title: 'Phase 2F — Infrastructure',
     subtitle: 'CI/CD และ Error Monitoring',
     tasks: [
-      { id: '2f-1', title: 'GitHub Actions CI/CD', description: 'Lint + Type check + Build + Test on push', status: 'active' },
-      { id: '2f-2', title: 'Sentry Error Monitoring', description: 'ติดตาม error จาก production', status: 'active' },
+      { id: '2f-1', title: 'GitHub Actions CI/CD', description: 'Lint + Type check + Build + Test on push', status: 'done', completedAt: '2026-03-28' },
+      { id: '2f-2', title: 'Sentry Error Monitoring', description: 'ติดตาม error จาก production', status: 'done', completedAt: '2026-03-28' },
     ],
   },
 ];
