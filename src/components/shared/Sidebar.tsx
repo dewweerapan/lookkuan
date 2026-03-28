@@ -20,7 +20,6 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Menu,
   CreditCard,
 } from 'lucide-react';
 import ThemeToggle from '@/components/shared/ThemeToggle';
@@ -82,7 +81,7 @@ const navItems: NavItem[] = [
   {
     href: '/sales',
     label: 'ประวัติการขาย',
-    icon: <ShoppingCart size={18} />,
+    icon: <ShoppingCart size={22} />,
     roles: ['admin', 'manager', 'cashier'],
   },
   {
@@ -93,11 +92,17 @@ const navItems: NavItem[] = [
   },
 ];
 
+const roleLabels: Record<string, string> = {
+  admin: 'ผู้ดูแลระบบ',
+  manager: 'ผู้จัดการ',
+  cashier: 'แคชเชียร์',
+  embroidery_staff: 'ช่างปัก',
+};
+
 export default function Sidebar() {
   const pathname = usePathname();
-  const { profile, loading, signOut, hasRole } = useAuth();
+  const { profile, signOut, hasRole } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [storeLogo, setStoreLogo] = useState<string | null>(null);
   const mounted = useMounted();
 
@@ -119,98 +124,89 @@ export default function Sidebar() {
     return pathname.startsWith(href);
   };
 
-  const roleLabels: Record<string, string> = {
-    admin: 'ผู้ดูแลระบบ',
-    manager: 'ผู้จัดการ',
-    cashier: 'แคชเชียร์',
-    embroidery_staff: 'ช่างปัก',
-  };
-
   return (
-    <>
-      {/* Sidebar — desktop only (mobile uses BottomNav) */}
-      <aside
-        className={`hidden lg:flex fixed left-0 top-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-sm z-40
-          transition-all duration-300 flex-col
-          ${collapsed ? 'w-20' : 'w-64'}
-        `}
+    // Sidebar — desktop only (mobile uses BottomNav)
+    <aside
+      className={`hidden lg:flex fixed left-0 top-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-sm z-40
+        transition-all duration-300 flex-col
+        ${collapsed ? 'w-20' : 'w-64'}
+      `}
+    >
+      {/* Header */}
+      <div
+        className={`p-4 border-b border-gray-100 dark:border-gray-800 flex items-center ${collapsed ? 'justify-center' : 'justify-between'}`}
       >
-        {/* Header */}
-        <div
-          className={`p-4 border-b border-gray-100 dark:border-gray-800 flex items-center ${collapsed ? 'justify-center' : 'justify-between'}`}
-        >
-          {!collapsed && (
-            <div className='flex items-center gap-2'>
-              {storeLogo ? (
-                <img
-                  src={storeLogo}
-                  alt='โลโก้ร้าน'
-                  className='w-8 h-8 rounded-lg object-contain'
-                />
-              ) : null}
-              <div>
-                <h1 className='text-xl font-bold text-brand-600 dark:text-brand-400'>LookKuan</h1>
-                <p className='text-xs text-gray-400 dark:text-gray-500'>ระบบจัดการร้าน</p>
-              </div>
-            </div>
-          )}
-          {collapsed &&
-            (storeLogo ? (
+        {!collapsed && (
+          <div className='flex items-center gap-2'>
+            {storeLogo ? (
               <img
                 src={storeLogo}
                 alt='โลโก้ร้าน'
-                className='w-9 h-9 rounded-lg object-contain'
+                className='w-8 h-8 rounded-lg object-contain'
               />
-            ) : (
-              <span className='text-xl font-bold text-brand-600'>LK</span>
-            ))}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className='hidden lg:flex p-1.5 rounded-lg hover:bg-gray-100 text-gray-400'
-            aria-label={collapsed ? 'ขยายเมนู' : 'ย่อเมนู'}
-          >
-            {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-          </button>
-        </div>
-
-        {/* Navigation */}
-        <nav className='flex-1 p-3 space-y-1 overflow-y-auto'>
-          {filteredNavItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`nav-item ${isActive(item.href) ? 'nav-item-active' : ''} ${collapsed ? 'justify-center px-2' : ''}`}
-              title={collapsed ? item.label : undefined}
-            >
-              <span className='flex-shrink-0'>{item.icon}</span>
-              {!collapsed && <span>{item.label}</span>}
-            </Link>
-          ))}
-        </nav>
-
-        {/* User info */}
-        <div className='p-3 border-t border-gray-100 dark:border-gray-800'>
-          {!collapsed && profile && (
-            <div className='px-3 py-2 mb-2'>
-              <p className='font-semibold text-gray-800 dark:text-gray-100 text-sm truncate'>
-                {profile.full_name}
-              </p>
-              <p className='text-xs text-gray-500 dark:text-gray-400'>
-                {roleLabels[profile.role] || profile.role}
-              </p>
+            ) : null}
+            <div>
+              <h1 className='text-xl font-bold text-brand-600 dark:text-brand-400'>LookKuan</h1>
+              <p className='text-xs text-gray-400 dark:text-gray-500'>ระบบจัดการร้าน</p>
             </div>
-          )}
-          <ThemeToggle collapsed={collapsed} />
-          <button
-            onClick={signOut}
-            className={`nav-item text-red-600 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-700 w-full ${collapsed ? 'justify-center px-2' : ''}`}
-            title='ออกจากระบบ'
+          </div>
+        )}
+        {collapsed &&
+          (storeLogo ? (
+            <img
+              src={storeLogo}
+              alt='โลโก้ร้าน'
+              className='w-9 h-9 rounded-lg object-contain'
+            />
+          ) : (
+            <span className='text-xl font-bold text-brand-600'>LK</span>
+          ))}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className='hidden lg:flex p-1.5 rounded-lg hover:bg-gray-100 text-gray-400'
+          aria-label={collapsed ? 'ขยายเมนู' : 'ย่อเมนู'}
+        >
+          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+        </button>
+      </div>
+
+      {/* Navigation */}
+      <nav className='flex-1 p-3 space-y-1 overflow-y-auto'>
+        {filteredNavItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`nav-item ${isActive(item.href) ? 'nav-item-active' : ''} ${collapsed ? 'justify-center px-2' : ''}`}
+            title={collapsed ? item.label : undefined}
           >
-            <LogOut size={22} />
-            {!collapsed && <span>ออกจากระบบ</span>}
-          </button>
-        </div>
-      </aside>
-    </>
+            <span className='flex-shrink-0'>{item.icon}</span>
+            {!collapsed && <span>{item.label}</span>}
+          </Link>
+        ))}
+      </nav>
+
+      {/* User info */}
+      <div className='p-3 border-t border-gray-100 dark:border-gray-800'>
+        {!collapsed && profile && (
+          <div className='px-3 py-2 mb-2'>
+            <p className='font-semibold text-gray-800 dark:text-gray-100 text-sm truncate'>
+              {profile.full_name}
+            </p>
+            <p className='text-xs text-gray-500 dark:text-gray-400'>
+              {roleLabels[profile.role] || profile.role}
+            </p>
+          </div>
+        )}
+        <ThemeToggle collapsed={collapsed} />
+        <button
+          onClick={signOut}
+          className={`nav-item text-red-600 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-700 w-full ${collapsed ? 'justify-center px-2' : ''}`}
+          title='ออกจากระบบ'
+        >
+          <LogOut size={22} />
+          {!collapsed && <span>ออกจากระบบ</span>}
+        </button>
+      </div>
+    </aside>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import {
@@ -27,13 +27,13 @@ export default function ReceiptPrintSettings() {
   const [settings, setSettings] = useState<Settings>({ ...DEFAULTS });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const supabaseRef = useRef(createClient());
   const mounted = useMounted();
 
   useEffect(() => {
     const load = async () => {
       try {
-        const supabase = createClient();
-        const data = await getStoreSettings(supabase, Object.keys(DEFAULTS));
+        const data = await getStoreSettings(supabaseRef.current, Object.keys(DEFAULTS));
         if (!mounted.current) return;
         const map: Partial<Settings> = {};
         Object.entries(data).forEach(([key, value]) => {
@@ -53,8 +53,7 @@ export default function ReceiptPrintSettings() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const supabase = createClient();
-      await upsertStoreSettings(supabase, settings);
+      await upsertStoreSettings(supabaseRef.current, settings);
       toast.success('บันทึกการตั้งค่าใบเสร็จสำเร็จ');
     } catch {
       toast.error('เกิดข้อผิดพลาดในการบันทึก');
