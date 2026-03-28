@@ -2,6 +2,9 @@ import { createClient } from '@/lib/supabase/server';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import PageHeader from '@/components/shared/PageHeader';
 import ReportsExportButton from '@/components/reports/ReportsExportButton';
+import ABCAnalysisChart from '@/components/reports/ABCAnalysisChart';
+import SalesHeatmap from '@/components/reports/SalesHeatmap';
+import CustomerRetentionChart from '@/components/reports/CustomerRetentionChart';
 
 interface OverduePaymentRow {
   id: string;
@@ -17,6 +20,43 @@ interface StaffSaleRow {
   cashier: { full_name: string } | null;
 }
 
+interface ProductRevenue {
+  name: string;
+  revenue: number;
+  tier: 'A' | 'B' | 'C';
+}
+
+interface HeatCell {
+  day: number;
+  hour: number;
+  count: number;
+}
+
+interface MonthlyRetention {
+  month: string;
+  newCustomers: number;
+  returningCustomers: number;
+}
+
+function computeABC(items: { product_name: string; unit_price: number; quantity: number }[]): ProductRevenue[] {
+  const revenueMap: Record<string, number> = {};
+  for (const item of items) {
+    const name = item.product_name || 'ไม่ระบุ';
+    revenueMap[name] = (revenueMap[name] || 0) + item.unit_price * item.quantity;
+  }
+  const sorted = Object.entries(revenueMap)
+    .map(([name, revenue]) => ({ name, revenue }))
+    .sort((a, b) => b.revenue - a.revenue);
+
+  const total = sorted.reduce((s, p) => s + p.revenue, 0);
+  let cumulative = 0;
+  return sorted.map((p) => {
+    cumulative += p.revenue;
+    const pct = total > 0 ? cumulative / total : 1;
+    return { ...p, tier: pct <= 0.8 ? 'A' as const : pct <= 0.95 ? 'B' as const : 'C' as const };
+  });
+}
+
 async function getReportData() {
   const supabase = await createClient();
   const today = new Date();
@@ -30,6 +70,11 @@ async function getReportData() {
     today.setDate(today.getDate() - today.getDay()),
   ).toISOString();
 
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const sixMonthsAgoStr = sixMonthsAgo.toISOString();
+
   const [
     { data: monthlySales },
     { data: weeklySales },
@@ -37,6 +82,9 @@ async function getReportData() {
     { data: jobStats },
     { data: overduePayments },
     { data: staffSales },
+    { data: saleItemsForABC },
+    { data: salesForHeatmap },
+    { data: salesWithCustomer },
   ] = await Promise.all([
     supabase
       .from('sales')
@@ -70,6 +118,24 @@ async function getReportData() {
       .select('total, cashier_id, cashier:profiles!cashier_id(full_name, role)')
       .eq('status', 'completed')
       .gte('created_at', startOfMonth),
+    // ABC Analysis: all-time sale items with unit_price + quantity
+    supabase
+      .from('sale_items')
+      .select('product_name, unit_price, quantity'),
+    // Heatmap: completed sales in the last 30 days
+    supabase
+      .from('sales')
+      .select('created_at')
+      .eq('status', 'completed')
+      .gte('created_at', thirtyDaysAgo),
+    // Customer retention: completed sales with customer_id in last 6 months
+    supabase
+      .from('sales')
+      .select('customer_id, created_at')
+      .eq('status', 'completed')
+      .not('customer_id', 'is', null)
+      .gte('created_at', sixMonthsAgoStr)
+      .order('created_at'),
   ]);
 
   const monthlyTotal =
@@ -137,6 +203,50 @@ async function getReportData() {
   const staffPerformance = Array.from(staffMap.values())
     .sort((a, b) => b.total - a.total);
 
+  // ABC Analysis
+  const abcData: ProductRevenue[] = computeABC(
+    (saleItemsForABC ?? []) as { product_name: string; unit_price: number; quantity: number }[]
+  );
+
+  // Sales Heatmap
+  const heatmapData: HeatCell[] = (() => {
+    const map: Record<string, number> = {};
+    for (const sale of salesForHeatmap ?? []) {
+      const d = new Date(sale.created_at);
+      const key = `${d.getDay()}_${d.getHours()}`;
+      map[key] = (map[key] || 0) + 1;
+    }
+    return Object.entries(map).map(([key, count]) => {
+      const [day, hour] = key.split('_').map(Number);
+      return { day, hour, count };
+    });
+  })();
+
+  // Customer Retention
+  const retentionData: MonthlyRetention[] = (() => {
+    const firstPurchase: Record<string, string> = {};
+    const monthlyNew: Record<string, number> = {};
+    const monthlyReturn: Record<string, number> = {};
+
+    for (const sale of (salesWithCustomer ?? []) as { customer_id: string | null; created_at: string }[]) {
+      if (!sale.customer_id) continue;
+      const month = sale.created_at.slice(0, 7);
+      if (!firstPurchase[sale.customer_id]) {
+        firstPurchase[sale.customer_id] = month;
+        monthlyNew[month] = (monthlyNew[month] || 0) + 1;
+      } else if (firstPurchase[sale.customer_id] !== month) {
+        monthlyReturn[month] = (monthlyReturn[month] || 0) + 1;
+      }
+    }
+
+    const months = Array.from(new Set([...Object.keys(monthlyNew), ...Object.keys(monthlyReturn)])).sort();
+    return months.map(m => ({
+      month: m,
+      newCustomers: monthlyNew[m] || 0,
+      returningCustomers: monthlyReturn[m] || 0,
+    }));
+  })();
+
   return {
     monthlyTotal,
     weeklyTotal,
@@ -149,6 +259,9 @@ async function getReportData() {
     topProductsList,
     overduePayments: overduePayments || [],
     staffPerformance,
+    abcData,
+    heatmapData,
+    retentionData,
   };
 }
 
@@ -362,6 +475,33 @@ export default async function ReportsPage() {
             </div>
           </>
         )}
+      </div>
+
+      {/* Advanced Analytics */}
+      <div className='mt-8'>
+        <h2 className='text-lg font-bold text-gray-800 mb-4'>การวิเคราะห์เชิงลึก</h2>
+        <div className='space-y-6'>
+          {/* ABC Analysis */}
+          <div className='bg-white rounded-xl border border-gray-200 p-5'>
+            <h3 className='font-bold text-gray-800 mb-1'>ABC Analysis — จำแนกสินค้าตามรายได้</h3>
+            <p className='text-sm text-gray-500 mb-4'>A=ขายดี B=ปานกลาง C=ขายช้า</p>
+            <ABCAnalysisChart data={data.abcData} />
+          </div>
+
+          {/* Sales Heatmap */}
+          <div className='bg-white rounded-xl border border-gray-200 p-5'>
+            <h3 className='font-bold text-gray-800 mb-1'>แผนที่ยอดขาย — ช่วงเวลาที่ขายดี</h3>
+            <p className='text-sm text-gray-500 mb-4'>30 วันล่าสุด · แสดงจำนวนบิลต่อชั่วโมง</p>
+            <SalesHeatmap data={data.heatmapData} />
+          </div>
+
+          {/* Customer Retention */}
+          <div className='bg-white rounded-xl border border-gray-200 p-5'>
+            <h3 className='font-bold text-gray-800 mb-1'>ลูกค้าใหม่ vs ลูกค้าเดิม</h3>
+            <p className='text-sm text-gray-500 mb-4'>6 เดือนล่าสุด</p>
+            <CustomerRetentionChart data={data.retentionData} />
+          </div>
+        </div>
       </div>
     </div>
   );
