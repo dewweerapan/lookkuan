@@ -4,6 +4,7 @@ import { formatCurrency, formatDate, formatDateTime } from '@/lib/utils'
 import { JOB_STATUS_LABELS, JOB_STATUS_COLORS, type JobStatus } from '@/lib/constants'
 import PageHeader from '@/components/shared/PageHeader'
 import JobOrderActions from '@/components/job-orders/JobOrderActions'
+import JobOrderShare from '@/components/job-orders/JobOrderShare'
 
 async function getJobOrder(id: string) {
   const supabase = await createClient()
@@ -134,6 +135,10 @@ export default async function JobOrderDetailPage({ params }: { params: { id: str
                     {job.customer_phone}
                   </a>
                 </p>
+              </div>
+              <div className="pt-4 border-t border-gray-100">
+                <p className="text-sm text-gray-500 mb-2">แชร์ให้ลูกค้าติดตามงาน</p>
+                <JobOrderShare orderNumber={job.order_number} />
               </div>
             </div>
           </div>
