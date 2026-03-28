@@ -1,11 +1,9 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-
-const LOW_STOCK_THRESHOLD = 3;
 
 type Variant = {
   id: string;
@@ -13,6 +11,7 @@ type Variant = {
   size: string | null;
   color: string | null;
   stock_quantity: number;
+  low_stock_threshold: number;
   shelf_location: string;
   product: { id: string; name: string; base_price: number } | null;
 };
@@ -23,7 +22,8 @@ export default function ShelfMapClient({
   variants: Variant[];
 }) {
   const router = useRouter();
-  const supabase = useMemo(() => createClient(), []);
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
+  if (!supabaseRef.current) supabaseRef.current = createClient();
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
@@ -47,7 +47,7 @@ export default function ShelfMapClient({
         loc,
         items,
         totalStock: items.reduce((s, v) => s + v.stock_quantity, 0),
-        lowStock: items.some((v) => v.stock_quantity <= LOW_STOCK_THRESHOLD),
+        lowStock: items.some((v) => v.stock_quantity <= v.low_stock_threshold),
       }));
   }, [localVariants]);
 
@@ -111,7 +111,7 @@ export default function ShelfMapClient({
 
       // Persist to DB
       setSaving(true);
-      const { error } = await supabase
+      const { error } = await supabaseRef.current!
         .from('product_variants')
         .update({ shelf_location: targetShelf })
         .eq('id', draggingId);
@@ -125,7 +125,7 @@ export default function ShelfMapClient({
         router.refresh();
       }
     },
-    [draggingId, localVariants, router, supabase],
+    [draggingId, localVariants, router],
   );
 
   const handleDragEnd = useCallback(() => {
@@ -218,7 +218,7 @@ export default function ShelfMapClient({
           <div className='grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2'>
             {shelves.map(({ loc, items, totalStock, lowStock }) => {
               const highlighted = matchedShelves.has(loc);
-              const dimmed = search.trim() ? !matchedShelves.has(loc) : false;
+              const dimmed = search.trim() ? !highlighted : false;
               const isSelected = selected === loc;
               const isDragTarget = dragOverShelf === loc && draggingId !== null;
 
@@ -274,7 +274,7 @@ export default function ShelfMapClient({
           <div className='flex flex-wrap gap-4 mt-4 text-xs text-gray-400'>
             <span className='flex items-center gap-1'>
               <span className='w-2 h-2 bg-red-400 rounded-full inline-block' />{' '}
-              สต็อกใกล้หมด (≤{LOW_STOCK_THRESHOLD})
+              สต็อกใกล้หมด
             </span>
             {search && (
               <span className='flex items-center gap-1'>
@@ -346,7 +346,7 @@ export default function ShelfMapClient({
                       className={`text-sm font-bold ml-2 flex-shrink-0 ${
                         v.stock_quantity === 0
                           ? 'text-red-500'
-                          : v.stock_quantity <= LOW_STOCK_THRESHOLD
+                          : v.stock_quantity <= v.low_stock_threshold
                             ? 'text-yellow-600'
                             : 'text-gray-700'
                       }`}
@@ -361,7 +361,7 @@ export default function ShelfMapClient({
                 <span>{selectedVariants.length} รายการ</span>
                 <span>
                   รวม{' '}
-                  {selectedVariants.reduce((s, v) => s + v.stock_quantity, 0)}{' '}
+                  {shelves.find((s) => s.loc === selected)?.totalStock ?? 0}{' '}
                   ชิ้น
                 </span>
               </div>

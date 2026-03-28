@@ -8,20 +8,20 @@ export default function ServiceWorkerRegister() {
 
     let registration: ServiceWorkerRegistration | null = null;
 
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then((reg) => {
-        registration = reg;
-      })
-      .catch((err) => console.warn('SW registration failed:', err));
-
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         registration?.update();
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then((reg) => {
+        registration = reg;
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+      })
+      .catch((err) => console.warn('SW registration failed:', err));
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };

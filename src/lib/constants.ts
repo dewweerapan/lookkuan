@@ -3,6 +3,8 @@ export const STORE_PHONE = process.env.NEXT_PUBLIC_STORE_PHONE || ''
 export const STORE_ADDRESS = process.env.NEXT_PUBLIC_STORE_ADDRESS || ''
 export const TAX_RATE = Number(process.env.NEXT_PUBLIC_TAX_RATE) || 0.07
 
+export const LINE_NOTIFY_TOKEN_KEY = 'line_notify_token'
+
 export const ROLES = {
   ADMIN: 'admin',
   MANAGER: 'manager',

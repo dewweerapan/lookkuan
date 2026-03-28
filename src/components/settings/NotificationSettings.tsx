@@ -3,9 +3,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
+import { LINE_NOTIFY_TOKEN_KEY } from '@/lib/constants';
 
 const SETTINGS_KEYS = [
-  'line_notify_token',
+  LINE_NOTIFY_TOKEN_KEY,
   'notify_low_stock',
   'notify_new_order',
   'notify_installment_due',
@@ -32,7 +33,7 @@ export default function NotificationSettings() {
         if (!mounted) return;
         if (data) {
           const map = Object.fromEntries(data.map((r) => [r.key, r.value]));
-          setToken(map.line_notify_token ?? '');
+          setToken(map[LINE_NOTIFY_TOKEN_KEY] ?? '');
           setNotifyLowStock(map.notify_low_stock === 'true');
           setNotifyNewOrder(map.notify_new_order === 'true');
           setNotifyInstallment(map.notify_installment_due === 'true');
@@ -47,7 +48,7 @@ export default function NotificationSettings() {
   const handleSave = async () => {
     setSaving(true);
     const rows = [
-      { key: 'line_notify_token', value: token.trim() || null },
+      { key: LINE_NOTIFY_TOKEN_KEY, value: token.trim() || null },
       { key: 'notify_low_stock', value: String(notifyLowStock) },
       { key: 'notify_new_order', value: String(notifyNewOrder) },
       { key: 'notify_installment_due', value: String(notifyInstallment) },

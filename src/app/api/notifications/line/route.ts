@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { ROLES } from '@/lib/constants';
+import { ROLES, LINE_NOTIFY_TOKEN_KEY } from '@/lib/constants';
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -20,18 +20,21 @@ export async function POST(req: NextRequest) {
   const { message } = body;
   if (!message) return NextResponse.json({ error: 'message is required' }, { status: 400 });
 
-  const [{ data: profile }, { data: setting }] = await Promise.all([
-    supabase.from('profiles').select('role').eq('id', user.id).single(),
-    supabase
-      .from('store_settings')
-      .select('value')
-      .eq('key', 'line_notify_token')
-      .maybeSingle(),
-  ]);
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
 
   if (!profile || (profile.role !== ROLES.ADMIN && profile.role !== ROLES.MANAGER)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
+
+  const { data: setting } = await supabase
+    .from('store_settings')
+    .select('value')
+    .eq('key', LINE_NOTIFY_TOKEN_KEY)
+    .maybeSingle();
 
   const token = setting?.value;
   if (!token) {

@@ -8,11 +8,14 @@ async function getShelfData() {
   const { data } = await supabase
     .from('product_variants')
     .select(
-      'id, sku, size, color, stock_quantity, shelf_location, product:products(id, name, base_price)',
+      'id, sku, size, color, stock_quantity, low_stock_threshold, shelf_location, product:products(id, name, base_price)',
     )
     .not('shelf_location', 'is', null)
     .order('shelf_location');
-  return data || [];
+  return (data || []).map((v) => ({
+    ...v,
+    product: Array.isArray(v.product) ? (v.product[0] ?? null) : v.product,
+  }));
 }
 
 export default async function InventoryMapPage() {
@@ -32,7 +35,7 @@ export default async function InventoryMapPage() {
           </Link>
         }
       />
-      <ShelfMapClient variants={variants as any} />
+      <ShelfMapClient variants={variants} />
     </div>
   );
 }
