@@ -42,6 +42,15 @@ async function getDashboardStats() {
     .filter((v: any) => v.stock_quantity <= v.low_stock_threshold)
     .slice(0, 10)
 
+  // Today's due installments
+  const { data: todayInstallments } = await supabase
+    .from('installment_payments')
+    .select('id, installment_number, due_date, amount, plan_id, plan:installment_plans(plan_number, customer_name)')
+    .eq('status', 'pending')
+    .lte('due_date', today)
+    .order('due_date', { ascending: true })
+    .limit(5)
+
   return {
     todaySales,
     todayTransactions: todayTransactions || 0,
@@ -49,6 +58,7 @@ async function getDashboardStats() {
     lowStockItems: filteredLowStock,
     totalProducts: totalProducts || 0,
     dueSoonJobs: dueSoonJobs || [],
+    todayInstallments: todayInstallments || [],
   }
 }
 
@@ -162,6 +172,36 @@ export default async function DashboardPage() {
           </div>
           <Link href="/job-orders" className="inline-block mt-3 text-orange-700 font-semibold hover:text-orange-800 text-sm">
             ดูงานทั้งหมด →
+          </Link>
+        </div>
+      )}
+
+      {/* Today's Due Installments */}
+      {stats.todayInstallments.length > 0 && (
+        <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-6 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-2xl">💳</span>
+            <h3 className="text-lg font-bold text-purple-800">
+              งวดผ่อนครบกำหนดวันนี้ ({stats.todayInstallments.length} งวด)
+            </h3>
+          </div>
+          <div className="space-y-2">
+            {stats.todayInstallments.map((p: any) => (
+              <Link
+                key={p.id}
+                href={`/installments/${p.plan_id}`}
+                className="flex items-center justify-between bg-white rounded-lg p-3 hover:shadow-sm transition-shadow"
+              >
+                <div>
+                  <p className="font-semibold text-gray-800">{(p.plan as any)?.customer_name || '-'}</p>
+                  <p className="text-sm text-gray-500">{(p.plan as any)?.plan_number} · งวดที่ {p.installment_number}</p>
+                </div>
+                <span className="text-sm font-bold text-purple-700">{formatCurrency(p.amount)}</span>
+              </Link>
+            ))}
+          </div>
+          <Link href="/installments" className="inline-block mt-3 text-purple-700 font-semibold hover:text-purple-800 text-sm">
+            ดูผ่อนชำระทั้งหมด →
           </Link>
         </div>
       )}

@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
+import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard,
   Package,
@@ -17,6 +18,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
+  CreditCard,
 } from 'lucide-react'
 
 interface NavItem {
@@ -50,6 +52,12 @@ const navItems: NavItem[] = [
     icon: <Scissors size={22} />,
   },
   {
+    href: '/installments',
+    label: 'ผ่อนชำระ',
+    icon: <CreditCard size={22} />,
+    roles: ['admin', 'manager', 'cashier'],
+  },
+  {
     href: '/risk-dashboard',
     label: 'แดชบอร์ดความเสี่ยง',
     icon: <BarChart3 size={22} />,
@@ -68,6 +76,12 @@ const navItems: NavItem[] = [
     roles: ['admin', 'manager'],
   },
   {
+    href: '/sales',
+    label: 'ประวัติการขาย',
+    icon: <ShoppingCart size={18} />,
+    roles: ['admin', 'manager', 'cashier'],
+  },
+  {
     href: '/settings',
     label: 'ตั้งค่า',
     icon: <Settings size={22} />,
@@ -80,6 +94,17 @@ export default function Sidebar() {
   const { profile, loading, signOut, hasRole } = useAuth()
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [storeLogo, setStoreLogo] = useState<string | null>(null)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase
+      .from('store_settings')
+      .select('value')
+      .eq('key', 'store_logo_url')
+      .maybeSingle()
+      .then(({ data }) => setStoreLogo(data?.value ?? null))
+  }, [])
 
   // hasRole already falls back to cached localStorage role, so no need to check loading
   const filteredNavItems = navItems.filter(item => {
@@ -111,12 +136,21 @@ export default function Sidebar() {
         {/* Header */}
         <div className={`p-4 border-b border-gray-100 flex items-center ${collapsed ? 'justify-center' : 'justify-between'}`}>
           {!collapsed && (
-            <div>
-              <h1 className="text-xl font-bold text-brand-600">LookKuan</h1>
-              <p className="text-xs text-gray-400">ระบบจัดการร้าน</p>
+            <div className="flex items-center gap-2">
+              {storeLogo ? (
+                <img src={storeLogo} alt="โลโก้ร้าน" className="w-8 h-8 rounded-lg object-contain" />
+              ) : null}
+              <div>
+                <h1 className="text-xl font-bold text-brand-600">LookKuan</h1>
+                <p className="text-xs text-gray-400">ระบบจัดการร้าน</p>
+              </div>
             </div>
           )}
-          {collapsed && <span className="text-xl font-bold text-brand-600">LK</span>}
+          {collapsed && (
+            storeLogo
+              ? <img src={storeLogo} alt="โลโก้ร้าน" className="w-9 h-9 rounded-lg object-contain" />
+              : <span className="text-xl font-bold text-brand-600">LK</span>
+          )}
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="hidden lg:flex p-1.5 rounded-lg hover:bg-gray-100 text-gray-400"

@@ -6,6 +6,14 @@ export const metadata: Metadata = {
   title: 'LookKuan - ระบบจัดการร้านเสื้อผ้า',
   description: 'ระบบ POS และจัดการร้านเสื้อผ้าครบวงจร สำหรับร้าน LookKuan',
   manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'LookKuan',
+  },
+  icons: {
+    apple: '/icons/icon-192.png',
+  },
 }
 
 export const viewport: Viewport = {

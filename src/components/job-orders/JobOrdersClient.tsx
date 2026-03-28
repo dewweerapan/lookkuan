@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { JOB_STATUS_LABELS, JOB_STATUS_COLORS } from '@/lib/constants';
 import SearchInput from '@/components/shared/SearchInput';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import type { JobOrder } from '@/types/database';
 
@@ -31,6 +32,7 @@ const STATUS_NEXT: Record<JobStatus, string> = {
 export default function JobOrdersClient({
   jobOrders: initialJobOrders,
 }: Props) {
+  const { profile } = useAuth();
   const [jobOrders, setJobOrders] = useState<JobOrder[]>(initialJobOrders);
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
@@ -116,6 +118,18 @@ export default function JobOrdersClient({
         .eq('id', jobId);
 
       if (error) throw error;
+
+      // Log status change to audit trail (J-14)
+      if (profile) {
+        await supabase.from('audit_logs').insert({
+          entity_type: 'job_order',
+          entity_id: jobId,
+          action: 'job_status_changed',
+          old_value: { status: dragSourceStatus.current },
+          new_value: { status: newStatus },
+          user_id: profile.id,
+        });
+      }
 
       const job = jobOrders.find((j) => j.id === jobId);
       toast.success(

@@ -109,8 +109,11 @@ export default function InventoryClient({ products, categories, defaultFilter }:
                   className="block bg-white rounded-xl border border-gray-200 p-4 hover:shadow-sm transition-shadow">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-xl flex-shrink-0">
-                        👕
+                      <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-xl flex-shrink-0 overflow-hidden">
+                        {product.image_url
+                          ? <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                          : '👕'
+                        }
                       </div>
                       <div className="min-w-0">
                         <p className="font-semibold text-gray-800 truncate">{product.name}</p>
@@ -155,8 +158,11 @@ export default function InventoryClient({ products, categories, defaultFilter }:
                     <tr key={product.id}>
                       <td>
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-xl">
-                            👕
+                          <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-xl overflow-hidden">
+                            {product.image_url
+                              ? <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
+                              : '👕'
+                            }
                           </div>
                           <div>
                             <p className="font-semibold text-gray-800">{product.name}</p>

@@ -8,6 +8,7 @@ import { formatCurrency, generateSaleNumber, playSound } from '@/lib/utils'
 import { PAYMENT_METHOD_LABELS } from '@/lib/constants'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import CameraScanner from '@/components/pos/CameraScanner'
+import PromptPayQR from '@/components/pos/PromptPayQR'
 import { toast } from 'sonner'
 import type { Category, Product, ProductVariant } from '@/types/database'
 
@@ -108,6 +109,12 @@ export default function POSClient({ categories, products }: Props) {
   const [cashReceived, setCashReceived] = useState('')
   const [showVoidConfirm, setShowVoidConfirm] = useState(false)
 
+  // Customer state
+  const [customerSearch, setCustomerSearch] = useState('')
+  const [customerResults, setCustomerResults] = useState<{ id: string; full_name: string; phone: string }[]>([])
+  const [selectedCustomer, setSelectedCustomer] = useState<{ id: string; name: string } | null>(null)
+  const [customerSearching, setCustomerSearching] = useState(false)
+
   const searchRef = useRef<HTMLInputElement>(null)
   const barcodeBuffer = useRef('')
   const barcodeTimer = useRef<NodeJS.Timeout>()
@@ -180,6 +187,23 @@ export default function POSClient({ categories, products }: Props) {
     return matchCategory && matchSearch
   })
 
+  const handleCustomerSearch = useCallback(async (query: string) => {
+    setCustomerSearch(query)
+    if (!query.trim()) { setCustomerResults([]); return }
+    setCustomerSearching(true)
+    try {
+      const supabase = createClient()
+      const { data } = await supabase
+        .from('customers')
+        .select('id, full_name, phone')
+        .or(`full_name.ilike.%${query}%,phone.ilike.%${query}%`)
+        .limit(5)
+      setCustomerResults(data || [])
+    } finally {
+      setCustomerSearching(false)
+    }
+  }, [])
+
   const handleProcessSale = async () => {
     if (cart.items.length === 0) return
     const total = cart.getTotal()
@@ -199,6 +223,7 @@ export default function POSClient({ categories, products }: Props) {
         .insert({
           sale_number: saleNumber,
           cashier_id: profile!.id,
+          customer_id: selectedCustomer?.id || null,
           subtotal, discount_amount: discountAmount, tax_amount: 0, total,
           payment_method: paymentMethod,
           cash_received: paymentMethod === 'cash' ? Number(cashReceived) : null,
@@ -235,6 +260,9 @@ export default function POSClient({ categories, products }: Props) {
       setShowPayment(false)
       setCashReceived('')
       setPaymentMethod('cash')
+      setSelectedCustomer(null)
+      setCustomerSearch('')
+      setCustomerResults([])
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'เกิดข้อผิดพลาด'
       toast.error(`เกิดข้อผิดพลาด: ${msg}`)
@@ -452,6 +480,43 @@ export default function POSClient({ categories, products }: Props) {
                 <span>ยอดรวม</span>
                 <span className="text-brand-600">{formatCurrency(cart.getTotal())}</span>
               </div>
+
+              {/* Customer search */}
+              <div className="relative">
+                <label className="pos-label">ลูกค้า (ไม่บังคับ)</label>
+                {selectedCustomer ? (
+                  <div className="flex items-center gap-2 p-3 bg-blue-50 border-2 border-blue-200 rounded-xl">
+                    <span className="flex-1 font-semibold text-blue-800">👤 {selectedCustomer.name}</span>
+                    <button onClick={() => { setSelectedCustomer(null); setCustomerSearch('') }} className="text-gray-400 hover:text-gray-700 text-lg leading-none">✕</button>
+                  </div>
+                ) : (
+                  <div>
+                    <input
+                      type="text"
+                      value={customerSearch}
+                      onChange={e => handleCustomerSearch(e.target.value)}
+                      className="pos-input"
+                      placeholder="ค้นหาชื่อหรือเบอร์โทร..."
+                    />
+                    {customerSearch && (
+                      <div className="absolute z-10 bg-white border border-gray-200 rounded-xl shadow-lg w-full mt-1 overflow-hidden">
+                        {customerSearching ? (
+                          <div className="p-3 text-center text-gray-400 text-sm">กำลังค้นหา...</div>
+                        ) : customerResults.length === 0 ? (
+                          <div className="p-3 text-center text-gray-400 text-sm">ไม่พบลูกค้า</div>
+                        ) : customerResults.map(c => (
+                          <button key={c.id} type="button" onClick={() => { setSelectedCustomer({ id: c.id, name: c.full_name }); setCustomerSearch(''); setCustomerResults([]) }}
+                            className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-0">
+                            <p className="font-semibold">{c.full_name}</p>
+                            <p className="text-sm text-gray-500">{c.phone}</p>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div className="grid grid-cols-2 gap-2">
                 {(['cash', 'transfer', 'promptpay', 'credit_card'] as PaymentMethod[]).map(method => (
                   <button
@@ -501,6 +566,13 @@ export default function POSClient({ categories, products }: Props) {
                     </div>
                   )}
                 </div>
+              )}
+              {paymentMethod === 'promptpay' && (
+                <PromptPayQR
+                  phone={process.env.NEXT_PUBLIC_STORE_PHONE || ''}
+                  amount={cart.getTotal()}
+                  storeName={process.env.NEXT_PUBLIC_STORE_NAME}
+                />
               )}
               <div className="flex gap-3">
                 <button

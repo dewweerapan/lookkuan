@@ -1,11 +1,12 @@
 import { createClient } from '@/lib/supabase/server';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatDate } from '@/lib/utils';
 import PageHeader from '@/components/shared/PageHeader';
 import ReportsExportButton from '@/components/reports/ReportsExportButton';
 
 async function getReportData() {
   const supabase = await createClient();
   const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
   const startOfMonth = new Date(
     today.getFullYear(),
     today.getMonth(),
@@ -20,6 +21,8 @@ async function getReportData() {
     { data: weeklySales },
     { data: topProducts },
     { data: jobStats },
+    { data: overduePayments },
+    { data: staffSales },
   ] = await Promise.all([
     supabase
       .from('sales')
@@ -40,6 +43,18 @@ async function getReportData() {
     supabase
       .from('job_orders')
       .select('status, quoted_price')
+      .gte('created_at', startOfMonth),
+    supabase
+      .from('installment_payments')
+      .select('id, installment_number, due_date, amount, plan_id, plan:installment_plans(plan_number, customer_name)')
+      .eq('status', 'pending')
+      .lt('due_date', todayStr)
+      .order('due_date', { ascending: true })
+      .limit(20),
+    supabase
+      .from('sales')
+      .select('total, cashier_id, cashier:profiles!cashier_id(full_name, role)')
+      .eq('status', 'completed')
       .gte('created_at', startOfMonth),
   ]);
 
@@ -93,6 +108,21 @@ async function getReportData() {
     .sort((a, b) => b[1].quantity - a[1].quantity)
     .slice(0, 10);
 
+  // Staff performance: aggregate by cashier
+  const staffMap = new Map<string, { name: string; count: number; total: number }>();
+  staffSales?.forEach((sale: any) => {
+    const id = sale.cashier_id as string;
+    const name = (sale.cashier as any)?.full_name || 'ไม่ทราบ';
+    const existing = staffMap.get(id) || { name, count: 0, total: 0 };
+    staffMap.set(id, {
+      name,
+      count: existing.count + 1,
+      total: existing.total + Number(sale.total),
+    });
+  });
+  const staffPerformance = Array.from(staffMap.values())
+    .sort((a, b) => b.total - a.total);
+
   return {
     monthlyTotal,
     weeklyTotal,
@@ -103,6 +133,8 @@ async function getReportData() {
     jobRevenue,
     jobPending,
     topProductsList,
+    overduePayments: overduePayments || [],
+    staffPerformance,
   };
 }
 
@@ -211,6 +243,71 @@ export default async function ReportsPage() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Staff Performance */}
+      <div className='mt-6 bg-white rounded-xl border border-gray-200 p-6'>
+        <h2 className='text-lg font-bold text-gray-800 mb-4'>👩‍💼 ประสิทธิภาพพนักงานเดือนนี้</h2>
+        {data.staffPerformance.length === 0 ? (
+          <p className='text-gray-400 text-center py-4'>ไม่มีข้อมูล</p>
+        ) : (
+          <div className='overflow-x-auto'>
+            <table className='w-full text-sm'>
+              <thead>
+                <tr className='border-b border-gray-200'>
+                  <th className='text-left py-2 px-3 font-semibold text-gray-600'>พนักงาน</th>
+                  <th className='text-right py-2 px-3 font-semibold text-gray-600'>จำนวนบิล</th>
+                  <th className='text-right py-2 px-3 font-semibold text-gray-600'>ยอดรวม</th>
+                  <th className='text-right py-2 px-3 font-semibold text-gray-600'>เฉลี่ย/บิล</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.staffPerformance.map((staff, i) => (
+                  <tr key={i} className='border-b border-gray-100 hover:bg-gray-50'>
+                    <td className='py-2 px-3 font-medium text-gray-800'>{staff.name}</td>
+                    <td className='py-2 px-3 text-right text-gray-600'>{staff.count} บิล</td>
+                    <td className='py-2 px-3 text-right font-bold text-green-700'>{formatCurrency(staff.total)}</td>
+                    <td className='py-2 px-3 text-right text-gray-500'>{formatCurrency(staff.count > 0 ? staff.total / staff.count : 0)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Overdue Installments */}
+      <div className='mt-6 bg-white rounded-xl border border-red-200 p-6'>
+        <h2 className='text-lg font-bold text-red-700 mb-1'>⚠️ งวดผ่อนชำระค้างชำระ</h2>
+        <p className='text-sm text-gray-500 mb-4'>งวดที่ครบกำหนดแล้วแต่ยังไม่ได้รับชำระ</p>
+        {data.overduePayments.length === 0 ? (
+          <p className='text-green-600 text-center py-4 font-medium'>✓ ไม่มีงวดค้างชำระ</p>
+        ) : (
+          <div className='overflow-x-auto'>
+            <table className='w-full text-sm'>
+              <thead>
+                <tr className='border-b border-gray-200'>
+                  <th className='text-left py-2 px-3 font-semibold text-gray-600'>เลขแผนผ่อน</th>
+                  <th className='text-left py-2 px-3 font-semibold text-gray-600'>ลูกค้า</th>
+                  <th className='text-center py-2 px-3 font-semibold text-gray-600'>งวดที่</th>
+                  <th className='text-center py-2 px-3 font-semibold text-gray-600'>ครบกำหนด</th>
+                  <th className='text-right py-2 px-3 font-semibold text-gray-600'>ยอด</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.overduePayments.map((p: any) => (
+                  <tr key={p.id} className='border-b border-gray-100 hover:bg-red-50'>
+                    <td className='py-2 px-3 font-mono text-xs text-gray-600'>{(p.plan as any)?.plan_number}</td>
+                    <td className='py-2 px-3 font-medium text-gray-800'>{(p.plan as any)?.customer_name}</td>
+                    <td className='py-2 px-3 text-center text-gray-600'>{p.installment_number}</td>
+                    <td className='py-2 px-3 text-center text-red-600 font-semibold'>{formatDate(p.due_date)}</td>
+                    <td className='py-2 px-3 text-right font-bold text-red-700'>{formatCurrency(p.amount)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

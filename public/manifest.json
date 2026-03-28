@@ -2,21 +2,43 @@
   "name": "LookKuan - ระบบจัดการร้านเสื้อผ้า",
   "short_name": "LookKuan",
   "description": "ระบบ POS และจัดการร้านเสื้อผ้าครบวงจร",
-  "start_url": "/",
+  "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#F9FAFB",
   "theme_color": "#F97316",
   "orientation": "any",
+  "scope": "/",
+  "lang": "th",
+  "categories": ["business", "productivity"],
+  "screenshots": [],
   "icons": [
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "ขายสินค้า (POS)",
+      "short_name": "POS",
+      "description": "เปิดหน้าขายสินค้า",
+      "url": "/pos",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "เพิ่มออเดอร์งานปัก",
+      "short_name": "งานปัก",
+      "description": "สร้างออเดอร์งานปักใหม่",
+      "url": "/job-orders/new",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

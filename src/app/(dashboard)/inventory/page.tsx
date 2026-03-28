@@ -3,6 +3,7 @@ import { formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
 import PageHeader from '@/components/shared/PageHeader'
 import InventoryClient from '@/components/inventory/InventoryClient'
+import InventoryExportButton from '@/components/inventory/InventoryExportButton'
 
 async function getProducts() {
   const supabase = await createClient()
@@ -59,6 +60,7 @@ export default async function InventoryPage({ searchParams }: { searchParams: { 
         description={`สินค้าทั้งหมด ${products.length} รายการ`}
         actions={
           <div className="flex gap-3 flex-wrap">
+            <InventoryExportButton products={products} />
             <Link href="/inventory/categories" className="pos-btn-secondary">
               📁 หมวดหมู่
             </Link>

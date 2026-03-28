@@ -5,7 +5,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase/client'
 import PageHeader from '@/components/shared/PageHeader'
 import Link from 'next/link'
-import { toast } from 'sonner'
+import StoreLogoSettings from '@/components/settings/StoreLogoSettings'
+import DataExportSettings from '@/components/settings/DataExportSettings'
 
 export default function SettingsPage() {
   const { profile, hasRole } = useAuth()
@@ -55,6 +56,14 @@ export default function SettingsPage() {
           <p className="text-sm text-gray-500">หมวดหมู่</p>
           <p className="text-2xl font-bold text-gray-800">{stats.categories} หมวด</p>
         </div>
+      </div>
+
+      <div className="mb-6">
+        <StoreLogoSettings />
+      </div>
+
+      <div className="mb-6">
+        <DataExportSettings />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

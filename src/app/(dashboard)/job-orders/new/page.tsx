@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { generateOrderNumber } from '@/lib/utils'
 import PageHeader from '@/components/shared/PageHeader'
+import ImageUpload from '@/components/shared/ImageUpload'
 import { toast } from 'sonner'
 
 export default function NewJobOrderPage() {
@@ -27,6 +28,7 @@ export default function NewJobOrderPage() {
     assigned_to: '',
     notes: '',
   })
+  const [designImageUrl, setDesignImageUrl] = useState<string | null>(null)
 
   // Load staff on mount
   useEffect(() => {
@@ -87,6 +89,7 @@ export default function NewJobOrderPage() {
         assigned_to: form.assigned_to || null,
         received_by: profile!.id,
         notes: form.notes.trim() || null,
+        design_image_url: designImageUrl,
         status: 'pending',
       })
 
@@ -142,6 +145,10 @@ export default function NewJobOrderPage() {
         {/* Job Details */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
           <h2 className="text-lg font-bold text-gray-800">รายละเอียดงานปัก</h2>
+          <div>
+            <label className="pos-label">ภาพออกแบบ / ตัวอย่างงาน</label>
+            <ImageUpload value={designImageUrl} onChange={setDesignImageUrl} />
+          </div>
           <div>
             <label className="pos-label">รายละเอียดงาน *</label>
             <textarea

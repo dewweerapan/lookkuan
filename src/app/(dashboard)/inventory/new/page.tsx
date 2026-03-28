@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { generateSKU } from '@/lib/utils'
 import PageHeader from '@/components/shared/PageHeader'
+import ImageUpload from '@/components/shared/ImageUpload'
 import { toast } from 'sonner'
 
 interface VariantInput {
@@ -20,6 +21,7 @@ export default function NewProductPage() {
   const [loading, setLoading] = useState(false)
   const [categories, setCategories] = useState<any[]>([])
   const [categoriesLoaded, setCategoriesLoaded] = useState(false)
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
 
   const [form, setForm] = useState({
     name: '',
@@ -94,6 +96,7 @@ export default function NewProductPage() {
           base_price: Number(form.base_price),
           cost_price: Number(form.cost_price) || 0,
           sku_prefix: form.sku_prefix.toUpperCase() || form.name.substring(0, 3).toUpperCase(),
+          image_url: imageUrl,
         })
         .select()
         .single()
@@ -157,6 +160,16 @@ export default function NewProductPage() {
         {/* Basic Info */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
           <h2 className="text-lg font-bold text-gray-800 mb-4">ข้อมูลสินค้า</h2>
+
+          <div>
+            <label className="pos-label">รูปภาพสินค้า</label>
+            <ImageUpload
+              value={imageUrl}
+              onChange={setImageUrl}
+              bucket="product-images"
+              folder="products"
+            />
+          </div>
 
           <div>
             <label className="pos-label">ชื่อสินค้า *</label>

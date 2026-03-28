@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, formatDateTime } from '@/lib/utils'
 import PageHeader from '@/components/shared/PageHeader'
 
 async function getRiskData() {
@@ -23,6 +23,29 @@ async function getRiskData() {
       .eq('status', 'closed').gte('opened_at', thirtyDaysAgo).order('opened_at', { ascending: false }),
     supabase.from('profiles').select('id, full_name, role').eq('is_active', true),
   ])
+
+  // Fetch recent audit logs separately
+  const { data: recentAuditLogs } = await supabase
+    .from('audit_logs')
+    .select('id, action, entity_type, entity_id, old_value, new_value, created_at, user_id')
+    .order('created_at', { ascending: false })
+    .limit(20)
+
+  // Fetch user names for audit logs
+  const auditUserIds = (recentAuditLogs || [])
+    .map((l: any) => l.user_id)
+    .filter(Boolean)
+    .filter((id: string, i: number, arr: string[]) => arr.indexOf(id) === i)
+  let auditUserMap: Record<string, string> = {}
+  if (auditUserIds.length > 0) {
+    const { data: auditUsers } = await supabase
+      .from('profiles')
+      .select('id, full_name')
+      .in('id', auditUserIds)
+    if (auditUsers) {
+      auditUserMap = Object.fromEntries(auditUsers.map(u => [u.id, u.full_name]))
+    }
+  }
 
   const totalSalesCount = allSales?.length || 0
   const voidCount = voidedSales?.length || 0
@@ -56,6 +79,10 @@ async function getRiskData() {
     totalDiscrepancy,
     employeeVoids,
     totalSalesCount,
+    auditLogs: (recentAuditLogs || []).map((l: any) => ({
+      ...l,
+      user_name: auditUserMap[l.user_id] || 'ระบบ',
+    })),
   }
 }
 
@@ -68,6 +95,19 @@ export default async function RiskDashboardPage() {
         title="แดชบอร์ดความเสี่ยง"
         description="ตรวจสอบความผิดปกติและป้องกันการทุจริต (30 วันล่าสุด)"
       />
+
+      {/* Void Rate Alert Banner */}
+      {Number(data.voidRate) > 5 && (
+        <div className="mb-6 bg-red-50 border-2 border-red-300 rounded-xl p-4 flex items-start gap-3">
+          <span className="text-2xl flex-shrink-0">🚨</span>
+          <div>
+            <p className="font-bold text-red-800 text-lg">อัตราการยกเลิกบิลสูงผิดปกติ: {data.voidRate}%</p>
+            <p className="text-red-600 text-sm mt-1">
+              มีการยกเลิกบิล {data.voidCount} รายการ จากทั้งหมด {data.totalSalesCount} รายการใน 30 วันที่ผ่านมา ควรตรวจสอบโดยด่วน
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -184,6 +224,37 @@ export default async function RiskDashboardPage() {
                       <td className="text-sm text-gray-500">
                         {sale.voided_at ? new Date(sale.voided_at).toLocaleString('th-TH') : '-'}
                       </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Audit Log */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 lg:col-span-2">
+          <h2 className="text-lg font-bold text-gray-800 mb-4">📋 ประวัติการใช้งานล่าสุด (Audit Log)</h2>
+          {data.auditLogs.length === 0 ? (
+            <p className="text-gray-400 text-center py-4">ไม่มีข้อมูล</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>ผู้ใช้</th>
+                    <th>การดำเนินการ</th>
+                    <th>ประเภท</th>
+                    <th>เวลา</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.auditLogs.map((log: any) => (
+                    <tr key={log.id}>
+                      <td className="font-semibold">{log.user_name}</td>
+                      <td className="text-sm font-mono text-gray-600">{log.action}</td>
+                      <td className="text-sm text-gray-500">{log.entity_type}</td>
+                      <td className="text-sm text-gray-400">{formatDateTime(log.created_at)}</td>
                     </tr>
                   ))}
                 </tbody>

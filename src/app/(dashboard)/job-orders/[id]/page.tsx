@@ -40,8 +40,8 @@ async function getJobOrder(id: string) {
     .select('id, action, old_value, new_value, created_at, user_id')
     .eq('entity_type', 'job_order')
     .eq('entity_id', id)
-    .eq('action', 'update_job_status')
-    .order('created_at', { ascending: false })
+    .eq('action', 'job_status_changed')
+    .order('created_at', { ascending: true })
 
   // Step 4: Fetch audit log user names
   const auditUserIds = (auditLogs || [])
@@ -138,6 +138,20 @@ export default async function JobOrderDetailPage({ params }: { params: { id: str
                   <p className="text-base text-gray-700 whitespace-pre-wrap">{job.notes}</p>
                 </div>
               )}
+              {job.design_image_url && (
+                <div>
+                  <span className="text-sm text-gray-500">ภาพออกแบบ</span>
+                  <div className="mt-2">
+                    <a href={job.design_image_url} target="_blank" rel="noopener noreferrer">
+                      <img
+                        src={job.design_image_url}
+                        alt="ภาพออกแบบ"
+                        className="max-w-xs max-h-64 rounded-xl border border-gray-200 hover:opacity-90 transition-opacity"
+                      />
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -206,6 +220,33 @@ export default async function JobOrderDetailPage({ params }: { params: { id: str
               </div>
             </div>
           </div>
+
+          {/* Status History (J-14) */}
+          {job.auditLogs.length > 0 && (
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <h2 className="text-lg font-bold text-gray-800 mb-4">📋 ประวัติการเปลี่ยนสถานะ</h2>
+              <div className="space-y-3">
+                {job.auditLogs.map((log: any, i: number) => (
+                  <div key={log.id} className="flex items-center gap-3 text-sm">
+                    <div className="w-2 h-2 rounded-full bg-brand-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <span className={`status-badge text-xs mr-1 ${JOB_STATUS_COLORS[(log.old_value as any)?.status as JobStatus]}`}>
+                        {JOB_STATUS_LABELS[(log.old_value as any)?.status as JobStatus] || (log.old_value as any)?.status}
+                      </span>
+                      <span className="text-gray-400 mx-1">→</span>
+                      <span className={`status-badge text-xs ${JOB_STATUS_COLORS[(log.new_value as any)?.status as JobStatus]}`}>
+                        {JOB_STATUS_LABELS[(log.new_value as any)?.status as JobStatus] || (log.new_value as any)?.status}
+                      </span>
+                    </div>
+                    <div className="text-right text-gray-400 text-xs flex-shrink-0">
+                      <p>{log.user_name}</p>
+                      <p>{formatDateTime(log.created_at)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Payment */}
           <div className="bg-white rounded-xl border border-gray-200 p-6">
