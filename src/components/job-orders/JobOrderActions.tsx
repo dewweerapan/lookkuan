@@ -27,14 +27,22 @@ export default function JobOrderActions({ jobOrder }: { jobOrder: JobOrder }) {
   const { profile } = useAuth()
   const [loading, setLoading] = useState(false)
   const [confirmAction, setConfirmAction] = useState<{ next: string; label: string } | null>(null)
+  // Optimistic local status — starts from the prop, updated immediately on confirm
+  const [optimisticStatus, setOptimisticStatus] = useState<string>(jobOrder.status)
 
-  const transitions = statusTransitions[jobOrder.status] || []
+  const transitions = statusTransitions[optimisticStatus] || []
 
   const handleStatusUpdate = async (newStatus: string) => {
+    const previousStatus = optimisticStatus
+
+    // 1. Optimistic update — apply immediately so buttons reflect the new state
+    setOptimisticStatus(newStatus)
     setLoading(true)
+    setConfirmAction(null)
+
     try {
       const supabase = createClient()
-      const updates: any = {
+      const updates: Record<string, unknown> = {
         status: newStatus,
         updated_at: new Date().toISOString(),
       }
@@ -54,23 +62,24 @@ export default function JobOrderActions({ jobOrder }: { jobOrder: JobOrder }) {
       if (error) throw error
 
       // Audit log
-      const auditClient = createClient()
-      await auditClient.from('audit_logs').insert({
+      await supabase.from('audit_logs').insert({
         user_id: profile!.id,
         action: 'update_job_status',
         entity_type: 'job_order',
         entity_id: jobOrder.id,
-        old_value: { status: jobOrder.status },
+        old_value: { status: previousStatus },
         new_value: { status: newStatus },
       })
 
       toast.success('อัปเดตสถานะสำเร็จ')
       router.refresh()
-    } catch (error: any) {
-      toast.error(`เกิดข้อผิดพลาด: ${error.message}`)
+    } catch (err: unknown) {
+      // 2. Rollback on failure
+      setOptimisticStatus(previousStatus)
+      const message = err instanceof Error ? err.message : 'กรุณาลองใหม่'
+      toast.error(`ไม่สามารถเปลี่ยนสถานะได้: ${message}`)
     } finally {
       setLoading(false)
-      setConfirmAction(null)
     }
   }
 

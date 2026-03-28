@@ -96,7 +96,16 @@ export default function JobOrdersClient({
       return;
     }
 
-    // Optimistic update
+    // Remember original order for rollback
+    const originalOrder = jobOrders.find((j) => j.id === jobId);
+    if (!originalOrder) {
+      setDraggedId(null);
+      setDragOverStatus(null);
+      return;
+    }
+    const previousStatus = dragSourceStatus.current;
+
+    // Optimistic update — apply immediately
     setJobOrders((prev) =>
       prev.map((j) =>
         j.id === jobId ? { ...j, status: newStatus as JobOrder['status'] } : j,
@@ -125,20 +134,23 @@ export default function JobOrdersClient({
           entity_type: 'job_order',
           entity_id: jobId,
           action: 'job_status_changed',
-          old_value: { status: dragSourceStatus.current },
+          old_value: { status: previousStatus },
           new_value: { status: newStatus },
           user_id: profile.id,
         });
       }
 
-      const job = jobOrders.find((j) => j.id === jobId);
       toast.success(
-        `เปลี่ยนสถานะ "${job?.order_number}" เป็น ${STATUS_NEXT[newStatus as JobStatus]}`,
+        `เปลี่ยนสถานะ "${originalOrder.order_number}" เป็น ${STATUS_NEXT[newStatus as JobStatus]}`,
       );
     } catch {
-      // Rollback on error
-      setJobOrders(initialJobOrders);
-      toast.error('เปลี่ยนสถานะไม่สำเร็จ');
+      // Rollback to the exact previous state of this order
+      setJobOrders((prev) =>
+        prev.map((j) =>
+          j.id === jobId ? { ...j, status: originalOrder.status } : j,
+        ),
+      );
+      toast.error('เปลี่ยนสถานะไม่สำเร็จ กรุณาลองใหม่');
     }
   };
 
