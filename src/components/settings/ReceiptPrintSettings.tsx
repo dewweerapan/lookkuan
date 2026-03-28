@@ -28,18 +28,28 @@ export default function ReceiptPrintSettings() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
     const load = async () => {
-      const supabase = createClient();
-      const data = await getStoreSettings(supabase, Object.keys(DEFAULTS));
-      const map: Partial<Settings> = {};
-      Object.entries(data).forEach(([key, value]) => {
-        (map as Record<string, string>)[key] =
-          value ?? (DEFAULTS as Record<string, string>)[key];
-      });
-      setSettings((prev) => ({ ...prev, ...map }));
-      setLoading(false);
+      try {
+        const supabase = createClient();
+        const data = await getStoreSettings(supabase, Object.keys(DEFAULTS));
+        if (!mounted) return;
+        const map: Partial<Settings> = {};
+        Object.entries(data).forEach(([key, value]) => {
+          (map as Record<string, string>)[key] =
+            value ?? (DEFAULTS as Record<string, string>)[key];
+        });
+        setSettings((prev) => ({ ...prev, ...map }));
+      } catch {
+        // leave DEFAULTS on error
+      } finally {
+        if (mounted) setLoading(false);
+      }
     };
     load();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const handleSave = async () => {

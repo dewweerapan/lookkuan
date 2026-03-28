@@ -101,7 +101,9 @@ export default function Sidebar() {
 
   useEffect(() => {
     const supabase = createClient();
-    getStoreSetting(supabase, STORE_LOGO_URL_KEY).then((url) => setStoreLogo(url));
+    getStoreSetting(supabase, STORE_LOGO_URL_KEY)
+      .then((url) => setStoreLogo(url))
+      .catch(() => {});
   }, []);
 
   // hasRole already falls back to cached localStorage role, so no need to check loading

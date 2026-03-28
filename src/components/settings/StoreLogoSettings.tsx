@@ -13,12 +13,22 @@ export default function StoreLogoSettings() {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
     const loadSettings = async () => {
-      const supabase = createClient();
-      setLogoUrl(await getStoreSetting(supabase, STORE_LOGO_URL_KEY));
-      setLoading(false);
+      try {
+        const supabase = createClient();
+        const url = await getStoreSetting(supabase, STORE_LOGO_URL_KEY);
+        if (mounted) setLogoUrl(url);
+      } catch {
+        // leave logoUrl as null
+      } finally {
+        if (mounted) setLoading(false);
+      }
     };
     loadSettings();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const handleSave = async (url: string | null) => {

@@ -31,14 +31,19 @@ export default function NotificationSettings() {
 
   useEffect(() => {
     let mounted = true;
-    getStoreSettings(supabaseRef.current, SETTINGS_KEYS).then((map) => {
-      if (!mounted) return;
-      setToken(map[LINE_NOTIFY_TOKEN_KEY] ?? '');
-      setNotifyLowStock(map[NOTIFY_LOW_STOCK_KEY] === 'true');
-      setNotifyNewOrder(map[NOTIFY_NEW_ORDER_KEY] === 'true');
-      setNotifyInstallment(map[NOTIFY_INSTALLMENT_DUE_KEY] === 'true');
-      setLoading(false);
-    });
+    getStoreSettings(supabaseRef.current, SETTINGS_KEYS)
+      .then((map) => {
+        if (!mounted) return;
+        setToken(map[LINE_NOTIFY_TOKEN_KEY] ?? '');
+        setNotifyLowStock(map[NOTIFY_LOW_STOCK_KEY] === 'true');
+        setNotifyNewOrder(map[NOTIFY_NEW_ORDER_KEY] === 'true');
+        setNotifyInstallment(map[NOTIFY_INSTALLMENT_DUE_KEY] === 'true');
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setLoading(false);
+      });
     return () => {
       mounted = false;
     };
