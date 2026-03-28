@@ -50,11 +50,12 @@ export default function ReceiptPrintSettings() {
     setSaving(true);
     try {
       const supabase = createClient();
+      const now = new Date().toISOString();
       await supabase.from('store_settings').upsert(
         Object.entries(settings).map(([key, value]) => ({
           key,
           value,
-          updated_at: new Date().toISOString(),
+          updated_at: now,
         })),
       );
       toast.success('บันทึกการตั้งค่าใบเสร็จสำเร็จ');
