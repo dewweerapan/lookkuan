@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { createClient } from '@/lib/supabase/client';
+import { STORE_LOGO_URL_KEY } from '@/lib/constants';
 import {
   LayoutDashboard,
   Package,
@@ -102,7 +103,7 @@ export default function Sidebar() {
     supabase
       .from('store_settings')
       .select('value')
-      .eq('key', 'store_logo_url')
+      .eq('key', STORE_LOGO_URL_KEY)
       .maybeSingle()
       .then(({ data }) => setStoreLogo(data?.value ?? null));
   }, []);

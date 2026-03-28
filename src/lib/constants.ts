@@ -7,6 +7,7 @@ export const LINE_NOTIFY_TOKEN_KEY = 'line_notify_token'
 export const NOTIFY_LOW_STOCK_KEY = 'notify_low_stock'
 export const NOTIFY_NEW_ORDER_KEY = 'notify_new_order'
 export const NOTIFY_INSTALLMENT_DUE_KEY = 'notify_installment_due'
+export const STORE_LOGO_URL_KEY = 'store_logo_url'
 
 export const ROLES = {
   ADMIN: 'admin',

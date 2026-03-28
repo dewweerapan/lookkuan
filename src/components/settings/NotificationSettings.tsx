@@ -18,8 +18,7 @@ const SETTINGS_KEYS = [
 ];
 
 export default function NotificationSettings() {
-  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
-  if (!supabaseRef.current) supabaseRef.current = createClient();
+  const supabaseRef = useRef(createClient());
   const [token, setToken] = useState('');
   const [notifyLowStock, setNotifyLowStock] = useState(false);
   const [notifyNewOrder, setNotifyNewOrder] = useState(false);
@@ -31,7 +30,7 @@ export default function NotificationSettings() {
 
   useEffect(() => {
     let mounted = true;
-    supabaseRef.current!
+    supabaseRef.current
       .from('store_settings')
       .select('key, value')
       .in('key', SETTINGS_KEYS)
@@ -59,7 +58,7 @@ export default function NotificationSettings() {
       { key: NOTIFY_NEW_ORDER_KEY, value: String(notifyNewOrder) },
       { key: NOTIFY_INSTALLMENT_DUE_KEY, value: String(notifyInstallment) },
     ];
-    const { error } = await supabaseRef.current!
+    const { error } = await supabaseRef.current
       .from('store_settings')
       .upsert(rows, { onConflict: 'key' });
     setSaving(false);

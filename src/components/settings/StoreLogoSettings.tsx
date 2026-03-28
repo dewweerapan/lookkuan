@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import ImageUpload from '@/components/shared/ImageUpload';
 import { toast } from 'sonner';
+import { STORE_LOGO_URL_KEY } from '@/lib/constants';
 
 export default function StoreLogoSettings() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -16,7 +17,7 @@ export default function StoreLogoSettings() {
       const { data } = await supabase
         .from('store_settings')
         .select('value')
-        .eq('key', 'store_logo_url')
+        .eq('key', STORE_LOGO_URL_KEY)
         .maybeSingle();
       setLogoUrl(data?.value ?? null);
       setLoading(false);
@@ -32,7 +33,7 @@ export default function StoreLogoSettings() {
       await supabase
         .from('store_settings')
         .upsert({
-          key: 'store_logo_url',
+          key: STORE_LOGO_URL_KEY,
           value: url,
           updated_at: new Date().toISOString(),
         });

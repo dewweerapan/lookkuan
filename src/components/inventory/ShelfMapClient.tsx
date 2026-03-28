@@ -22,8 +22,7 @@ export default function ShelfMapClient({
   variants: Variant[];
 }) {
   const router = useRouter();
-  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
-  if (!supabaseRef.current) supabaseRef.current = createClient();
+  const supabaseRef = useRef(createClient());
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
@@ -111,7 +110,7 @@ export default function ShelfMapClient({
       setDraggingId(null);
 
       setSaving(true);
-      const { error } = await supabaseRef.current!
+      const { error } = await supabaseRef.current
         .from('product_variants')
         .update({ shelf_location: targetShelf })
         .eq('id', draggingId);
