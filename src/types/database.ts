@@ -165,6 +165,8 @@ export interface Customer {
   line_id: string | null
   total_spent: number
   visit_count: number
+  loyalty_points: number
+  tier: 'bronze' | 'silver' | 'gold'
   notes: string | null
   created_at: string
   updated_at: string

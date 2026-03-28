@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { formatCurrency } from '@/lib/utils'
 import PageHeader from '@/components/shared/PageHeader'
+import ReportsExportButton from '@/components/reports/ReportsExportButton'
 
 async function getReportData() {
   const supabase = await createClient()
@@ -73,7 +74,9 @@ export default async function ReportsPage() {
 
   return (
     <div>
-      <PageHeader title="รายงาน" description="สรุปข้อมูลเดือนนี้" />
+      <PageHeader title="รายงาน" description="สรุปข้อมูลเดือนนี้" actions={
+        <ReportsExportButton topProductsList={data.topProductsList} paymentBreakdown={data.paymentBreakdown} />
+      } />
 
       {/* Monthly Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
