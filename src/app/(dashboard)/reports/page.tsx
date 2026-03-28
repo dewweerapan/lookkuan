@@ -251,28 +251,44 @@ export default async function ReportsPage() {
         {data.staffPerformance.length === 0 ? (
           <p className='text-gray-400 text-center py-4'>ไม่มีข้อมูล</p>
         ) : (
-          <div className='overflow-x-auto'>
-            <table className='w-full text-sm'>
-              <thead>
-                <tr className='border-b border-gray-200'>
-                  <th className='text-left py-2 px-3 font-semibold text-gray-600'>พนักงาน</th>
-                  <th className='text-right py-2 px-3 font-semibold text-gray-600'>จำนวนบิล</th>
-                  <th className='text-right py-2 px-3 font-semibold text-gray-600'>ยอดรวม</th>
-                  <th className='text-right py-2 px-3 font-semibold text-gray-600'>เฉลี่ย/บิล</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.staffPerformance.map((staff, i) => (
-                  <tr key={i} className='border-b border-gray-100 hover:bg-gray-50'>
-                    <td className='py-2 px-3 font-medium text-gray-800'>{staff.name}</td>
-                    <td className='py-2 px-3 text-right text-gray-600'>{staff.count} บิล</td>
-                    <td className='py-2 px-3 text-right font-bold text-green-700'>{formatCurrency(staff.total)}</td>
-                    <td className='py-2 px-3 text-right text-gray-500'>{formatCurrency(staff.count > 0 ? staff.total / staff.count : 0)}</td>
+          <>
+            {/* Mobile cards */}
+            <div className='block sm:hidden space-y-3'>
+              {data.staffPerformance.map((staff, i) => (
+                <div key={i} className='flex items-center gap-3 p-3 bg-gray-50 rounded-lg'>
+                  <span className='text-lg font-bold text-gray-300 w-8'>#{i + 1}</span>
+                  <div className='flex-1'>
+                    <p className='font-semibold text-gray-800'>{staff.name}</p>
+                    <p className='text-sm text-gray-500'>{staff.count} บิล · เฉลี่ย {formatCurrency(staff.count > 0 ? staff.total / staff.count : 0)}/บิล</p>
+                  </div>
+                  <p className='font-bold text-green-700'>{formatCurrency(staff.total)}</p>
+                </div>
+              ))}
+            </div>
+            {/* Desktop table */}
+            <div className='hidden sm:block overflow-x-auto'>
+              <table className='w-full text-sm'>
+                <thead>
+                  <tr className='border-b border-gray-200'>
+                    <th className='text-left py-2 px-3 font-semibold text-gray-600'>พนักงาน</th>
+                    <th className='text-right py-2 px-3 font-semibold text-gray-600'>จำนวนบิล</th>
+                    <th className='text-right py-2 px-3 font-semibold text-gray-600'>ยอดรวม</th>
+                    <th className='text-right py-2 px-3 font-semibold text-gray-600'>เฉลี่ย/บิล</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {data.staffPerformance.map((staff, i) => (
+                    <tr key={i} className='border-b border-gray-100 hover:bg-gray-50'>
+                      <td className='py-2 px-3 font-medium text-gray-800'>{staff.name}</td>
+                      <td className='py-2 px-3 text-right text-gray-600'>{staff.count} บิล</td>
+                      <td className='py-2 px-3 text-right font-bold text-green-700'>{formatCurrency(staff.total)}</td>
+                      <td className='py-2 px-3 text-right text-gray-500'>{formatCurrency(staff.count > 0 ? staff.total / staff.count : 0)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 
@@ -283,30 +299,46 @@ export default async function ReportsPage() {
         {data.overduePayments.length === 0 ? (
           <p className='text-green-600 text-center py-4 font-medium'>✓ ไม่มีงวดค้างชำระ</p>
         ) : (
-          <div className='overflow-x-auto'>
-            <table className='w-full text-sm'>
-              <thead>
-                <tr className='border-b border-gray-200'>
-                  <th className='text-left py-2 px-3 font-semibold text-gray-600'>เลขแผนผ่อน</th>
-                  <th className='text-left py-2 px-3 font-semibold text-gray-600'>ลูกค้า</th>
-                  <th className='text-center py-2 px-3 font-semibold text-gray-600'>งวดที่</th>
-                  <th className='text-center py-2 px-3 font-semibold text-gray-600'>ครบกำหนด</th>
-                  <th className='text-right py-2 px-3 font-semibold text-gray-600'>ยอด</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.overduePayments.map((p: any) => (
-                  <tr key={p.id} className='border-b border-gray-100 hover:bg-red-50'>
-                    <td className='py-2 px-3 font-mono text-xs text-gray-600'>{(p.plan as any)?.plan_number}</td>
-                    <td className='py-2 px-3 font-medium text-gray-800'>{(p.plan as any)?.customer_name}</td>
-                    <td className='py-2 px-3 text-center text-gray-600'>{p.installment_number}</td>
-                    <td className='py-2 px-3 text-center text-red-600 font-semibold'>{formatDate(p.due_date)}</td>
-                    <td className='py-2 px-3 text-right font-bold text-red-700'>{formatCurrency(p.amount)}</td>
+          <>
+            {/* Mobile cards */}
+            <div className='block sm:hidden space-y-3'>
+              {data.overduePayments.map((p: any) => (
+                <div key={p.id} className='p-3 bg-red-50 border border-red-100 rounded-lg'>
+                  <div className='flex items-center justify-between mb-1'>
+                    <span className='font-mono text-xs text-gray-500'>{(p.plan as any)?.plan_number} · งวด {p.installment_number}</span>
+                    <span className='font-bold text-red-700'>{formatCurrency(p.amount)}</span>
+                  </div>
+                  <p className='font-semibold text-gray-800'>{(p.plan as any)?.customer_name}</p>
+                  <p className='text-sm text-red-600'>ครบกำหนด: {formatDate(p.due_date)}</p>
+                </div>
+              ))}
+            </div>
+            {/* Desktop table */}
+            <div className='hidden sm:block overflow-x-auto'>
+              <table className='w-full text-sm'>
+                <thead>
+                  <tr className='border-b border-gray-200'>
+                    <th className='text-left py-2 px-3 font-semibold text-gray-600'>เลขแผนผ่อน</th>
+                    <th className='text-left py-2 px-3 font-semibold text-gray-600'>ลูกค้า</th>
+                    <th className='text-center py-2 px-3 font-semibold text-gray-600'>งวดที่</th>
+                    <th className='text-center py-2 px-3 font-semibold text-gray-600'>ครบกำหนด</th>
+                    <th className='text-right py-2 px-3 font-semibold text-gray-600'>ยอด</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {data.overduePayments.map((p: any) => (
+                    <tr key={p.id} className='border-b border-gray-100 hover:bg-red-50'>
+                      <td className='py-2 px-3 font-mono text-xs text-gray-600'>{(p.plan as any)?.plan_number}</td>
+                      <td className='py-2 px-3 font-medium text-gray-800'>{(p.plan as any)?.customer_name}</td>
+                      <td className='py-2 px-3 text-center text-gray-600'>{p.installment_number}</td>
+                      <td className='py-2 px-3 text-center text-red-600 font-semibold'>{formatDate(p.due_date)}</td>
+                      <td className='py-2 px-3 text-right font-bold text-red-700'>{formatCurrency(p.amount)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>
