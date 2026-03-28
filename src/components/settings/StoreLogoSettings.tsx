@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import ImageUpload from '@/components/shared/ImageUpload';
 import { toast } from 'sonner';
@@ -12,13 +12,13 @@ export default function StoreLogoSettings() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const supabaseRef = useRef(createClient());
   const mounted = useMounted();
 
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const supabase = createClient();
-        const url = await getStoreSetting(supabase, STORE_LOGO_URL_KEY);
+        const url = await getStoreSetting(supabaseRef.current, STORE_LOGO_URL_KEY);
         if (mounted.current) setLogoUrl(url);
       } catch {
         // leave logoUrl as null
@@ -33,8 +33,7 @@ export default function StoreLogoSettings() {
     setLogoUrl(url);
     setSaving(true);
     try {
-      const supabase = createClient();
-      await upsertStoreSettings(supabase, { [STORE_LOGO_URL_KEY]: url });
+      await upsertStoreSettings(supabaseRef.current, { [STORE_LOGO_URL_KEY]: url });
       toast.success('บันทึกโลโก้ร้านสำเร็จ');
     } catch {
       toast.error('เกิดข้อผิดพลาดในการบันทึก');

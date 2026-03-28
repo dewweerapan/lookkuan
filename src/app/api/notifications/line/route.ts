@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Line Notify requires a leading newline to display the message on a new line
   const form = new URLSearchParams({ message: `\n${message}` });
   const response = await fetch('https://notify-api.line.me/api/notify', {
     method: 'POST',
