@@ -2,6 +2,16 @@ import { createClient } from '@/lib/supabase/server'
 import { formatDateTime } from '@/lib/utils'
 import { MOVEMENT_TYPE_LABELS } from '@/lib/constants'
 import PageHeader from '@/components/shared/PageHeader'
+type MovementRow = {
+  id: string
+  created_at: string
+  type: string
+  movement_type: string
+  quantity_change: number
+  note: string | null
+  variant: { sku: string; color: string; size: string; product: { name: string }[] } | null
+  performed_by_profile: { full_name: string }[] | null
+}
 
 async function getMovements() {
   const supabase = await createClient()
@@ -23,7 +33,7 @@ async function getMovements() {
 }
 
 export default async function MovementsPage() {
-  const movements = await getMovements()
+  const movements = (await getMovements()) as MovementRow[]
 
   return (
     <div>
@@ -47,7 +57,7 @@ export default async function MovementsPage() {
             </tr>
           </thead>
           <tbody>
-            {movements.map((m: any) => (
+            {movements.map((m) => (
               <tr key={m.id}>
                 <td className="text-sm text-gray-500 whitespace-nowrap">{formatDateTime(m.created_at)}</td>
                 <td>
@@ -57,7 +67,7 @@ export default async function MovementsPage() {
                     {MOVEMENT_TYPE_LABELS[m.type] || m.type}
                   </span>
                 </td>
-                <td className="font-medium">{m.variant?.product?.name || '-'}</td>
+                <td className="font-medium">{(m.variant?.product as { name: string }[] | null)?.[0]?.name || '-'}</td>
                 <td className="text-sm text-gray-600">
                   {m.variant?.color} / {m.variant?.size}
                   <br />
@@ -67,7 +77,7 @@ export default async function MovementsPage() {
                   {m.quantity_change > 0 ? '+' : ''}{m.quantity_change}
                 </td>
                 <td className="text-sm text-gray-600 max-w-[200px] truncate">{m.note || '-'}</td>
-                <td className="text-sm">{m.performed_by_profile?.full_name || '-'}</td>
+                <td className="text-sm">{(m.performed_by_profile as { full_name: string }[] | null)?.[0]?.full_name || '-'}</td>
               </tr>
             ))}
             {movements.length === 0 && (

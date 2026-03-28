@@ -3,6 +3,20 @@ import { formatCurrency, formatDate } from '@/lib/utils';
 import PageHeader from '@/components/shared/PageHeader';
 import ReportsExportButton from '@/components/reports/ReportsExportButton';
 
+interface OverduePaymentRow {
+  id: string;
+  installment_number: number;
+  due_date: string;
+  amount: number;
+  plan: { plan_number: string; customer_name: string } | null;
+}
+
+interface StaffSaleRow {
+  cashier_id: string;
+  total: number;
+  cashier: { full_name: string } | null;
+}
+
 async function getReportData() {
   const supabase = await createClient();
   const today = new Date();
@@ -110,9 +124,9 @@ async function getReportData() {
 
   // Staff performance: aggregate by cashier
   const staffMap = new Map<string, { name: string; count: number; total: number }>();
-  staffSales?.forEach((sale: any) => {
-    const id = sale.cashier_id as string;
-    const name = (sale.cashier as any)?.full_name || 'ไม่ทราบ';
+  (staffSales as StaffSaleRow[] | null)?.forEach((sale) => {
+    const id = sale.cashier_id;
+    const name = sale.cashier?.full_name || 'ไม่ทราบ';
     const existing = staffMap.get(id) || { name, count: 0, total: 0 };
     staffMap.set(id, {
       name,
@@ -151,7 +165,7 @@ export default async function ReportsPage() {
             topProductsList={data.topProductsList}
             paymentBreakdown={data.paymentBreakdown}
             staffPerformance={data.staffPerformance}
-            overduePayments={data.overduePayments as any}
+            overduePayments={data.overduePayments as unknown as OverduePaymentRow[]}
             monthlyTotal={data.monthlyTotal}
             weeklyTotal={data.weeklyTotal}
             monthlyCount={data.monthlyCount}
@@ -310,13 +324,13 @@ export default async function ReportsPage() {
           <>
             {/* Mobile cards */}
             <div className='block sm:hidden space-y-3'>
-              {data.overduePayments.map((p: any) => (
+              {(data.overduePayments as unknown as OverduePaymentRow[]).map((p) => (
                 <div key={p.id} className='p-3 bg-red-50 border border-red-100 rounded-lg'>
                   <div className='flex items-center justify-between mb-1'>
-                    <span className='font-mono text-xs text-gray-500'>{(p.plan as any)?.plan_number} · งวด {p.installment_number}</span>
+                    <span className='font-mono text-xs text-gray-500'>{p.plan?.plan_number} · งวด {p.installment_number}</span>
                     <span className='font-bold text-red-700'>{formatCurrency(p.amount)}</span>
                   </div>
-                  <p className='font-semibold text-gray-800'>{(p.plan as any)?.customer_name}</p>
+                  <p className='font-semibold text-gray-800'>{p.plan?.customer_name}</p>
                   <p className='text-sm text-red-600'>ครบกำหนด: {formatDate(p.due_date)}</p>
                 </div>
               ))}
@@ -334,10 +348,10 @@ export default async function ReportsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.overduePayments.map((p: any) => (
+                  {(data.overduePayments as unknown as OverduePaymentRow[]).map((p) => (
                     <tr key={p.id} className='border-b border-gray-100 hover:bg-red-50'>
-                      <td className='py-2 px-3 font-mono text-xs text-gray-600'>{(p.plan as any)?.plan_number}</td>
-                      <td className='py-2 px-3 font-medium text-gray-800'>{(p.plan as any)?.customer_name}</td>
+                      <td className='py-2 px-3 font-mono text-xs text-gray-600'>{p.plan?.plan_number}</td>
+                      <td className='py-2 px-3 font-medium text-gray-800'>{p.plan?.customer_name}</td>
                       <td className='py-2 px-3 text-center text-gray-600'>{p.installment_number}</td>
                       <td className='py-2 px-3 text-center text-red-600 font-semibold'>{formatDate(p.due_date)}</td>
                       <td className='py-2 px-3 text-right font-bold text-red-700'>{formatCurrency(p.amount)}</td>

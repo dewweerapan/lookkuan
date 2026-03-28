@@ -7,10 +7,13 @@ import { useRouter } from 'next/navigation';
 import { formatCurrency, formatDateTime } from '@/lib/utils';
 import { MOVEMENT_TYPE_LABELS } from '@/lib/constants';
 import { toast } from 'sonner';
+import type { Product, ProductVariant, InventoryMovement } from '@/types/database';
+
+type ProductWithVariants = Product & { variants: ProductVariant[] };
 
 interface Props {
-  product: any;
-  movements: any[];
+  product: ProductWithVariants;
+  movements: InventoryMovement[];
 }
 
 export default function ProductDetailClient({ product, movements }: Props) {
@@ -39,7 +42,8 @@ export default function ProductDetailClient({ product, movements }: Props) {
     try {
       const supabase = createClient();
       // Update stock
-      const variant = product.variants.find((v: any) => v.id === variantId);
+      const variant = product.variants.find((v) => v.id === variantId);
+      if (!variant) return;
       const newQty = Math.max(0, variant.stock_quantity + qty);
 
       const { error: updateError } = await supabase
@@ -67,8 +71,8 @@ export default function ProductDetailClient({ product, movements }: Props) {
       setAdjustQty('');
       setAdjustNote('');
       router.refresh();
-    } catch (error: any) {
-      toast.error(`เกิดข้อผิดพลาด: ${error.message}`);
+    } catch (error) {
+      toast.error(`เกิดข้อผิดพลาด: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -115,7 +119,7 @@ export default function ProductDetailClient({ product, movements }: Props) {
               </tr>
             </thead>
             <tbody>
-              {product.variants?.map((v: any) => (
+              {product.variants?.map((v) => (
                 <tr key={v.id}>
                   <td className='font-mono text-sm'>{v.sku}</td>
                   <td>{v.color}</td>
@@ -212,7 +216,7 @@ export default function ProductDetailClient({ product, movements }: Props) {
               </tr>
             </thead>
             <tbody>
-              {movements.map((m: any) => (
+              {movements.map((m) => (
                 <tr key={m.id}>
                   <td className='text-sm text-gray-500'>
                     {formatDateTime(m.created_at)}

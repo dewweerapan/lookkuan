@@ -5,6 +5,10 @@ import { createClient } from '@/lib/supabase/client';
 import { exportToCSV } from '@/lib/export';
 import { toast } from 'sonner';
 
+// SupabaseRow: Supabase returns rows with dynamic shapes depending on the select query.
+// We use a loose type here because the shape varies per export item.
+type SupabaseRow = Record<string, unknown>;
+
 interface ExportItem {
   label: string;
   description: string;
@@ -12,7 +16,7 @@ interface ExportItem {
   table: string;
   select: string;
   filename: string;
-  transform?: (rows: any[]) => Record<string, unknown>[];
+  transform?: (rows: SupabaseRow[]) => Record<string, unknown>[];
 }
 
 const EXPORTS: ExportItem[] = [
@@ -25,17 +29,20 @@ const EXPORTS: ExportItem[] = [
       'sku, barcode, color, size, stock_quantity, low_stock_threshold, price_override, product:products(name, base_price, cost_price, sku_prefix)',
     filename: 'สินค้า.csv',
     transform: (rows) =>
-      rows.map((r: any) => ({
-        ชื่อสินค้า: r.product?.name,
-        ราคาขาย: r.price_override ?? r.product?.base_price,
-        ราคาทุน: r.product?.cost_price,
-        SKU: r.sku,
-        บาร์โค้ด: r.barcode,
-        สี: r.color,
-        ขนาด: r.size,
-        สต็อก: r.stock_quantity,
-        จุดสั่งซื้อใหม่: r.low_stock_threshold,
-      })),
+      rows.map((r) => {
+        const product = r.product as { name?: unknown; base_price?: unknown; cost_price?: unknown } | null;
+        return {
+          ชื่อสินค้า: product?.name,
+          ราคาขาย: r.price_override ?? product?.base_price,
+          ราคาทุน: product?.cost_price,
+          SKU: r.sku,
+          บาร์โค้ด: r.barcode,
+          สี: r.color,
+          ขนาด: r.size,
+          สต็อก: r.stock_quantity,
+          จุดสั่งซื้อใหม่: r.low_stock_threshold,
+        };
+      }),
   },
   {
     label: 'ลูกค้า',
@@ -46,7 +53,7 @@ const EXPORTS: ExportItem[] = [
       'full_name, phone, email, address, total_spent, visit_count, loyalty_points, tier, created_at',
     filename: 'ลูกค้า.csv',
     transform: (rows) =>
-      rows.map((r: any) => ({
+      rows.map((r) => ({
         'ชื่อ-นามสกุล': r.full_name,
         เบอร์โทร: r.phone,
         อีเมล: r.email,
@@ -55,7 +62,7 @@ const EXPORTS: ExportItem[] = [
         ครั้งที่เข้าร้าน: r.visit_count,
         แต้มสะสม: r.loyalty_points,
         ระดับ: r.tier,
-        วันที่ลงทะเบียน: r.created_at?.split('T')[0],
+        วันที่ลงทะเบียน: (r.created_at as string | null)?.split('T')[0],
       })),
   },
   {
@@ -67,15 +74,15 @@ const EXPORTS: ExportItem[] = [
       'sale_number, total, subtotal, discount_amount, payment_method, status, created_at, cashier:profiles!cashier_id(full_name)',
     filename: 'การขาย.csv',
     transform: (rows) =>
-      rows.map((r: any) => ({
+      rows.map((r) => ({
         เลขที่บิล: r.sale_number,
         ยอดรวม: r.total,
         ก่อนส่วนลด: r.subtotal,
         ส่วนลด: r.discount_amount,
         ช่องทางชำระ: r.payment_method,
         สถานะ: r.status,
-        วันที่: r.created_at?.split('T')[0],
-        พนักงาน: (r.cashier as any)?.full_name,
+        วันที่: (r.created_at as string | null)?.split('T')[0],
+        พนักงาน: (r.cashier as Record<string, unknown>)?.full_name,
       })),
   },
   {
@@ -87,7 +94,7 @@ const EXPORTS: ExportItem[] = [
       'order_number, customer_name, customer_phone, description, status, quoted_price, deposit_amount, due_amount, estimated_completion_date, created_at',
     filename: 'งานปัก.csv',
     transform: (rows) =>
-      rows.map((r: any) => ({
+      rows.map((r) => ({
         เลขที่ใบงาน: r.order_number,
         ชื่อลูกค้า: r.customer_name,
         เบอร์โทร: r.customer_phone,
@@ -97,7 +104,7 @@ const EXPORTS: ExportItem[] = [
         มัดจำ: r.deposit_amount,
         ยอดค้าง: r.due_amount,
         กำหนดเสร็จ: r.estimated_completion_date,
-        วันที่รับงาน: r.created_at?.split('T')[0],
+        วันที่รับงาน: (r.created_at as string | null)?.split('T')[0],
       })),
   },
   {
@@ -109,7 +116,7 @@ const EXPORTS: ExportItem[] = [
       'plan_number, customer_name, customer_phone, item_description, total_amount, down_payment, balance_amount, total_installments, interval_days, status, created_at',
     filename: 'ผ่อนชำระ.csv',
     transform: (rows) =>
-      rows.map((r: any) => ({
+      rows.map((r) => ({
         เลขแผน: r.plan_number,
         ชื่อลูกค้า: r.customer_name,
         เบอร์โทร: r.customer_phone,
@@ -120,7 +127,7 @@ const EXPORTS: ExportItem[] = [
         จำนวนงวด: r.total_installments,
         'ระยะห่างงวด (วัน)': r.interval_days,
         สถานะ: r.status,
-        วันที่เปิด: r.created_at?.split('T')[0],
+        วันที่เปิด: (r.created_at as string | null)?.split('T')[0],
       })),
   },
 ];
@@ -138,11 +145,12 @@ export default function DataExportSettings() {
         .order('created_at', { ascending: false })
         .limit(10000);
       if (error) throw error;
-      const rows = item.transform ? item.transform(data || []) : data || [];
+      const rawRows = (data || []) as unknown as SupabaseRow[];
+      const rows = item.transform ? item.transform(rawRows) : rawRows;
       exportToCSV(item.filename, rows as Record<string, unknown>[]);
       toast.success(`ส่งออก ${item.label} สำเร็จ (${(data || []).length} แถว)`);
-    } catch (err: any) {
-      toast.error(`เกิดข้อผิดพลาด: ${err.message}`);
+    } catch (err) {
+      toast.error(`เกิดข้อผิดพลาด: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setExporting(null);
     }

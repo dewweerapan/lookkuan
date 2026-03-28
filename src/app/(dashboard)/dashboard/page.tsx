@@ -2,6 +2,29 @@ import { createClient } from '@/lib/supabase/server';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import Link from 'next/link';
 
+interface LowStockVariant {
+  id: string;
+  sku: string;
+  stock_quantity: number;
+  low_stock_threshold: number;
+  product: { name: string } | null;
+}
+
+interface DueSoonJob {
+  id: string;
+  order_number: string;
+  customer_name: string;
+  estimated_completion_date: string;
+}
+
+interface TodayInstallment {
+  id: string;
+  installment_number: number;
+  amount: number;
+  plan_id: string;
+  plan: { plan_number: string; customer_name: string } | null;
+}
+
 async function getDashboardStats() {
   const supabase = await createClient();
   const today = new Date().toISOString().split('T')[0];
@@ -60,9 +83,9 @@ async function getDashboardStats() {
     )
     .order('estimated_completion_date', { ascending: true });
 
-  const allVariants = lowStockItems || [];
+  const allVariants = (lowStockItems || []) as unknown as LowStockVariant[];
   const filteredLowStock = allVariants
-    .filter((v: any) => v.stock_quantity <= v.low_stock_threshold)
+    .filter((v) => v.stock_quantity <= v.low_stock_threshold)
     .slice(0, 10);
 
   // Today's due installments
@@ -201,7 +224,7 @@ export default async function DashboardPage() {
             </h3>
           </div>
           <div className='space-y-2'>
-            {stats.dueSoonJobs.map((job: any) => (
+            {(stats.dueSoonJobs as DueSoonJob[]).map((job) => (
               <Link
                 key={job.id}
                 href={`/job-orders/${job.id}`}
@@ -238,7 +261,7 @@ export default async function DashboardPage() {
             </h3>
           </div>
           <div className='space-y-2'>
-            {stats.todayInstallments.map((p: any) => (
+            {(stats.todayInstallments as unknown as TodayInstallment[]).map((p) => (
               <Link
                 key={p.id}
                 href={`/installments/${p.plan_id}`}
@@ -246,10 +269,10 @@ export default async function DashboardPage() {
               >
                 <div>
                   <p className='font-semibold text-gray-800'>
-                    {(p.plan as any)?.customer_name || '-'}
+                    {p.plan?.customer_name || '-'}
                   </p>
                   <p className='text-sm text-gray-500'>
-                    {(p.plan as any)?.plan_number} · งวดที่{' '}
+                    {p.plan?.plan_number} · งวดที่{' '}
                     {p.installment_number}
                   </p>
                 </div>
@@ -275,7 +298,7 @@ export default async function DashboardPage() {
             ⚠️ สินค้าใกล้หมด
           </h2>
           <div className='space-y-2'>
-            {stats.lowStockItems.map((item: any) => (
+            {(stats.lowStockItems as LowStockVariant[]).map((item) => (
               <div
                 key={item.id}
                 className='flex items-center justify-between bg-white rounded-lg p-3 border border-yellow-100'

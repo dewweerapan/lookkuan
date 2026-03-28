@@ -2,6 +2,46 @@ import { createClient } from '@/lib/supabase/server';
 import { formatCurrency, formatDateTime } from '@/lib/utils';
 import PageHeader from '@/components/shared/PageHeader';
 
+interface AuditLogRow {
+  id: string;
+  action: string;
+  entity_type: string;
+  entity_id: string;
+  old_value: Record<string, unknown> | null;
+  new_value: Record<string, unknown> | null;
+  created_at: string;
+  user_id: string;
+  user_name: string;
+}
+
+interface CashSessionRow {
+  id: string;
+  discrepancy: number | null;
+  cashier: { full_name: string } | null;
+  opened_at: string;
+  [key: string]: unknown;
+}
+
+interface EmployeeVoidRow {
+  id: string;
+  full_name: string;
+  voidCount: number;
+  totalSales: number;
+  voidRate: string;
+  [key: string]: unknown;
+}
+
+interface VoidedSaleRow {
+  id: string;
+  sale_number: string;
+  total: number;
+  cashier_id: string;
+  voided_by: string | null;
+  void_reason: string | null;
+  voided_at: string | null;
+  cashier: { full_name: string } | null;
+}
+
 async function getRiskData() {
   const supabase = await createClient();
   const thirtyDaysAgo = new Date(
@@ -56,7 +96,7 @@ async function getRiskData() {
 
   // Fetch user names for audit logs
   const auditUserIds = (recentAuditLogs || [])
-    .map((l: any) => l.user_id)
+    .map((l) => l.user_id)
     .filter(Boolean)
     .filter((id: string, i: number, arr: string[]) => arr.indexOf(id) === i);
   let auditUserMap: Record<string, string> = {};
@@ -83,18 +123,17 @@ async function getRiskData() {
 
   const overrideCount = overrides?.length || 0;
 
-  const cashDiscrepancies =
-    cashSessions?.filter(
-      (s: any) => Math.abs(Number(s.discrepancy) || 0) > 0,
-    ) || [];
+  const cashDiscrepancies = (cashSessions?.filter(
+    (s) => Math.abs(Number(s.discrepancy) || 0) > 0,
+  ) || []) as CashSessionRow[];
   const totalDiscrepancy = cashDiscrepancies.reduce(
-    (sum: number, s: any) => sum + Math.abs(Number(s.discrepancy) || 0),
+    (sum, s) => sum + Math.abs(Number(s.discrepancy) || 0),
     0,
   );
 
   // Per-employee void stats
   const employeeVoids = (employeeStats || [])
-    .map((emp: any) => {
+    .map((emp): EmployeeVoidRow => {
       const empVoids =
         voidedSales?.filter((s) => s.cashier_id === emp.id) || [];
       const empTotal = allSales?.filter((s) => s.cashier_id === emp.id) || [];
@@ -108,8 +147,8 @@ async function getRiskData() {
             : '0',
       };
     })
-    .filter((e: any) => e.totalSales > 0)
-    .sort((a: any, b: any) => b.voidCount - a.voidCount);
+    .filter((e) => e.totalSales > 0)
+    .sort((a, b) => b.voidCount - a.voidCount);
 
   return {
     voidCount,
@@ -121,7 +160,7 @@ async function getRiskData() {
     totalDiscrepancy,
     employeeVoids,
     totalSalesCount,
-    auditLogs: (recentAuditLogs || []).map((l: any) => ({
+    auditLogs: (recentAuditLogs || []).map((l): AuditLogRow => ({
       ...l,
       user_name: auditUserMap[l.user_id] || 'ระบบ',
     })),
@@ -212,7 +251,7 @@ export default async function RiskDashboardPage() {
             <p className='text-gray-400 text-center py-4'>ไม่มีข้อมูล</p>
           ) : (
             <div className='space-y-3'>
-              {data.employeeVoids.map((emp: any) => (
+              {(data.employeeVoids as EmployeeVoidRow[]).map((emp) => (
                 <div
                   key={emp.id}
                   className='flex items-center gap-4 p-3 rounded-lg bg-gray-50'
@@ -257,7 +296,7 @@ export default async function RiskDashboardPage() {
             </p>
           ) : (
             <div className='space-y-3'>
-              {data.cashDiscrepancies.slice(0, 10).map((session: any) => (
+              {(data.cashDiscrepancies as CashSessionRow[]).slice(0, 10).map((session) => (
                 <div
                   key={session.id}
                   className='flex items-center gap-4 p-3 rounded-lg bg-gray-50'
@@ -310,7 +349,7 @@ export default async function RiskDashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.voidedSales.slice(0, 15).map((sale: any) => (
+                  {(data.voidedSales as unknown as VoidedSaleRow[]).slice(0, 15).map((sale) => (
                     <tr key={sale.id}>
                       <td className='font-mono text-sm'>{sale.sale_number}</td>
                       <td>{sale.cashier?.full_name || '-'}</td>
@@ -350,7 +389,7 @@ export default async function RiskDashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.auditLogs.map((log: any) => (
+                  {(data.auditLogs as AuditLogRow[]).map((log) => (
                     <tr key={log.id}>
                       <td className='font-semibold'>{log.user_name}</td>
                       <td className='text-sm font-mono text-gray-600'>

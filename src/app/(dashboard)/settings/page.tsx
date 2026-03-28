@@ -102,6 +102,20 @@ export default function SettingsPage() {
           </h3>
           <p className='text-gray-500 mt-1'>เพิ่ม แก้ไข ลบหมวดหมู่สินค้า</p>
         </Link>
+        <Link
+          href='/settings/changelog'
+          className='bg-gradient-to-br from-brand-50 to-brand-100 rounded-xl border border-brand-200 p-6 hover:shadow-md transition-shadow sm:col-span-2'
+        >
+          <div className='flex items-center gap-3'>
+            <div className='text-3xl'>🚀</div>
+            <div>
+              <h3 className='text-lg font-bold text-brand-800'>ความคืบหน้าการพัฒนา</h3>
+              <p className='text-brand-600 mt-0.5 text-sm'>
+                ดู Phase 2 progress — อัปเดตหลังทุก feature เสร็จ
+              </p>
+            </div>
+          </div>
+        </Link>
       </div>
     </div>
   );
