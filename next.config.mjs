@@ -3,7 +3,6 @@ import { withSentryConfig } from '@sentry/nextjs'
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
-    // Lint is run separately via `next lint` — skip during build to avoid false positives
     ignoreDuringBuilds: true,
   },
   images: {
@@ -17,8 +16,13 @@ const nextConfig = {
   },
 }
 
-export default withSentryConfig(nextConfig, {
+// Only wrap with Sentry when DSN is configured (avoids dev-mode conflicts)
+const sentryConfig = {
   silent: true,
   telemetry: false,
   dryRun: process.env.CI !== 'true',
-})
+  disableClientWebpackPlugin: !process.env.NEXT_PUBLIC_SENTRY_DSN,
+  disableServerWebpackPlugin: !process.env.NEXT_PUBLIC_SENTRY_DSN,
+}
+
+export default withSentryConfig(nextConfig, sentryConfig)
