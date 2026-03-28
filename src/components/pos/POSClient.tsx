@@ -819,12 +819,18 @@ export default function POSClient({ categories, products }: Props) {
                     {[20, 50, 100, 500, 1000].map((amount) => (
                       <button
                         key={amount}
-                        onClick={() => setCashReceived(String(amount))}
+                        onClick={() => setCashReceived((prev) => String((Number(prev) || 0) + amount))}
                         className='py-3 rounded-xl bg-white border-2 border-gray-200 text-lg font-bold hover:bg-gray-50'
                       >
-                        {amount}
+                        +{amount}
                       </button>
                     ))}
+                    <button
+                      onClick={() => setCashReceived('')}
+                      className='py-3 rounded-xl bg-red-50 border-2 border-red-200 text-lg font-bold text-red-600 hover:bg-red-100'
+                    >
+                      ล้าง
+                    </button>
                     <button
                       onClick={() =>
                         setCashReceived(String(Math.ceil(promoAdjustedTotal)))

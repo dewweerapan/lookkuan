@@ -24,6 +24,11 @@ export default function CameraScanner({ onScan, onClose }: Props) {
   const [scanning, setScanning] = useState(false)
   const scannerRef = useRef<Html5QrcodeScanner | null>(null)
   const containerId = 'camera-scanner-container'
+  // Use refs so the effect never restarts when parent re-renders
+  const onScanRef = useRef(onScan)
+  const onCloseRef = useRef(onClose)
+  useEffect(() => { onScanRef.current = onScan }, [onScan])
+  useEffect(() => { onCloseRef.current = onClose }, [onClose])
 
   useEffect(() => {
     let html5QrCode: Html5QrcodeScanner | null = null
@@ -46,9 +51,9 @@ export default function CameraScanner({ onScan, onClose }: Props) {
           cameraId,
           { fps: 10, qrbox: { width: 250, height: 150 } },
           (decodedText: string) => {
-            onScan(decodedText)
+            onScanRef.current(decodedText.trim())
             // Auto-close after successful scan
-            setTimeout(onClose, 500)
+            setTimeout(() => onCloseRef.current(), 500)
           },
           () => {} // Ignore decode errors (continuous scanning)
         )
@@ -65,7 +70,7 @@ export default function CameraScanner({ onScan, onClose }: Props) {
         scannerRef.current.stop().catch(() => {})
       }
     }
-  }, [onScan, onClose])
+  }, []) // Run once on mount — callbacks accessed via refs
 
   return (
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">

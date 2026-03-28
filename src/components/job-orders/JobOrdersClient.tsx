@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { JOB_STATUS_LABELS, JOB_STATUS_COLORS } from '@/lib/constants';
@@ -33,11 +34,13 @@ export default function JobOrdersClient({
   jobOrders: initialJobOrders,
 }: Props) {
   const { profile } = useAuth();
+  const router = useRouter();
   const [jobOrders, setJobOrders] = useState<JobOrder[]>(initialJobOrders);
   const [search, setSearch] = useState('');
   const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
   const [mobileActiveStatus, setMobileActiveStatus] =
     useState<JobStatus>('pending');
+  const [swipingId, setSwipingId] = useState<string | null>(null);
 
   // Drag state
   const [draggedId, setDraggedId] = useState<string | null>(null);
@@ -154,6 +157,38 @@ export default function JobOrdersClient({
     }
   };
 
+  // Advance a job order to the next status (used by mobile swipe)
+  const handleAdvanceStatus = useCallback(async (job: JobOrder) => {
+    const currentIdx = statusOrder.indexOf(job.status as JobStatus);
+    if (currentIdx === -1 || currentIdx >= statusOrder.length - 1) return;
+    const newStatus = statusOrder[currentIdx + 1];
+
+    setJobOrders((prev) =>
+      prev.map((j) => j.id === job.id ? { ...j, status: newStatus } : j),
+    );
+
+    try {
+      const supabase = createClient();
+      const updateData: Record<string, unknown> = { status: newStatus };
+      if (newStatus === 'delivered') updateData.delivered_at = new Date().toISOString();
+      if (newStatus === 'completed') updateData.actual_completion_date = new Date().toISOString();
+      const { error } = await supabase.from('job_orders').update(updateData).eq('id', job.id);
+      if (error) throw error;
+      if (profile) {
+        await supabase.from('audit_logs').insert({
+          entity_type: 'job_order', entity_id: job.id,
+          action: 'job_status_changed',
+          old_value: { status: job.status }, new_value: { status: newStatus },
+          user_id: profile.id,
+        });
+      }
+      toast.success(`"${job.order_number}" → ${JOB_STATUS_LABELS[newStatus]}`);
+    } catch {
+      setJobOrders((prev) => prev.map((j) => j.id === job.id ? { ...j, status: job.status } : j));
+      toast.error('เปลี่ยนสถานะไม่สำเร็จ');
+    }
+  }, [profile]);
+
   return (
     <div>
       <div className='flex flex-col sm:flex-row gap-3 mb-6'>
@@ -216,62 +251,107 @@ export default function JobOrdersClient({
           </div>
 
           {/* Mobile: single-column list for active status */}
+          <p className='md:hidden text-xs text-gray-400 text-center mb-3'>
+            💡 ปัดขวาเพื่อเลื่อนสถานะถัดไป • แตะเพื่อดูรายละเอียด
+          </p>
           <div className='md:hidden space-y-3'>
-            {(groupedByStatus[mobileActiveStatus] || []).map((job) => (
-              <Link
-                key={job.id}
-                href={`/job-orders/${job.id}`}
-                className='block bg-white rounded-xl border border-gray-200 p-4 shadow-sm active:bg-gray-50'
-              >
-                <div className='flex items-start justify-between mb-2'>
-                  <span className='text-sm font-mono text-gray-500'>
-                    {job.order_number}
-                  </span>
-                  <span className='font-bold text-brand-600'>
-                    {formatCurrency(job.quoted_price)}
-                  </span>
-                </div>
-                <p className='font-bold text-gray-800 text-lg mb-1'>
-                  {job.customer_name}
-                </p>
-                <p className='text-sm text-gray-600 line-clamp-2 mb-3'>
-                  {job.description}
-                </p>
-                <div className='flex items-center justify-between text-sm'>
-                  <span className='text-gray-500'>
-                    {job.garment_type} × {job.quantity}
-                  </span>
-                  {job.estimated_completion_date && (
-                    <span
-                      className={`text-sm ${
-                        !['completed', 'delivered', 'cancelled'].includes(
-                          job.status,
-                        ) &&
-                        new Date(job.estimated_completion_date) <=
-                          new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
-                          ? 'text-orange-600 font-semibold'
-                          : 'text-gray-400'
-                      }`}
-                    >
-                      {!['completed', 'delivered', 'cancelled'].includes(
-                        job.status,
-                      ) &&
-                        new Date(job.estimated_completion_date) <=
-                          new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) &&
-                        '⏰ '}
-                      กำหนด: {formatDate(job.estimated_completion_date)}
-                    </span>
+            {(groupedByStatus[mobileActiveStatus] || []).map((job) => {
+              const canAdvance =
+                statusOrder.indexOf(job.status as JobStatus) < statusOrder.length - 1 &&
+                job.status !== 'cancelled';
+              const nextStatus = canAdvance
+                ? statusOrder[statusOrder.indexOf(job.status as JobStatus) + 1]
+                : null;
+              let touchStartX = 0;
+              let touchStartY = 0;
+              return (
+                <div
+                  key={job.id}
+                  className='relative overflow-hidden rounded-xl'
+                >
+                  {/* Swipe hint layer */}
+                  {canAdvance && swipingId === job.id && (
+                    <div className='absolute inset-y-0 left-0 right-0 bg-green-500 flex items-center px-5 rounded-xl'>
+                      <span className='text-white font-bold text-sm'>
+                        → {JOB_STATUS_LABELS[nextStatus!]}
+                      </span>
+                    </div>
                   )}
-                </div>
-                {job.balance_due > 0 && (
-                  <div className='mt-2 pt-2 border-t border-gray-100'>
-                    <span className='text-orange-600 font-medium text-sm'>
-                      ค้างชำระ: {formatCurrency(job.balance_due)}
-                    </span>
+                  <div
+                    className='relative bg-white rounded-xl border border-gray-200 p-4 shadow-sm transition-transform'
+                    style={{ touchAction: 'pan-y' }}
+                    onTouchStart={(e) => {
+                      touchStartX = e.touches[0].clientX;
+                      touchStartY = e.touches[0].clientY;
+                    }}
+                    onTouchMove={(e) => {
+                      if (!canAdvance) return;
+                      const dx = e.touches[0].clientX - touchStartX;
+                      const dy = e.touches[0].clientY - touchStartY;
+                      if (Math.abs(dx) > Math.abs(dy) && dx > 30) {
+                        setSwipingId(job.id);
+                        e.currentTarget.style.transform = `translateX(${Math.min(dx * 0.4, 60)}px)`;
+                      }
+                    }}
+                    onTouchEnd={(e) => {
+                      const dx = e.changedTouches[0].clientX - touchStartX;
+                      const dy = e.changedTouches[0].clientY - touchStartY;
+                      e.currentTarget.style.transform = '';
+                      setSwipingId(null);
+                      if (canAdvance && Math.abs(dx) > Math.abs(dy) && dx > 60) {
+                        handleAdvanceStatus(job);
+                      } else if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+                        router.push(`/job-orders/${job.id}`);
+                      }
+                    }}
+                  >
+                    <div className='flex items-start justify-between mb-2'>
+                      <span className='text-sm font-mono text-gray-500'>
+                        {job.order_number}
+                      </span>
+                      <span className='font-bold text-brand-600'>
+                        {formatCurrency(job.quoted_price)}
+                      </span>
+                    </div>
+                    <p className='font-bold text-gray-800 text-lg mb-1'>
+                      {job.customer_name}
+                    </p>
+                    <p className='text-sm text-gray-600 line-clamp-2 mb-3'>
+                      {job.description}
+                    </p>
+                    <div className='flex items-center justify-between text-sm'>
+                      <span className='text-gray-500'>
+                        {job.garment_type} × {job.quantity}
+                      </span>
+                      {job.estimated_completion_date && (
+                        <span
+                          className={`text-sm ${
+                            !['completed', 'delivered', 'cancelled'].includes(job.status) &&
+                            new Date(job.estimated_completion_date) <=
+                              new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+                              ? 'text-orange-600 font-semibold'
+                              : 'text-gray-400'
+                          }`}
+                        >
+                          {!['completed', 'delivered', 'cancelled'].includes(job.status) &&
+                            new Date(job.estimated_completion_date) <=
+                              new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) &&
+                            '⏰ '}
+                          กำหนด: {formatDate(job.estimated_completion_date)}
+                        </span>
+                      )}
+                    </div>
+                    {job.balance_due > 0 && (
+                      <div className='mt-2 pt-2 border-t border-gray-100'>
+                        <span className='text-orange-600 font-medium text-sm'>
+                          ค้างชำระ: {formatCurrency(job.balance_due)}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                )}
-              </Link>
-            ))}
+                </div>
+              );
+            })}
             {(groupedByStatus[mobileActiveStatus] || []).length === 0 && (
               <div className='text-center py-12 text-gray-400'>
                 <p className='text-4xl mb-2'>📭</p>
