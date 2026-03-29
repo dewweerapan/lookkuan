@@ -13,7 +13,6 @@ export default async function LandingPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (user) redirect('/dashboard')
 
-  // Fetch active products with category + variants
   const { data: products } = await supabase
     .from('products')
     .select(`
@@ -25,14 +24,12 @@ export default async function LandingPage() {
     .order('created_at', { ascending: false })
     .limit(40)
 
-  // Filter variants to active only + normalize join shape
   const normalizedProducts = (products ?? []).map((p) => {
     const cat = Array.isArray(p.category) ? p.category[0] : p.category
     const vars = (p.variants ?? []).filter((v: { is_active: boolean }) => v.is_active)
     return { ...p, category: cat ?? null, variants: vars }
   })
 
-  // Unique active categories that have products
   const categoryMap = new Map<string, { id: string; name: string }>()
   for (const p of normalizedProducts) {
     if (p.category) categoryMap.set(p.category.id, p.category)
@@ -45,31 +42,29 @@ export default async function LandingPage() {
       {/* ── STICKY NAV ──────────────────────────────────────────── */}
       <header className='sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100'>
         <div className='max-w-5xl mx-auto px-5 h-16 flex items-center justify-between gap-4'>
-          {/* Logo */}
           <div className='flex items-center gap-2.5'>
-            <div className='w-10 h-10 bg-brand-500 rounded-2xl flex items-center justify-center shadow-sm rotate-3'>
+            <div className='w-10 h-10 bg-sky-500 rounded-2xl flex items-center justify-center shadow-sm rotate-3'>
               <span className='text-xl'>🧵</span>
             </div>
             <span className='text-xl font-bold text-gray-900 tracking-tight'>{STORE_NAME}</span>
           </div>
 
-          {/* Nav links */}
           <nav className='flex items-center gap-1 sm:gap-2'>
             <a
               href='#products'
-              className='hidden sm:inline-flex items-center text-sm text-gray-500 hover:text-brand-600 font-semibold px-3 py-2 rounded-xl hover:bg-orange-50 transition-all'
+              className='hidden sm:inline-flex items-center text-sm text-gray-500 hover:text-sky-600 font-semibold px-3 py-2 rounded-xl hover:bg-sky-50 transition-all'
             >
               สินค้า
             </a>
             <a
               href='#track'
-              className='hidden sm:inline-flex items-center text-sm text-gray-500 hover:text-brand-600 font-semibold px-3 py-2 rounded-xl hover:bg-orange-50 transition-all'
+              className='hidden sm:inline-flex items-center text-sm text-gray-500 hover:text-sky-600 font-semibold px-3 py-2 rounded-xl hover:bg-sky-50 transition-all'
             >
               ติดตามงาน
             </a>
             <Link
               href='/login'
-              className='text-sm bg-brand-500 hover:bg-brand-600 text-white font-bold px-5 py-2.5 rounded-2xl shadow-sm hover:shadow-md transition-all'
+              className='text-sm bg-sky-500 hover:bg-sky-600 text-white font-bold px-5 py-2.5 rounded-2xl shadow-sm hover:shadow-md transition-all'
             >
               เข้าสู่ระบบ
             </Link>
@@ -81,26 +76,26 @@ export default async function LandingPage() {
       <section className='relative overflow-hidden bg-white'>
         {/* Decorative blobs */}
         <div
-          className='absolute top-0 right-0 w-72 h-72 rounded-full pointer-events-none'
-          style={{ background: 'radial-gradient(circle, #FED7AA 0%, transparent 70%)', transform: 'translate(30%, -30%)' }}
+          className='absolute top-0 right-0 w-80 h-80 rounded-full pointer-events-none'
+          style={{ background: 'radial-gradient(circle, #BAE6FD 0%, transparent 70%)', transform: 'translate(35%, -35%)' }}
           aria-hidden='true'
         />
         <div
-          className='absolute bottom-0 left-0 w-56 h-56 rounded-full pointer-events-none'
-          style={{ background: 'radial-gradient(circle, #FDE68A44 0%, transparent 70%)', transform: 'translate(-30%, 30%)' }}
+          className='absolute bottom-0 left-0 w-64 h-64 rounded-full pointer-events-none'
+          style={{ background: 'radial-gradient(circle, #E0F2FE 0%, transparent 70%)', transform: 'translate(-35%, 35%)' }}
           aria-hidden='true'
         />
-        {/* Deco dots top-left */}
-        <div className='absolute top-12 left-6 hidden lg:grid grid-cols-4 gap-2.5 pointer-events-none opacity-30' aria-hidden='true'>
+        {/* Deco dots */}
+        <div className='absolute top-12 left-6 hidden lg:grid grid-cols-4 gap-2.5 pointer-events-none opacity-25' aria-hidden='true'>
           {Array.from({ length: 16 }).map((_, i) => (
-            <div key={i} className='w-1.5 h-1.5 rounded-full bg-brand-400' />
+            <div key={i} className='w-1.5 h-1.5 rounded-full bg-sky-400' />
           ))}
         </div>
 
         <div className='relative max-w-2xl mx-auto px-5 pt-16 pb-16 text-center'>
           {/* Badge */}
-          <div className='inline-flex items-center gap-2 bg-orange-50 border border-orange-200 text-brand-700 text-sm font-semibold px-4 py-2 rounded-full mb-7'>
-            <span className='w-2 h-2 bg-brand-500 rounded-full animate-pulse' />
+          <div className='inline-flex items-center gap-2 bg-sky-50 border border-sky-200 text-sky-700 text-sm font-semibold px-4 py-2 rounded-full mb-7'>
+            <span className='w-2 h-2 bg-sky-500 rounded-full animate-pulse' />
             เปิดรับออเดอร์ทุกวัน
           </div>
 
@@ -108,9 +103,8 @@ export default async function LandingPage() {
           <h1 className='text-5xl sm:text-6xl font-bold text-gray-900 leading-tight mb-5'>
             เสื้อผ้าคุณภาพ
             <br />
-            <span className='relative inline-block text-brand-500'>
+            <span className='relative inline-block text-sky-500'>
               ราคาเป็นมิตร
-              {/* Playful underline squiggle */}
               <svg
                 className='absolute -bottom-2 left-0 w-full'
                 viewBox='0 0 200 12'
@@ -119,7 +113,7 @@ export default async function LandingPage() {
               >
                 <path
                   d='M0,6 C25,2 50,10 75,6 C100,2 125,10 150,6 C175,2 195,8 200,6'
-                  stroke='#FB923C'
+                  stroke='#38BDF8'
                   strokeWidth='3'
                   fill='none'
                   strokeLinecap='round'
@@ -134,17 +128,16 @@ export default async function LandingPage() {
             ชื่อ และลวดลายสั่งทำทุกแบบ
           </p>
 
-          {/* CTAs */}
           <div className='flex flex-col sm:flex-row gap-3 justify-center'>
             <a
               href='#products'
-              className='inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-600 text-white font-bold px-8 py-4 rounded-2xl text-base shadow-lg shadow-orange-200 hover:shadow-orange-300 transition-all hover:-translate-y-0.5 active:translate-y-0'
+              className='inline-flex items-center justify-center gap-2 bg-sky-500 hover:bg-sky-600 text-white font-bold px-8 py-4 rounded-2xl text-base shadow-lg shadow-sky-200 hover:shadow-sky-300 transition-all hover:-translate-y-0.5 active:translate-y-0'
             >
               ดูสินค้าทั้งหมด →
             </a>
             <a
               href='#track'
-              className='inline-flex items-center justify-center gap-2 bg-white border-2 border-gray-200 hover:border-brand-400 hover:bg-orange-50 text-gray-700 font-bold px-8 py-4 rounded-2xl text-base transition-all hover:-translate-y-0.5 active:translate-y-0'
+              className='inline-flex items-center justify-center gap-2 bg-white border-2 border-gray-200 hover:border-sky-400 hover:bg-sky-50 text-gray-700 font-bold px-8 py-4 rounded-2xl text-base transition-all hover:-translate-y-0.5 active:translate-y-0'
             >
               🔍 ติดตามงานปัก
             </a>
@@ -154,24 +147,24 @@ export default async function LandingPage() {
         {/* Wave divider */}
         <div className='relative h-12 overflow-hidden' aria-hidden='true'>
           <svg viewBox='0 0 1200 48' className='absolute bottom-0 w-full' preserveAspectRatio='none'>
-            <path d='M0,24 C200,48 400,0 600,24 C800,48 1000,0 1200,24 L1200,48 L0,48 Z' fill='#F9FAFB' />
+            <path d='M0,24 C200,48 400,0 600,24 C800,48 1000,0 1200,24 L1200,48 L0,48 Z' fill='#F0F9FF' />
           </svg>
         </div>
       </section>
 
       {/* ── TRUST / STATS BAR ────────────────────────────────────── */}
-      <section className='py-8 px-5 bg-gray-50'>
+      <section className='py-8 px-5 bg-sky-50'>
         <div className='max-w-3xl mx-auto'>
           <div className='flex items-center justify-between gap-3 overflow-x-auto scrollbar-none'>
             {[
-              { icon: '👕', stat: '100+', label: 'แบบสินค้า', color: 'bg-blue-50 text-blue-600' },
-              { icon: '🪡', stat: 'รับปัก', label: 'สั่งทำทุกแบบ', color: 'bg-purple-50 text-purple-600' },
-              { icon: '📦', stat: 'พร้อมส่ง', label: 'ในสต็อก', color: 'bg-green-50 text-green-600' },
-              { icon: '⭐', stat: 'บริการดี', label: 'ทุกออเดอร์', color: 'bg-yellow-50 text-yellow-600' },
+              { icon: '👕', stat: '100+', label: 'แบบสินค้า', color: 'bg-sky-100 text-sky-600' },
+              { icon: '🪡', stat: 'รับปัก', label: 'สั่งทำทุกแบบ', color: 'bg-indigo-100 text-indigo-600' },
+              { icon: '📦', stat: 'พร้อมส่ง', label: 'ในสต็อก', color: 'bg-teal-100 text-teal-600' },
+              { icon: '⭐', stat: 'บริการดี', label: 'ทุกออเดอร์', color: 'bg-cyan-100 text-cyan-600' },
             ].map((item, i) => (
               <div
                 key={i}
-                className='flex items-center gap-3 px-5 py-3.5 bg-white rounded-2xl border border-gray-100 shadow-sm flex-shrink-0 flex-1 min-w-[140px] sm:min-w-0'
+                className='flex items-center gap-3 px-5 py-3.5 bg-white rounded-2xl border border-sky-100 shadow-sm flex-shrink-0 flex-1 min-w-[140px] sm:min-w-0'
               >
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${item.color}`}>
                   {item.icon}
@@ -190,7 +183,7 @@ export default async function LandingPage() {
       <section id='products' className='py-16 px-5 bg-white'>
         <div className='max-w-5xl mx-auto'>
           <div className='text-center mb-10'>
-            <span className='inline-block bg-orange-100 text-brand-700 text-xs font-bold px-3 py-1.5 rounded-full tracking-widest uppercase mb-3 font-sans'>
+            <span className='inline-block bg-sky-100 text-sky-700 text-xs font-bold px-3 py-1.5 rounded-full tracking-widest uppercase mb-3 font-sans'>
               สินค้าในร้าน
             </span>
             <h2 className='text-3xl sm:text-4xl font-bold text-gray-900 mb-3'>
@@ -205,21 +198,20 @@ export default async function LandingPage() {
       </section>
 
       {/* ── EMBROIDERY CTA ────────────────────────────────────────── */}
-      <section id='services' className='py-16 px-5 relative overflow-hidden' style={{ background: 'linear-gradient(135deg, #FFF7ED 0%, #FEF3C7 50%, #FFF7ED 100%)' }}>
+      <section id='services' className='py-16 px-5 relative overflow-hidden' style={{ background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 50%, #F0F9FF 100%)' }}>
         {/* Deco dots */}
         <div className='absolute top-8 right-8 hidden lg:grid grid-cols-5 gap-3 pointer-events-none opacity-20' aria-hidden='true'>
           {Array.from({ length: 25 }).map((_, i) => (
-            <div key={i} className='w-2 h-2 rounded-full bg-brand-500' />
+            <div key={i} className='w-2 h-2 rounded-full bg-sky-500' />
           ))}
         </div>
         <div className='absolute bottom-8 left-8 hidden lg:grid grid-cols-3 gap-3 pointer-events-none opacity-20' aria-hidden='true'>
           {Array.from({ length: 9 }).map((_, i) => (
-            <div key={i} className='w-2 h-2 rounded-full bg-yellow-500' />
+            <div key={i} className='w-2 h-2 rounded-full bg-indigo-400' />
           ))}
         </div>
 
         <div className='max-w-4xl mx-auto relative'>
-          {/* Header */}
           <div className='text-center mb-10'>
             <div className='w-16 h-16 bg-white rounded-3xl flex items-center justify-center text-3xl mx-auto mb-4 shadow-md rotate-3'>
               🪡
@@ -232,7 +224,6 @@ export default async function LandingPage() {
             </p>
           </div>
 
-          {/* Use case chips */}
           <div className='flex flex-wrap gap-2.5 justify-center mb-10'>
             {[
               { icon: '🏫', label: 'ชุดนักเรียน' },
@@ -244,14 +235,13 @@ export default async function LandingPage() {
             ].map((chip) => (
               <span
                 key={chip.label}
-                className='inline-flex items-center gap-1.5 bg-white border border-orange-200 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full shadow-sm'
+                className='inline-flex items-center gap-1.5 bg-white border border-sky-200 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full shadow-sm'
               >
                 {chip.icon} {chip.label}
               </span>
             ))}
           </div>
 
-          {/* Steps grid */}
           <div className='grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8'>
             {[
               { n: '1', icon: '📞', title: 'ติดต่อสั่งงาน', desc: 'โทรหรือแวะมาที่ร้าน' },
@@ -261,9 +251,9 @@ export default async function LandingPage() {
             ].map((s) => (
               <div
                 key={s.n}
-                className='bg-white rounded-3xl p-5 text-center shadow-sm border border-orange-100 hover:shadow-md transition-shadow'
+                className='bg-white rounded-3xl p-5 text-center shadow-sm border border-sky-100 hover:shadow-md transition-shadow'
               >
-                <div className='w-8 h-8 bg-brand-500 text-white rounded-2xl flex items-center justify-center text-sm font-bold mx-auto mb-3 -rotate-3'>
+                <div className='w-8 h-8 bg-sky-500 text-white rounded-2xl flex items-center justify-center text-sm font-bold mx-auto mb-3 -rotate-3'>
                   {s.n}
                 </div>
                 <div className='text-3xl mb-2'>{s.icon}</div>
@@ -273,11 +263,10 @@ export default async function LandingPage() {
             ))}
           </div>
 
-          {/* Track link */}
           <div className='text-center'>
             <a
               href='#track'
-              className='inline-flex items-center gap-2 bg-white border border-orange-200 text-brand-600 hover:bg-orange-50 font-semibold text-sm px-5 py-2.5 rounded-full shadow-sm transition-colors'
+              className='inline-flex items-center gap-2 bg-white border border-sky-200 text-sky-600 hover:bg-sky-50 font-semibold text-sm px-5 py-2.5 rounded-full shadow-sm transition-colors'
             >
               🔍 สั่งงานแล้ว? ติดตามสถานะที่นี่ →
             </a>
@@ -289,7 +278,7 @@ export default async function LandingPage() {
       <section id='track' className='py-16 px-5 bg-white'>
         <div className='max-w-lg mx-auto'>
           <div className='text-center mb-8'>
-            <div className='w-16 h-16 bg-orange-50 rounded-3xl flex items-center justify-center text-3xl mx-auto mb-4 rotate-6'>
+            <div className='w-16 h-16 bg-sky-50 rounded-3xl flex items-center justify-center text-3xl mx-auto mb-4 rotate-6'>
               📦
             </div>
             <h2 className='text-3xl sm:text-4xl font-bold text-gray-900 mb-3'>
@@ -299,7 +288,7 @@ export default async function LandingPage() {
               กรอกเลขที่ใบงานที่ได้รับจากร้าน เพื่อดูความคืบหน้า
             </p>
           </div>
-          <div className='bg-gray-50 rounded-3xl p-6 border border-gray-100'>
+          <div className='bg-sky-50 rounded-3xl p-6 border border-sky-100'>
             <TrackingForm />
           </div>
         </div>
@@ -307,14 +296,13 @@ export default async function LandingPage() {
 
       {/* ── CONTACT ──────────────────────────────────────────────── */}
       {(STORE_PHONE || STORE_ADDRESS) && (
-        <section className='py-14 px-5 bg-brand-500 relative overflow-hidden'>
-          {/* Playful circles */}
+        <section className='py-14 px-5 bg-sky-500 relative overflow-hidden'>
           <div className='absolute top-0 left-1/4 w-40 h-40 rounded-full bg-white/10 pointer-events-none' style={{ transform: 'translate(-50%, -50%)' }} aria-hidden='true' />
           <div className='absolute bottom-0 right-1/4 w-32 h-32 rounded-full bg-white/10 pointer-events-none' style={{ transform: 'translate(50%, 50%)' }} aria-hidden='true' />
 
           <div className='relative max-w-3xl mx-auto text-center text-white'>
             <h2 className='text-3xl font-bold mb-2'>ติดต่อเรา 👋</h2>
-            <p className='text-orange-100 mb-8 font-sans text-sm'>ยินดีให้คำปรึกษาทุกวัน — ไม่มีค่าใช้จ่าย</p>
+            <p className='text-sky-100 mb-8 font-sans text-sm'>ยินดีให้คำปรึกษาทุกวัน — ไม่มีค่าใช้จ่าย</p>
             <div className='flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center'>
               {STORE_PHONE && (
                 <a
@@ -323,7 +311,7 @@ export default async function LandingPage() {
                 >
                   <span className='text-2xl'>📞</span>
                   <div className='text-left'>
-                    <p className='text-xs text-orange-100 font-sans'>โทรศัพท์</p>
+                    <p className='text-xs text-sky-100 font-sans'>โทรศัพท์</p>
                     <p className='text-xl font-bold tracking-wide'>{STORE_PHONE}</p>
                   </div>
                 </a>
@@ -332,7 +320,7 @@ export default async function LandingPage() {
                 <div className='flex items-center gap-3 bg-white/20 border border-white/20 rounded-2xl px-6 py-4 w-full sm:w-auto justify-center'>
                   <span className='text-2xl'>📍</span>
                   <div className='text-left'>
-                    <p className='text-xs text-orange-100 font-sans'>ที่อยู่</p>
+                    <p className='text-xs text-sky-100 font-sans'>ที่อยู่</p>
                     <p className='font-bold leading-snug'>{STORE_ADDRESS}</p>
                   </div>
                 </div>
@@ -346,7 +334,7 @@ export default async function LandingPage() {
       <footer className='bg-gray-950 text-gray-500 py-8 px-5'>
         <div className='max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4'>
           <div className='flex items-center gap-2.5'>
-            <div className='w-8 h-8 bg-brand-500 rounded-xl flex items-center justify-center rotate-3'>
+            <div className='w-8 h-8 bg-sky-500 rounded-xl flex items-center justify-center rotate-3'>
               <span className='text-sm'>🧵</span>
             </div>
             <div>
