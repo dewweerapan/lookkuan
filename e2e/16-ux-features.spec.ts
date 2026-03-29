@@ -262,16 +262,18 @@ test.describe('Job Orders: Batch Status Update (mobile)', () => {
 
     const statusBtn = page.getByRole('button', { name: /เปลี่ยนสถานะ \(1 รายการ\)/ })
     await expect(statusBtn).toBeEnabled()
-    await statusBtn.click()
+    // dispatchEvent fires the React onClick even when a Next.js portal overlay intercepts pointer events
+    await statusBtn.dispatchEvent('click')
 
     // Status modal should appear
     await expect(page.getByText(/เลือกสถานะสำหรับ/i)).toBeVisible({ timeout: 3000 })
 
-    // Status options
-    await expect(page.getByRole('button', { name: /รอดำเนินการ/i })).toBeVisible()
-    await expect(page.getByRole('button', { name: /กำลังปัก/i })).toBeVisible()
-    await expect(page.getByRole('button', { name: /เสร็จแล้ว/i })).toBeVisible()
-    await expect(page.getByRole('button', { name: /ส่งมอบแล้ว/i })).toBeVisible()
+    // Status options — scope to the modal to avoid strict mode conflicts with filter tabs
+    const statusModal = page.locator('div.fixed.inset-0.z-50').last()
+    await expect(statusModal.getByRole('button', { name: /รอดำเนินการ/i })).toBeVisible()
+    await expect(statusModal.getByRole('button', { name: /กำลังปัก/i })).toBeVisible()
+    await expect(statusModal.getByRole('button', { name: /เสร็จแล้ว/i })).toBeVisible()
+    await expect(statusModal.getByRole('button', { name: /ส่งมอบแล้ว/i })).toBeVisible()
   })
 
   test('tapping ยกเลิก in bottom bar exits select mode', async ({ page }) => {
