@@ -42,6 +42,11 @@ export default function JobOrdersClient({
     useState<JobStatus>('pending');
   const [swipingId, setSwipingId] = useState<string | null>(null);
 
+  // Batch select state (mobile only)
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showStatusModal, setShowStatusModal] = useState(false);
+
   // Drag state
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOverStatus, setDragOverStatus] = useState<string | null>(null);
@@ -64,6 +69,86 @@ export default function JobOrdersClient({
       return acc;
     },
     {} as Record<string, JobOrder[]>,
+  );
+
+  // ---- Select mode helpers ----
+  const toggleSelectMode = () => {
+    setSelectMode((prev) => !prev);
+    setSelectedIds(new Set());
+  };
+
+  const toggleSelectId = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const exitSelectMode = () => {
+    setSelectMode(false);
+    setSelectedIds(new Set());
+    setShowStatusModal(false);
+  };
+
+  // ---- Batch status update ----
+  const handleBatchStatusChange = useCallback(
+    async (newStatus: JobStatus) => {
+      if (selectedIds.size === 0) return;
+      const ids = Array.from(selectedIds);
+
+      // Snapshot original statuses for rollback
+      const originalStatuses = new Map<string, string>(
+        ids.map((id) => {
+          const job = jobOrders.find((j) => j.id === id);
+          return [id, job?.status ?? ''];
+        }),
+      );
+
+      // Optimistic update
+      setJobOrders((prev) =>
+        prev.map((j) =>
+          ids.includes(j.id) ? { ...j, status: newStatus as JobOrder['status'] } : j,
+        ),
+      );
+      setShowStatusModal(false);
+      exitSelectMode();
+
+      try {
+        const supabase = createClient();
+        const updateData: Record<string, unknown> = { status: newStatus };
+        if (newStatus === 'delivered') {
+          updateData.delivered_at = new Date().toISOString();
+        }
+        if (newStatus === 'completed') {
+          updateData.actual_completion_date = new Date().toISOString();
+        }
+        const { error } = await supabase
+          .from('job_orders')
+          .update(updateData)
+          .in('id', ids);
+
+        if (error) throw error;
+
+        toast.success(
+          `เปลี่ยนสถานะ ${ids.length} รายการ เป็น ${JOB_STATUS_LABELS[newStatus]} แล้ว`,
+        );
+      } catch {
+        // Rollback
+        setJobOrders((prev) =>
+          prev.map((j) => {
+            const orig = originalStatuses.get(j.id);
+            return orig !== undefined ? { ...j, status: orig as JobOrder['status'] } : j;
+          }),
+        );
+        toast.error('เปลี่ยนสถานะไม่สำเร็จ กรุณาลองใหม่');
+      }
+    },
+    [selectedIds, jobOrders],
   );
 
   // ---- Drag handlers ----
@@ -220,6 +305,19 @@ export default function JobOrdersClient({
           >
             📝 รายการ
           </button>
+          {/* Select mode toggle — mobile only, board view only */}
+          {viewMode === 'board' && (
+            <button
+              onClick={toggleSelectMode}
+              className={`md:hidden pos-btn px-4 py-2 rounded-xl text-base ${
+                selectMode
+                  ? 'bg-orange-500 text-white'
+                  : 'bg-gray-100 text-gray-700'
+              }`}
+            >
+              เลือก
+            </button>
+          )}
         </div>
       </div>
 
@@ -250,18 +348,27 @@ export default function JobOrdersClient({
             ))}
           </div>
 
-          {/* Mobile: single-column list for active status */}
-          <p className='md:hidden text-xs text-gray-400 text-center mb-3'>
-            💡 ปัดขวาเพื่อเลื่อนสถานะถัดไป • แตะเพื่อดูรายละเอียด
-          </p>
+          {/* Mobile: hint text — changes based on select mode */}
+          {selectMode ? (
+            <p className='md:hidden text-xs text-orange-500 text-center mb-3 font-medium'>
+              แตะการ์ดเพื่อเลือก • เลือกแล้ว {selectedIds.size} รายการ
+            </p>
+          ) : (
+            <p className='md:hidden text-xs text-gray-400 text-center mb-3'>
+              💡 ปัดขวาเพื่อเลื่อนสถานะถัดไป • แตะเพื่อดูรายละเอียด
+            </p>
+          )}
+
           <div className='md:hidden space-y-3'>
             {(groupedByStatus[mobileActiveStatus] || []).map((job) => {
               const canAdvance =
+                !selectMode &&
                 statusOrder.indexOf(job.status as JobStatus) < statusOrder.length - 1 &&
                 job.status !== 'cancelled';
               const nextStatus = canAdvance
                 ? statusOrder[statusOrder.indexOf(job.status as JobStatus) + 1]
                 : null;
+              const isSelected = selectedIds.has(job.id);
               let touchStartX = 0;
               let touchStartY = 0;
               return (
@@ -269,8 +376,8 @@ export default function JobOrdersClient({
                   key={job.id}
                   className='relative overflow-hidden rounded-xl'
                 >
-                  {/* Swipe hint layer */}
-                  {canAdvance && swipingId === job.id && (
+                  {/* Swipe hint layer — only when not in select mode */}
+                  {!selectMode && canAdvance && swipingId === job.id && (
                     <div className='absolute inset-y-0 left-0 right-0 bg-green-500 flex items-center px-5 rounded-xl'>
                       <span className='text-white font-bold text-sm'>
                         → {JOB_STATUS_LABELS[nextStatus!]}
@@ -278,14 +385,19 @@ export default function JobOrdersClient({
                     </div>
                   )}
                   <div
-                    className='relative bg-white rounded-xl border border-gray-200 p-4 shadow-sm transition-transform'
-                    style={{ touchAction: 'pan-y' }}
+                    className={`relative bg-white rounded-xl border p-4 shadow-sm transition-all ${
+                      isSelected
+                        ? 'border-orange-400 ring-2 ring-orange-300'
+                        : 'border-gray-200'
+                    }`}
+                    style={{ touchAction: selectMode ? 'auto' : 'pan-y' }}
                     onTouchStart={(e) => {
+                      if (selectMode) return;
                       touchStartX = e.touches[0].clientX;
                       touchStartY = e.touches[0].clientY;
                     }}
                     onTouchMove={(e) => {
-                      if (!canAdvance) return;
+                      if (selectMode || !canAdvance) return;
                       const dx = e.touches[0].clientX - touchStartX;
                       const dy = e.touches[0].clientY - touchStartY;
                       if (Math.abs(dx) > Math.abs(dy) && dx > 30) {
@@ -294,6 +406,10 @@ export default function JobOrdersClient({
                       }
                     }}
                     onTouchEnd={(e) => {
+                      if (selectMode) {
+                        toggleSelectId(job.id);
+                        return;
+                      }
                       const dx = e.changedTouches[0].clientX - touchStartX;
                       const dy = e.changedTouches[0].clientY - touchStartY;
                       e.currentTarget.style.transform = '';
@@ -304,8 +420,45 @@ export default function JobOrdersClient({
                         router.push(`/job-orders/${job.id}`);
                       }
                     }}
+                    onClick={() => {
+                      if (selectMode) {
+                        toggleSelectId(job.id);
+                      }
+                    }}
                   >
-                    <div className='flex items-start justify-between mb-2'>
+                    {/* Circular checkbox in top-left corner when in select mode */}
+                    {selectMode && (
+                      <div className='absolute top-3 left-3 z-10'>
+                        <div
+                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                            isSelected
+                              ? 'bg-orange-500 border-orange-500'
+                              : 'bg-white border-gray-300'
+                          }`}
+                        >
+                          {isSelected && (
+                            <svg
+                              className='w-3.5 h-3.5 text-white'
+                              fill='none'
+                              viewBox='0 0 24 24'
+                              stroke='currentColor'
+                              strokeWidth={3}
+                            >
+                              <path
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                                d='M5 13l4 4L19 7'
+                              />
+                            </svg>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    <div
+                      className={`flex items-start justify-between mb-2 ${
+                        selectMode ? 'pl-8' : ''
+                      }`}
+                    >
                       <span className='text-sm font-mono text-gray-500'>
                         {job.order_number}
                       </span>
@@ -313,7 +466,11 @@ export default function JobOrdersClient({
                         {formatCurrency(job.quoted_price)}
                       </span>
                     </div>
-                    <p className='font-bold text-gray-800 text-lg mb-1'>
+                    <p
+                      className={`font-bold text-gray-800 text-lg mb-1 ${
+                        selectMode ? 'pl-8' : ''
+                      }`}
+                    >
                       {job.customer_name}
                     </p>
                     <p className='text-sm text-gray-600 line-clamp-2 mb-3'>
@@ -564,6 +721,70 @@ export default function JobOrdersClient({
               <p className='text-lg'>ไม่พบงานปัก</p>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Sticky bottom bar — mobile select mode */}
+      {selectMode && (
+        <div className='md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-xl px-4 py-3 pb-safe flex gap-3'
+          style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
+        >
+          <button
+            onClick={() => setShowStatusModal(true)}
+            disabled={selectedIds.size === 0}
+            className={`flex-1 py-3 rounded-xl font-bold text-base transition-all ${
+              selectedIds.size > 0
+                ? 'bg-brand-500 text-white active:bg-brand-600'
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            }`}
+          >
+            เปลี่ยนสถานะ ({selectedIds.size} รายการ)
+          </button>
+          <button
+            onClick={exitSelectMode}
+            className='px-5 py-3 rounded-xl bg-gray-100 text-gray-700 font-bold text-base active:bg-gray-200'
+          >
+            ยกเลิก
+          </button>
+        </div>
+      )}
+
+      {/* Status selection modal */}
+      {showStatusModal && (
+        <div
+          className='md:hidden fixed inset-0 z-50 flex items-end'
+          onClick={() => setShowStatusModal(false)}
+        >
+          {/* Backdrop */}
+          <div className='absolute inset-0 bg-black/40' />
+          {/* Sheet */}
+          <div
+            className='relative w-full bg-white rounded-t-2xl p-5 shadow-2xl'
+            onClick={(e) => e.stopPropagation()}
+            style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}
+          >
+            <p className='text-center text-gray-500 text-sm mb-4'>
+              เลือกสถานะสำหรับ {selectedIds.size} รายการ
+            </p>
+            <div className='space-y-3'>
+              {statusOrder.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => handleBatchStatusChange(s)}
+                  className={`w-full py-4 rounded-xl font-bold text-lg text-left px-5 flex items-center gap-3 active:opacity-80 transition-opacity ${JOB_STATUS_COLORS[s]}`}
+                >
+                  <span className={`w-3 h-3 rounded-full bg-current opacity-60`} />
+                  {JOB_STATUS_LABELS[s]}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowStatusModal(false)}
+              className='mt-4 w-full py-3 rounded-xl bg-gray-100 text-gray-600 font-semibold text-base active:bg-gray-200'
+            >
+              ปิด
+            </button>
+          </div>
         </div>
       )}
     </div>
