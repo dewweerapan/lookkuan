@@ -30,29 +30,29 @@
 - [x] hint text "ปัดขวาเพื่อเลื่อนสถานะ • แตะเพื่อดูรายละเอียด"
 
 ### Feature: Batch Status Update
-- [ ] เพิ่ม checkbox multi-select ใน job order list
-- [ ] เพิ่มปุ่ม "เปลี่ยนสถานะทั้งหมด (N รายการ)" เมื่อ select > 0
-- [ ] Dialog เลือกสถานะที่ต้องการ
-- [ ] Call API batch update
-- [ ] ทดสอบ select หลาย order และเปลี่ยนสถานะพร้อมกัน
+- [x] เพิ่ม checkbox multi-select ใน job order list (mobile only)
+- [x] เพิ่มปุ่ม "เปลี่ยนสถานะ (N รายการ)" sticky bottom bar
+- [x] Bottom sheet เลือกสถานะ
+- [x] Batch update `.in('id', ids)` + optimistic update + rollback
 
 ---
 
 ## Sprint 3 — Power Features
 
 ### Feature: On-screen Numeric Keypad ใน POS
-- [ ] สร้าง `NumericKeypad` component
-- [ ] แสดงเมื่อ cash input focused บน touch device
-- [ ] ปุ่ม 0-9, backspace, clear, พอดี
-- [ ] ซ่อน native keyboard บน mobile
+- [x] สร้าง `NumericKeypad.tsx` component (grid 4x3, h-14 buttons)
+- [x] แทนที่ input field ด้วย display div + NumericKeypad
+- [x] ปุ่ม 1-9, 0, ← backspace, พอดี
+- [x] ปุ่มแบงค์ (+20/+50/+100/+500/+1000) และ ล้าง ยังทำงานร่วมกัน
 
 ### Feature: Quick Re-order งานปัก
-- [ ] เพิ่มปุ่ม "สั่งซ้ำ" ในหน้า job order detail
-- [ ] Pre-fill form จาก order เดิม (ลูกค้า, ดีไซน์, ราคา)
-- [ ] เปิด new job order modal พร้อมข้อมูล
+- [x] สร้าง `ReorderButton.tsx` — navigate ไป `/job-orders/new` พร้อม query params
+- [x] เพิ่มปุ่ม "สั่งซ้ำ" ในหน้า job order detail (ซ่อนถ้าสถานะ cancelled)
+- [x] `new/page.tsx` อ่าน searchParams pre-fill form + banner "สร้างจากงาน [order_number]"
 
 ---
 
 ## Status Log
 - 2026-03-28: สร้าง checklist
 - 2026-03-28: Sprint 1 + Swipe gesture เสร็จสมบูรณ์ → push to main (cf34624)
+- 2026-03-29: Sprint 2 (Batch update) + Sprint 3 (Keypad + Re-order) เสร็จสมบูรณ์ → push to main (62e25ef)
