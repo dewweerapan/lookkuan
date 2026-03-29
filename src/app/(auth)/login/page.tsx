@@ -49,7 +49,7 @@ export default function LoginPage() {
           <p className="text-lg text-gray-500 mt-2">ระบบจัดการร้านเสื้อผ้า</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form onSubmit={handleLogin} action="#" className="space-y-5">
           <div>
             <label htmlFor="email" className="pos-label">อีเมล</label>
             <input
