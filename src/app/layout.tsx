@@ -31,7 +31,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 3, // allow zoom for accessibility
   userScalable: true,
-  themeColor: '#F97316',
+  themeColor: '#0EA5E9',
   viewportFit: 'cover', // support iPhone notch/home bar
 };
 
