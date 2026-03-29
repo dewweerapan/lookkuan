@@ -16,6 +16,7 @@ import ConfirmDialog from '@/components/shared/ConfirmDialog';
 import CameraScanner from '@/components/pos/CameraScanner';
 import PromptPayQR from '@/components/pos/PromptPayQR';
 import ReceiptPreviewModal from '@/components/pos/ReceiptPreviewModal';
+import NumericKeypad from '@/components/pos/NumericKeypad';
 import { getStoreSettings } from '@/lib/storeSettings';
 import { toast } from 'sonner';
 import type { Category, Product, ProductVariant, Promotion } from '@/types/database';
@@ -806,14 +807,13 @@ export default function POSClient({ categories, products }: Props) {
               {paymentMethod === 'cash' && (
                 <div>
                   <label className='pos-label'>จำนวนเงินที่รับ (บาท)</label>
-                  <input
-                    type='number'
+                  <div className='pos-input text-2xl text-center font-bold min-h-[3rem] flex items-center justify-center select-none'>
+                    {cashReceived || <span className='text-gray-400'>0</span>}
+                  </div>
+                  <NumericKeypad
                     value={cashReceived}
-                    onChange={(e) => setCashReceived(e.target.value)}
-                    className='pos-input text-2xl text-center font-bold'
-                    placeholder='0'
-                    autoFocus
-                    min='0'
+                    onChange={setCashReceived}
+                    total={promoAdjustedTotal}
                   />
                   <div className='grid grid-cols-3 gap-2 mt-2'>
                     {[20, 50, 100, 500, 1000].map((amount) => (
@@ -830,14 +830,6 @@ export default function POSClient({ categories, products }: Props) {
                       className='py-3 rounded-xl bg-red-50 border-2 border-red-200 text-lg font-bold text-red-600 hover:bg-red-100'
                     >
                       ล้าง
-                    </button>
-                    <button
-                      onClick={() =>
-                        setCashReceived(String(Math.ceil(promoAdjustedTotal)))
-                      }
-                      className='py-3 rounded-xl bg-brand-100 border-2 border-brand-300 text-lg font-bold text-brand-700'
-                    >
-                      พอดี
                     </button>
                   </div>
                   {Number(cashReceived) >= promoAdjustedTotal && (
