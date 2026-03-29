@@ -20,6 +20,7 @@ import PageHeader from '@/components/shared/PageHeader';
 import JobOrderActions from '@/components/job-orders/JobOrderActions';
 import JobOrderShare from '@/components/job-orders/JobOrderShare';
 import JobOrderPrint from '@/components/job-orders/JobOrderPrint';
+import ReorderButton from '@/components/job-orders/ReorderButton';
 
 async function getJobOrder(id: string) {
   const supabase = await createClient();
@@ -110,6 +111,7 @@ export default async function JobOrderDetailPage({
         backHref='/job-orders'
         actions={
           <div className='flex gap-3 flex-wrap'>
+            <ReorderButton job={job} />
             <JobOrderPrint
               job={job}
               storeName={process.env.NEXT_PUBLIC_STORE_NAME}

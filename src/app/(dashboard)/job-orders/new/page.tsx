@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { generateOrderNumber } from '@/lib/utils';
@@ -11,19 +11,22 @@ import { toast } from 'sonner';
 
 export default function NewJobOrderPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { profile } = useAuth();
   const [loading, setLoading] = useState(false);
   const [staff, setStaff] = useState<any[]>([]);
   const [staffLoaded, setStaffLoaded] = useState(false);
 
+  const fromOrder = searchParams.get('from');
+
   const [form, setForm] = useState({
-    customer_name: '',
-    customer_phone: '',
-    description: '',
-    garment_type: '',
-    quantity: '1',
-    quoted_price: '',
-    deposit_amount: '',
+    customer_name: searchParams.get('customer_name') || '',
+    customer_phone: searchParams.get('customer_phone') || '',
+    description: searchParams.get('description') || '',
+    garment_type: searchParams.get('garment_type') || '',
+    quantity: searchParams.get('quantity') || '1',
+    quoted_price: searchParams.get('quoted_price') || '',
+    deposit_amount: searchParams.get('deposit_amount') || '',
     estimated_completion_date: '',
     assigned_to: '',
     notes: '',
@@ -122,6 +125,15 @@ export default function NewJobOrderPage() {
   return (
     <div>
       <PageHeader title='รับงานปักใหม่' backHref='/job-orders' />
+
+      {fromOrder && (
+        <div className='max-w-3xl mb-4 bg-orange-50 border border-orange-200 rounded-xl px-5 py-3 flex items-center gap-3'>
+          <span className='text-orange-500 text-xl'>↺</span>
+          <p className='text-orange-800 font-medium'>
+            สร้างจากงาน <span className='font-bold'>{fromOrder}</span> — แก้ไขข้อมูลได้ตามต้องการ
+          </p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className='max-w-3xl space-y-6'>
         {/* Customer Info */}
