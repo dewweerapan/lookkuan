@@ -224,10 +224,11 @@ test.describe('Advanced Inventory Features', () => {
       await page.goto('/inventory/map')
       await page.waitForLoadState('networkidle')
 
-      const backLink = page.getByRole('link', { name: /กลับ|← กลับ/i })
-      if (await backLink.first().isVisible({ timeout: 5000 }).catch(() => false)) {
-        await backLink.first().click()
-        await page.waitForLoadState('networkidle')
+      // Find back link by href (most reliable) or by aria-label/text
+      const backLink = page.locator('a[href="/inventory"]').first()
+      if (await backLink.isVisible({ timeout: 5000 }).catch(() => false)) {
+        await backLink.click()
+        await page.waitForURL(/\/inventory$/, { timeout: 10000 })
         expect(page.url()).toContain('/inventory')
         expect(page.url()).not.toContain('/inventory/map')
       }
@@ -383,10 +384,11 @@ test.describe('Advanced Inventory Features', () => {
       await page.goto('/inventory/movements')
       await page.waitForLoadState('networkidle')
 
-      const backLink = page.getByRole('link', { name: /กลับ|← กลับ/i })
-      if (await backLink.first().isVisible({ timeout: 5000 }).catch(() => false)) {
-        await backLink.first().click()
-        await page.waitForLoadState('networkidle')
+      // Find back link by href (most reliable)
+      const backLink = page.locator('a[href="/inventory"]').first()
+      if (await backLink.isVisible({ timeout: 5000 }).catch(() => false)) {
+        await backLink.click()
+        await page.waitForURL(/\/inventory$/, { timeout: 10000 })
         expect(page.url()).toContain('/inventory')
         expect(page.url()).not.toContain('/inventory/movements')
       }

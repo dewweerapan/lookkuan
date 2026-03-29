@@ -15,9 +15,11 @@ test.describe('Inventory Management', () => {
     })
 
     test('should display inventory stats', async ({ page }) => {
-      await expect(page.getByText('สินค้าในคลังทั้งหมด')).toBeVisible()
-      await expect(page.getByText('มูลค่าสต็อกรวม')).toBeVisible()
-      await expect(page.getByText('สินค้าใกล้หมด')).toBeVisible()
+      // Use stat-card scoping to avoid strict mode conflicts with other elements containing same text
+      const statCards = page.locator('.stat-card, [class*="stat-card"]')
+      await expect(statCards.getByText('สินค้าในคลังทั้งหมด')).toBeVisible()
+      await expect(statCards.getByText('มูลค่าสต็อกรวม')).toBeVisible()
+      await expect(statCards.getByText('สินค้าใกล้หมด')).toBeVisible()
     })
 
     test('should have action buttons', async ({ page }) => {

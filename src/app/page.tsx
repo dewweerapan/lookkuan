@@ -40,36 +40,36 @@ export default async function LandingPage() {
   const categories = Array.from(categoryMap.values())
 
   return (
-    <div className='min-h-screen bg-[#FEFAF6] text-gray-900' style={{ fontFamily: 'Sarabun, sans-serif' }}>
+    <div className='min-h-screen bg-white text-gray-900 font-mali'>
 
       {/* ── STICKY NAV ──────────────────────────────────────────── */}
-      <header className='sticky top-0 z-50 bg-[#FEFAF6]/95 backdrop-blur-md border-b border-orange-100/80'>
-        <div className='max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-4'>
+      <header className='sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100'>
+        <div className='max-w-5xl mx-auto px-5 h-16 flex items-center justify-between gap-4'>
           {/* Logo */}
           <div className='flex items-center gap-2.5'>
-            <div className='w-9 h-9 bg-brand-500 rounded-xl flex items-center justify-center shadow-sm'>
-              <span className='text-lg'>🧵</span>
+            <div className='w-10 h-10 bg-brand-500 rounded-2xl flex items-center justify-center shadow-sm rotate-3'>
+              <span className='text-xl'>🧵</span>
             </div>
-            <span className='text-xl font-extrabold text-gray-900 tracking-tight'>{STORE_NAME}</span>
+            <span className='text-xl font-bold text-gray-900 tracking-tight'>{STORE_NAME}</span>
           </div>
 
           {/* Nav links */}
           <nav className='flex items-center gap-1 sm:gap-2'>
             <a
               href='#products'
-              className='hidden sm:inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand-600 font-semibold px-3 py-2 rounded-lg hover:bg-orange-50 transition-all duration-200'
+              className='hidden sm:inline-flex items-center text-sm text-gray-500 hover:text-brand-600 font-semibold px-3 py-2 rounded-xl hover:bg-orange-50 transition-all'
             >
               สินค้า
             </a>
             <a
               href='#track'
-              className='hidden sm:inline-flex items-center gap-1 text-sm text-gray-600 hover:text-brand-600 font-semibold px-3 py-2 rounded-lg hover:bg-orange-50 transition-all duration-200'
+              className='hidden sm:inline-flex items-center text-sm text-gray-500 hover:text-brand-600 font-semibold px-3 py-2 rounded-xl hover:bg-orange-50 transition-all'
             >
               ติดตามงาน
             </a>
             <Link
               href='/login'
-              className='text-sm bg-brand-500 hover:bg-brand-600 text-white font-bold px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200'
+              className='text-sm bg-brand-500 hover:bg-brand-600 text-white font-bold px-5 py-2.5 rounded-2xl shadow-sm hover:shadow-md transition-all'
             >
               เข้าสู่ระบบ
             </Link>
@@ -78,39 +78,59 @@ export default async function LandingPage() {
       </header>
 
       {/* ── HERO ─────────────────────────────────────────────────── */}
-      <section className='relative overflow-hidden'>
-        {/* Background: warm radial gradient + decorative shapes */}
+      <section className='relative overflow-hidden bg-white'>
+        {/* Decorative blobs */}
         <div
-          className='absolute inset-0 pointer-events-none'
-          style={{
-            background:
-              'radial-gradient(ellipse 80% 60% at 50% -10%, #FED7AA 0%, #FFF7ED 45%, #FEFAF6 100%)',
-          }}
-        />
-        {/* Decorative large number — textural element */}
-        <div
-          className='absolute -right-8 top-0 text-[220px] font-extrabold text-orange-100 select-none leading-none pointer-events-none hidden lg:block'
-          style={{ lineHeight: 1 }}
+          className='absolute top-0 right-0 w-72 h-72 rounded-full pointer-events-none'
+          style={{ background: 'radial-gradient(circle, #FED7AA 0%, transparent 70%)', transform: 'translate(30%, -30%)' }}
           aria-hidden='true'
-        >
-          ปัก
+        />
+        <div
+          className='absolute bottom-0 left-0 w-56 h-56 rounded-full pointer-events-none'
+          style={{ background: 'radial-gradient(circle, #FDE68A44 0%, transparent 70%)', transform: 'translate(-30%, 30%)' }}
+          aria-hidden='true'
+        />
+        {/* Deco dots top-left */}
+        <div className='absolute top-12 left-6 hidden lg:grid grid-cols-4 gap-2.5 pointer-events-none opacity-30' aria-hidden='true'>
+          {Array.from({ length: 16 }).map((_, i) => (
+            <div key={i} className='w-1.5 h-1.5 rounded-full bg-brand-400' />
+          ))}
         </div>
 
-        <div className='relative max-w-2xl mx-auto px-4 pt-16 pb-14 text-center'>
+        <div className='relative max-w-2xl mx-auto px-5 pt-16 pb-16 text-center'>
           {/* Badge */}
-          <div className='inline-flex items-center gap-2 bg-white border border-orange-200 text-brand-700 text-sm font-semibold px-4 py-2 rounded-full mb-7 shadow-sm'>
+          <div className='inline-flex items-center gap-2 bg-orange-50 border border-orange-200 text-brand-700 text-sm font-semibold px-4 py-2 rounded-full mb-7'>
             <span className='w-2 h-2 bg-brand-500 rounded-full animate-pulse' />
             เปิดรับออเดอร์ทุกวัน
           </div>
 
           {/* Headline */}
-          <h1 className='text-4xl sm:text-5xl font-extrabold text-gray-900 leading-tight mb-4' style={{ letterSpacing: '-0.02em' }}>
-            เสื้อผ้าคุณภาพ<br />
-            <span className='text-brand-500'>ราคาเป็นมิตร</span>
+          <h1 className='text-5xl sm:text-6xl font-bold text-gray-900 leading-tight mb-5'>
+            เสื้อผ้าคุณภาพ
+            <br />
+            <span className='relative inline-block text-brand-500'>
+              ราคาเป็นมิตร
+              {/* Playful underline squiggle */}
+              <svg
+                className='absolute -bottom-2 left-0 w-full'
+                viewBox='0 0 200 12'
+                preserveAspectRatio='none'
+                aria-hidden='true'
+              >
+                <path
+                  d='M0,6 C25,2 50,10 75,6 C100,2 125,10 150,6 C175,2 195,8 200,6'
+                  stroke='#FB923C'
+                  strokeWidth='3'
+                  fill='none'
+                  strokeLinecap='round'
+                />
+              </svg>
+            </span>
           </h1>
 
-          <p className='text-gray-600 text-lg sm:text-xl mb-10 max-w-md mx-auto leading-relaxed'>
-            เสื้อผ้าหลายสไตล์ หลายไซส์ · รับปักโลโก้<br className='hidden sm:block' />
+          <p className='text-gray-500 text-lg sm:text-xl mb-10 max-w-md mx-auto leading-relaxed font-sans'>
+            เสื้อผ้าหลายสไตล์ หลายไซส์ · รับปักโลโก้
+            <br className='hidden sm:block' />
             ชื่อ และลวดลายสั่งทำทุกแบบ
           </p>
 
@@ -118,40 +138,47 @@ export default async function LandingPage() {
           <div className='flex flex-col sm:flex-row gap-3 justify-center'>
             <a
               href='#products'
-              className='inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-600 text-white font-bold px-8 py-4 rounded-2xl text-base shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5'
+              className='inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-600 text-white font-bold px-8 py-4 rounded-2xl text-base shadow-lg shadow-orange-200 hover:shadow-orange-300 transition-all hover:-translate-y-0.5 active:translate-y-0'
             >
-              <span>ดูสินค้าทั้งหมด</span>
-              <span className='text-lg'>→</span>
+              ดูสินค้าทั้งหมด →
             </a>
             <a
               href='#track'
-              className='inline-flex items-center justify-center gap-2 bg-white border-2 border-gray-200 hover:border-brand-400 hover:bg-orange-50 text-gray-800 font-bold px-8 py-4 rounded-2xl text-base transition-all duration-200 hover:-translate-y-0.5'
+              className='inline-flex items-center justify-center gap-2 bg-white border-2 border-gray-200 hover:border-brand-400 hover:bg-orange-50 text-gray-700 font-bold px-8 py-4 rounded-2xl text-base transition-all hover:-translate-y-0.5 active:translate-y-0'
             >
-              <span>🔍</span>
-              ติดตามงานปัก
+              🔍 ติดตามงานปัก
             </a>
           </div>
+        </div>
+
+        {/* Wave divider */}
+        <div className='relative h-12 overflow-hidden' aria-hidden='true'>
+          <svg viewBox='0 0 1200 48' className='absolute bottom-0 w-full' preserveAspectRatio='none'>
+            <path d='M0,24 C200,48 400,0 600,24 C800,48 1000,0 1200,24 L1200,48 L0,48 Z' fill='#F9FAFB' />
+          </svg>
         </div>
       </section>
 
       {/* ── TRUST / STATS BAR ────────────────────────────────────── */}
-      <section className='py-5 px-4 bg-white border-y border-gray-100'>
+      <section className='py-8 px-5 bg-gray-50'>
         <div className='max-w-3xl mx-auto'>
-          <div className='flex items-center justify-between gap-2 overflow-x-auto scrollbar-none'>
+          <div className='flex items-center justify-between gap-3 overflow-x-auto scrollbar-none'>
             {[
-              { icon: '👕', stat: '100+', label: 'แบบสินค้า' },
-              { icon: '🪡', stat: 'รับปัก', label: 'สั่งทำทุกแบบ' },
-              { icon: '📦', stat: 'พร้อมส่ง', label: 'ในสต็อก' },
-              { icon: '⭐', stat: 'บริการ', label: 'ดีเยี่ยม' },
+              { icon: '👕', stat: '100+', label: 'แบบสินค้า', color: 'bg-blue-50 text-blue-600' },
+              { icon: '🪡', stat: 'รับปัก', label: 'สั่งทำทุกแบบ', color: 'bg-purple-50 text-purple-600' },
+              { icon: '📦', stat: 'พร้อมส่ง', label: 'ในสต็อก', color: 'bg-green-50 text-green-600' },
+              { icon: '⭐', stat: 'บริการดี', label: 'ทุกออเดอร์', color: 'bg-yellow-50 text-yellow-600' },
             ].map((item, i) => (
               <div
                 key={i}
-                className='flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-gray-50 border border-gray-100 flex-shrink-0 flex-1 min-w-[130px] sm:min-w-0'
+                className='flex items-center gap-3 px-5 py-3.5 bg-white rounded-2xl border border-gray-100 shadow-sm flex-shrink-0 flex-1 min-w-[140px] sm:min-w-0'
               >
-                <span className='text-2xl'>{item.icon}</span>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${item.color}`}>
+                  {item.icon}
+                </div>
                 <div>
-                  <p className='font-extrabold text-gray-900 text-sm leading-none'>{item.stat}</p>
-                  <p className='text-gray-500 text-xs mt-0.5'>{item.label}</p>
+                  <p className='font-bold text-gray-900 text-sm leading-tight'>{item.stat}</p>
+                  <p className='text-gray-400 text-xs mt-0.5 font-sans'>{item.label}</p>
                 </div>
               </div>
             ))}
@@ -160,14 +187,16 @@ export default async function LandingPage() {
       </section>
 
       {/* ── PRODUCTS SECTION ─────────────────────────────────────── */}
-      <section id='products' className='py-16 px-4 bg-[#FEFAF6]'>
+      <section id='products' className='py-16 px-5 bg-white'>
         <div className='max-w-5xl mx-auto'>
           <div className='text-center mb-10'>
-            <p className='text-brand-500 font-bold text-sm uppercase tracking-widest mb-2'>สินค้าในร้าน</p>
-            <h2 className='text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3'>
-              เลือกซื้อสินค้าได้เลย
+            <span className='inline-block bg-orange-100 text-brand-700 text-xs font-bold px-3 py-1.5 rounded-full tracking-widest uppercase mb-3 font-sans'>
+              สินค้าในร้าน
+            </span>
+            <h2 className='text-3xl sm:text-4xl font-bold text-gray-900 mb-3'>
+              เลือกซื้อสินค้าได้เลย ✨
             </h2>
-            <p className='text-gray-500 max-w-sm mx-auto'>
+            <p className='text-gray-400 max-w-sm mx-auto font-sans text-sm leading-relaxed'>
               หลายหมวดหมู่ หลายไซส์ หลายสี — สอบถามเพิ่มเติมได้ตลอดเวลา
             </p>
           </div>
@@ -176,15 +205,29 @@ export default async function LandingPage() {
       </section>
 
       {/* ── EMBROIDERY CTA ────────────────────────────────────────── */}
-      <section id='services' className='py-16 px-4 bg-gray-900'>
-        <div className='max-w-4xl mx-auto'>
+      <section id='services' className='py-16 px-5 relative overflow-hidden' style={{ background: 'linear-gradient(135deg, #FFF7ED 0%, #FEF3C7 50%, #FFF7ED 100%)' }}>
+        {/* Deco dots */}
+        <div className='absolute top-8 right-8 hidden lg:grid grid-cols-5 gap-3 pointer-events-none opacity-20' aria-hidden='true'>
+          {Array.from({ length: 25 }).map((_, i) => (
+            <div key={i} className='w-2 h-2 rounded-full bg-brand-500' />
+          ))}
+        </div>
+        <div className='absolute bottom-8 left-8 hidden lg:grid grid-cols-3 gap-3 pointer-events-none opacity-20' aria-hidden='true'>
+          {Array.from({ length: 9 }).map((_, i) => (
+            <div key={i} className='w-2 h-2 rounded-full bg-yellow-500' />
+          ))}
+        </div>
+
+        <div className='max-w-4xl mx-auto relative'>
           {/* Header */}
           <div className='text-center mb-10'>
-            <span className='inline-block text-4xl mb-4'>🪡</span>
-            <h2 className='text-2xl sm:text-3xl font-extrabold text-white mb-3'>
+            <div className='w-16 h-16 bg-white rounded-3xl flex items-center justify-center text-3xl mx-auto mb-4 shadow-md rotate-3'>
+              🪡
+            </div>
+            <h2 className='text-3xl sm:text-4xl font-bold text-gray-900 mb-3'>
               ปักโลโก้ บริษัท / โรงเรียน
             </h2>
-            <p className='text-gray-400 max-w-md mx-auto'>
+            <p className='text-gray-500 max-w-md mx-auto font-sans text-sm leading-relaxed'>
               รับงานปักทุกประเภท ทั้งตัวอักษร โลโก้ และลวดลาย — ไม่จำกัดจำนวนชิ้น
             </p>
           </div>
@@ -201,7 +244,7 @@ export default async function LandingPage() {
             ].map((chip) => (
               <span
                 key={chip.label}
-                className='inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors cursor-default'
+                className='inline-flex items-center gap-1.5 bg-white border border-orange-200 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full shadow-sm'
               >
                 {chip.icon} {chip.label}
               </span>
@@ -209,7 +252,7 @@ export default async function LandingPage() {
           </div>
 
           {/* Steps grid */}
-          <div className='grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8'>
+          <div className='grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8'>
             {[
               { n: '1', icon: '📞', title: 'ติดต่อสั่งงาน', desc: 'โทรหรือแวะมาที่ร้าน' },
               { n: '2', icon: '💰', title: 'วางมัดจำ', desc: 'รับเลขใบงานไว้ติดตาม' },
@@ -218,14 +261,14 @@ export default async function LandingPage() {
             ].map((s) => (
               <div
                 key={s.n}
-                className='bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl p-4 text-center transition-colors'
+                className='bg-white rounded-3xl p-5 text-center shadow-sm border border-orange-100 hover:shadow-md transition-shadow'
               >
-                <div className='w-8 h-8 bg-brand-500 text-white rounded-full flex items-center justify-center text-sm font-extrabold mx-auto mb-3'>
+                <div className='w-8 h-8 bg-brand-500 text-white rounded-2xl flex items-center justify-center text-sm font-bold mx-auto mb-3 -rotate-3'>
                   {s.n}
                 </div>
                 <div className='text-3xl mb-2'>{s.icon}</div>
-                <p className='font-bold text-white text-sm'>{s.title}</p>
-                <p className='text-xs text-gray-400 mt-1 leading-snug'>{s.desc}</p>
+                <p className='font-bold text-gray-800 text-sm'>{s.title}</p>
+                <p className='text-xs text-gray-400 mt-1 leading-snug font-sans'>{s.desc}</p>
               </div>
             ))}
           </div>
@@ -234,45 +277,44 @@ export default async function LandingPage() {
           <div className='text-center'>
             <a
               href='#track'
-              className='inline-flex items-center gap-2 text-brand-400 hover:text-brand-300 font-semibold text-sm transition-colors'
+              className='inline-flex items-center gap-2 bg-white border border-orange-200 text-brand-600 hover:bg-orange-50 font-semibold text-sm px-5 py-2.5 rounded-full shadow-sm transition-colors'
             >
-              🔍 สั่งงานแล้ว? ติดตามสถานะที่นี่
-              <span>→</span>
+              🔍 สั่งงานแล้ว? ติดตามสถานะที่นี่ →
             </a>
           </div>
         </div>
       </section>
 
       {/* ── ORDER TRACKING ───────────────────────────────────────── */}
-      <section id='track' className='py-16 px-4 bg-[#FEFAF6]'>
+      <section id='track' className='py-16 px-5 bg-white'>
         <div className='max-w-lg mx-auto'>
           <div className='text-center mb-8'>
-            <span className='inline-block text-4xl mb-4'>📦</span>
-            <h2 className='text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3'>
+            <div className='w-16 h-16 bg-orange-50 rounded-3xl flex items-center justify-center text-3xl mx-auto mb-4 rotate-6'>
+              📦
+            </div>
+            <h2 className='text-3xl sm:text-4xl font-bold text-gray-900 mb-3'>
               ติดตามสถานะงาน
             </h2>
-            <p className='text-gray-500'>
+            <p className='text-gray-400 font-sans text-sm leading-relaxed'>
               กรอกเลขที่ใบงานที่ได้รับจากร้าน เพื่อดูความคืบหน้า
             </p>
           </div>
-          <TrackingForm />
+          <div className='bg-gray-50 rounded-3xl p-6 border border-gray-100'>
+            <TrackingForm />
+          </div>
         </div>
       </section>
 
       {/* ── CONTACT ──────────────────────────────────────────────── */}
       {(STORE_PHONE || STORE_ADDRESS) && (
-        <section className='py-14 px-4 bg-brand-500 relative overflow-hidden'>
-          {/* Decorative bg text */}
-          <div
-            className='absolute inset-0 flex items-center justify-center pointer-events-none select-none'
-            aria-hidden='true'
-          >
-            <span className='text-[180px] font-extrabold text-white/10 leading-none'>📞</span>
-          </div>
+        <section className='py-14 px-5 bg-brand-500 relative overflow-hidden'>
+          {/* Playful circles */}
+          <div className='absolute top-0 left-1/4 w-40 h-40 rounded-full bg-white/10 pointer-events-none' style={{ transform: 'translate(-50%, -50%)' }} aria-hidden='true' />
+          <div className='absolute bottom-0 right-1/4 w-32 h-32 rounded-full bg-white/10 pointer-events-none' style={{ transform: 'translate(50%, 50%)' }} aria-hidden='true' />
 
           <div className='relative max-w-3xl mx-auto text-center text-white'>
-            <h2 className='text-2xl font-extrabold mb-2'>ติดต่อเรา</h2>
-            <p className='text-orange-100 mb-8 text-sm'>ยินดีให้คำปรึกษาทุกวัน — ไม่มีค่าใช้จ่าย</p>
+            <h2 className='text-3xl font-bold mb-2'>ติดต่อเรา 👋</h2>
+            <p className='text-orange-100 mb-8 font-sans text-sm'>ยินดีให้คำปรึกษาทุกวัน — ไม่มีค่าใช้จ่าย</p>
             <div className='flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center'>
               {STORE_PHONE && (
                 <a
@@ -281,8 +323,8 @@ export default async function LandingPage() {
                 >
                   <span className='text-2xl'>📞</span>
                   <div className='text-left'>
-                    <p className='text-xs text-orange-100'>โทรศัพท์</p>
-                    <p className='text-xl font-extrabold tracking-wide'>{STORE_PHONE}</p>
+                    <p className='text-xs text-orange-100 font-sans'>โทรศัพท์</p>
+                    <p className='text-xl font-bold tracking-wide'>{STORE_PHONE}</p>
                   </div>
                 </a>
               )}
@@ -290,7 +332,7 @@ export default async function LandingPage() {
                 <div className='flex items-center gap-3 bg-white/20 border border-white/20 rounded-2xl px-6 py-4 w-full sm:w-auto justify-center'>
                   <span className='text-2xl'>📍</span>
                   <div className='text-left'>
-                    <p className='text-xs text-orange-100'>ที่อยู่</p>
+                    <p className='text-xs text-orange-100 font-sans'>ที่อยู่</p>
                     <p className='font-bold leading-snug'>{STORE_ADDRESS}</p>
                   </div>
                 </div>
@@ -301,28 +343,22 @@ export default async function LandingPage() {
       )}
 
       {/* ── FOOTER ───────────────────────────────────────────────── */}
-      <footer className='bg-gray-950 text-gray-500 py-8 px-4'>
+      <footer className='bg-gray-950 text-gray-500 py-8 px-5'>
         <div className='max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4'>
-          <div className='flex items-center gap-2'>
-            <div className='w-7 h-7 bg-brand-500 rounded-lg flex items-center justify-center'>
+          <div className='flex items-center gap-2.5'>
+            <div className='w-8 h-8 bg-brand-500 rounded-xl flex items-center justify-center rotate-3'>
               <span className='text-sm'>🧵</span>
             </div>
             <div>
               <p className='font-bold text-white text-sm'>{STORE_NAME}</p>
-              <p className='text-xs text-gray-600'>© {new Date().getFullYear()} สงวนลิขสิทธิ์</p>
+              <p className='text-xs text-gray-600 font-sans'>© {new Date().getFullYear()} สงวนลิขสิทธิ์</p>
             </div>
           </div>
-          <div className='flex items-center gap-5 text-xs'>
-            <a href='#products' className='hover:text-white transition-colors'>
-              สินค้า
-            </a>
-            <a href='#track' className='hover:text-white transition-colors'>
-              ติดตามงาน
-            </a>
+          <div className='flex items-center gap-5 text-xs font-sans'>
+            <a href='#products' className='hover:text-white transition-colors'>สินค้า</a>
+            <a href='#track' className='hover:text-white transition-colors'>ติดตามงาน</a>
             <span className='text-gray-700'>·</span>
-            <Link href='/login' className='hover:text-white transition-colors'>
-              เข้าสู่ระบบพนักงาน
-            </Link>
+            <Link href='/login' className='hover:text-white transition-colors'>เข้าสู่ระบบพนักงาน</Link>
           </div>
         </div>
       </footer>

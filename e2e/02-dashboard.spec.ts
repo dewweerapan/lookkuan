@@ -79,11 +79,11 @@ test.describe('Dashboard', () => {
   })
 
   test('should display LookKuan in sidebar', async ({ page }) => {
-    // Check for sidebar navigation
-    const sidebar = page.locator('aside, nav').first()
+    // Check for sidebar navigation (role cached in localStorage from storageState)
+    const sidebar = page.locator('aside, [role="complementary"]').first()
     await expect(sidebar.getByText('หน้าหลัก')).toBeVisible()
     await expect(sidebar.getByText('สินค้าและสต็อก')).toBeVisible()
-    await expect(sidebar.getByText('ขายสินค้า')).toBeVisible()
+    await expect(sidebar.getByText(/ขายสินค้า/i)).toBeVisible()
     await expect(sidebar.getByText('งานปักเสื้อ')).toBeVisible()
     await expect(sidebar.getByText('ลูกค้า')).toBeVisible()
     await expect(sidebar.getByText('รายงาน')).toBeVisible()

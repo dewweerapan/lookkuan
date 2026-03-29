@@ -11,6 +11,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: ['Sarabun', 'Inter', 'sans-serif'],
+        mali: ['var(--font-mali)', 'Mali', 'cursive'],
       },
       fontSize: {
         // ฟอนต์ขนาดใหญ่สำหรับผู้สูงอายุ

@@ -123,7 +123,7 @@ export default function BottomNav() {
         fixed bottom-16 left-0 right-0 z-50 lg:hidden
         bg-white dark:bg-gray-900 rounded-t-2xl shadow-2xl border-t border-gray-200 dark:border-gray-800
         transition-transform duration-300
-        ${showDrawer ? 'translate-y-0' : 'translate-y-full'}
+        ${showDrawer ? 'translate-y-0 pointer-events-auto' : 'translate-y-full pointer-events-none'}
       `}
       >
         {/* Drawer handle */}

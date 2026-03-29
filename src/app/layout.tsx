@@ -1,8 +1,16 @@
 import type { Metadata, Viewport } from 'next';
+import { Mali } from 'next/font/google';
 import { Toaster } from 'sonner';
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
 import Providers from '@/components/Providers';
 import './globals.css';
+
+const mali = Mali({
+  subsets: ['thai', 'latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-mali',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'LookKuan - ระบบจัดการร้านเสื้อผ้า',
@@ -33,15 +41,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang='th' suppressHydrationWarning>
-      <head>
-        <link rel='preconnect' href='https://fonts.googleapis.com' />
-        <link
-          rel='preconnect'
-          href='https://fonts.gstatic.com'
-          crossOrigin='anonymous'
-        />
-      </head>
+    <html lang='th' suppressHydrationWarning className={mali.variable}>
+      <head />
       <body className='min-h-screen bg-gray-50 dark:bg-gray-950'>
         <Providers>
           {children}

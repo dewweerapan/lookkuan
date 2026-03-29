@@ -1,8 +1,8 @@
 import { test, expect, devices } from '@playwright/test'
 
 test.describe('Mobile Viewport & Bottom Navigation', () => {
-  // Use iPhone viewport for mobile tests
-  test.use({ ...devices['iPhone 12'] })
+  // Use iPhone viewport for mobile tests - only set viewport (not defaultBrowserType)
+  test.use({ viewport: devices['iPhone 12'].viewport })
 
   test('dashboard page loads on mobile', async ({ page }) => {
     await page.goto('/dashboard')
