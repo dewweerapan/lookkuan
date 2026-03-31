@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LookKuan - Landing Page Mockup</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Sarabun', 'Mali', sans-serif; }
+  .font-mali { font-family: 'Mali', cursive; }
+  .font-sans { font-family: 'Sarabun', sans-serif; }
+
+  /* Brand orange colors */
+  .bg-brand-50 { background-color: #fff7ed; }
+  .bg-brand-100 { background-color: #ffedd5; }
+  .bg-brand-400 { background-color: #fb923c; }
+  .bg-brand-500 { background-color: #f97316; }
+  .bg-brand-600 { background-color: #ea580c; }
+  .text-brand-300 { color: #fdba74; }
+  .text-brand-400 { color: #fb923c; }
+  .text-brand-500 { color: #f97316; }
+  .text-brand-600 { color: #ea580c; }
+  .border-brand-300 { border-color: #fdba74; }
+  .border-brand-400 { border-color: #fb923c; }
+  .border-brand-500 { border-color: #f97316; }
+  .shadow-brand-100 { --tw-shadow-color: #ffedd5; }
+
+  /* Smooth scrolling */
+  html { scroll-behavior: smooth; }
+
+  /* Particle animation */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) scale(1); opacity: 0.3; }
+    50% { transform: translateY(-20px) scale(1.2); opacity: 0.7; }
+  }
+  .particle { animation: float 3s ease-in-out infinite; }
+  .particle-delay-1 { animation-delay: 0.5s; }
+  .particle-delay-2 { animation-delay: 1s; }
+  .particle-delay-3 { animation-delay: 1.5s; }
+  .particle-delay-4 { animation-delay: 2s; }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, #fdba74, #f97316, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Card hover glow */
+  .card-glow:hover {
+    box-shadow: 0 8px 30px rgba(249, 115, 22, 0.12);
+  }
+
+  /* Category card active state */
+  .cat-active {
+    border-color: #f97316 !important;
+    background-color: #fff7ed !important;
+    box-shadow: 0 4px 15px rgba(249, 115, 22, 0.15);
+  }
+
+  /* Scrollbar hidden */
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Hover lift */
+  .hover-lift { transition: all 0.3s ease; }
+  .hover-lift:hover { transform: translateY(-4px); }
+</style>
+</head>
+<body class="min-h-screen bg-white text-gray-900 font-mali">
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- STICKY NAV                                                 -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<header class="sticky top-0 z-50 bg-gray-900 bg-opacity-95 backdrop-blur border-b border-gray-800" style="backdrop-filter:blur(12px)">
+  <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-3 group">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg" style="background:linear-gradient(135deg,#fb923c,#ea580c)">
+        <span class="text-lg">🧵</span>
+      </div>
+      <span class="text-lg font-bold text-white tracking-tight">LookKuan</span>
+    </a>
+    <nav class="hidden md:flex items-center gap-1">
+      <a href="#products" class="text-sm text-gray-400 hover:text-white font-semibold px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-5 transition-all">สินค้า</a>
+      <a href="#services" class="text-sm text-gray-400 hover:text-white font-semibold px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-5 transition-all">บริการปัก</a>
+      <a href="#track" class="text-sm text-gray-400 hover:text-white font-semibold px-4 py-2 rounded-lg hover:bg-white hover:bg-opacity-5 transition-all">ติดตามงาน</a>
+    </nav>
+    <a href="#" class="text-sm bg-brand-500 hover:bg-brand-400 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg transition-all hover-lift" style="box-shadow: 0 4px 15px rgba(249,115,22,0.25)">
+      เข้าสู่ระบบ
+    </a>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- HERO SECTION (LoL-style: centered, clean, elegant)         -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<section class="relative overflow-hidden" style="background: linear-gradient(to bottom, #111827, #1f2937, #ffffff)">
+  <!-- Radial glow -->
+  <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-full h-full pointer-events-none" style="background: radial-gradient(ellipse at center top, rgba(251,146,60,0.08) 0%, transparent 60%)"></div>
+
+  <!-- Floating particles -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute particle" style="top:15%;left:15%;width:6px;height:6px;background:#fb923c;border-radius:50%;opacity:0.3"></div>
+    <div class="absolute particle particle-delay-1" style="top:30%;right:20%;width:8px;height:8px;background:#fdba74;border-radius:50%;opacity:0.2"></div>
+    <div class="absolute particle particle-delay-2" style="top:50%;left:40%;width:5px;height:5px;background:#f59e0b;border-radius:50%;opacity:0.2"></div>
+    <div class="absolute particle particle-delay-3" style="top:25%;right:35%;width:4px;height:4px;background:#fb923c;border-radius:50%;opacity:0.4"></div>
+    <div class="absolute particle particle-delay-4" style="top:60%;left:60%;width:6px;height:6px;background:#fbbf24;border-radius:50%;opacity:0.15"></div>
+    <div class="absolute particle particle-delay-2" style="top:40%;left:25%;width:3px;height:3px;background:#fb923c;border-radius:50%;opacity:0.35"></div>
+  </div>
+
+  <div class="relative max-w-3xl mx-auto px-6 pt-28 pb-36 text-center">
+    <h1 class="text-6xl md:text-8xl font-extrabold tracking-tight mb-6 leading-none">
+      <span class="gradient-text">LookKuan</span>
+    </h1>
+    <p class="text-gray-400 text-lg md:text-xl mb-5 max-w-lg mx-auto leading-relaxed font-sans" style="font-style:italic">
+      เสื้อผ้าคุณภาพ ราคาเป็นมิตร — รับปักโลโก้สั่งทำทุกแบบ
+    </p>
+    <div class="w-16 h-1 mx-auto rounded-full mb-10" style="background:linear-gradient(90deg,#fb923c,#f59e0b)"></div>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a href="#products" class="inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold px-8 py-4 rounded-xl text-base shadow-lg transition-all hover-lift" style="box-shadow:0 4px 20px rgba(249,115,22,0.25)">
+        ดูสินค้าทั้งหมด
+      </a>
+      <a href="#track" class="inline-flex items-center justify-center gap-2 border-2 border-gray-600 hover:border-orange-400 text-gray-300 hover:text-white font-bold px-8 py-4 rounded-xl text-base transition-all hover-lift">
+        ติดตามงานปัก
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- TRUST BAR                                                   -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<section class="py-10 px-6 bg-white border-b border-gray-100">
+  <div class="max-w-4xl mx-auto">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="text-center p-5 rounded-2xl hover:bg-gray-50 transition-all group cursor-default">
+        <div class="text-3xl mb-2 group-hover:transform group-hover:scale-110 transition-transform">👕</div>
+        <p class="font-extrabold text-gray-900 text-lg">100+</p>
+        <p class="text-brand-500 text-xs font-bold uppercase tracking-wider mt-1 font-sans">แบบสินค้า</p>
+        <p class="text-gray-400 text-xs mt-1 font-sans">เสื้อผ้าหลากสไตล์</p>
+      </div>
+      <div class="text-center p-5 rounded-2xl hover:bg-gray-50 transition-all group cursor-default">
+        <div class="text-3xl mb-2 group-hover:transform group-hover:scale-110 transition-transform">🪡</div>
+        <p class="font-extrabold text-gray-900 text-lg">รับปัก</p>
+        <p class="text-brand-500 text-xs font-bold uppercase tracking-wider mt-1 font-sans">งานปักทุกประเภท</p>
+        <p class="text-gray-400 text-xs mt-1 font-sans">โลโก้ ชื่อ ลวดลาย</p>
+      </div>
+      <div class="text-center p-5 rounded-2xl hover:bg-gray-50 transition-all group cursor-default">
+        <div class="text-3xl mb-2 group-hover:transform group-hover:scale-110 transition-transform">📦</div>
+        <p class="font-extrabold text-gray-900 text-lg">พร้อมส่ง</p>
+        <p class="text-brand-500 text-xs font-bold uppercase tracking-wider mt-1 font-sans">สินค้าในสต็อก</p>
+        <p class="text-gray-400 text-xs mt-1 font-sans">จัดส่งได้ทันที</p>
+      </div>
+      <div class="text-center p-5 rounded-2xl hover:bg-gray-50 transition-all group cursor-default">
+        <div class="text-3xl mb-2 group-hover:transform group-hover:scale-110 transition-transform">⭐</div>
+        <p class="font-extrabold text-gray-900 text-lg">บริการดี</p>
+        <p class="text-brand-500 text-xs font-bold uppercase tracking-wider mt-1 font-sans">ทุกออเดอร์</p>
+        <p class="text-gray-400 text-xs mt-1 font-sans">ใส่ใจทุกรายละเอียด</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- PRODUCTS SECTION                                            -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<section id="products" class="py-20 px-6 bg-white">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-12">
+      <h2 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
+        เลือก<span class="text-brand-500">สินค้า</span>ของคุณ
+      </h2>
+      <p class="text-gray-400 max-w-md mx-auto font-sans text-sm leading-relaxed">
+        เสื้อผ้าหลากสไตล์ หลายไซส์ หลายสี — สอบถามเพิ่มเติมได้ตลอดเวลา
+      </p>
+      <div class="w-12 h-1 bg-brand-500 mx-auto rounded-full mt-5"></div>
+    </div>
+
+    <!-- HoN-style Category Cards -->
+    <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-10">
+      <button class="cat-active flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all">
+        <span class="text-2xl">🏷️</span>
+        <span class="text-xs font-bold text-brand-600">ทั้งหมด</span>
+        <span class="text-xs font-sans text-brand-400">42</span>
+      </button>
+      <button class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-orange-300 hover:bg-gray-50 transition-all">
+        <span class="text-2xl">👕</span>
+        <span class="text-xs font-bold text-gray-600">เสื้อยืด</span>
+        <span class="text-xs font-sans text-gray-400">15</span>
+      </button>
+      <button class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-orange-300 hover:bg-gray-50 transition-all">
+        <span class="text-2xl">👔</span>
+        <span class="text-xs font-bold text-gray-600">เสื้อโปโล</span>
+        <span class="text-xs font-sans text-gray-400">8</span>
+      </button>
+      <button class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-orange-300 hover:bg-gray-50 transition-all">
+        <span class="text-2xl">👖</span>
+        <span class="text-xs font-bold text-gray-600">กางเกง</span>
+        <span class="text-xs font-sans text-gray-400">7</span>
+      </button>
+      <button class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-orange-300 hover:bg-gray-50 transition-all">
+        <span class="text-2xl">🧥</span>
+        <span class="text-xs font-bold text-gray-600">แจ็กเก็ต</span>
+        <span class="text-xs font-sans text-gray-400">6</span>
+      </button>
+      <button class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white hover:border-orange-300 hover:bg-gray-50 transition-all">
+        <span class="text-2xl">👗</span>
+        <span class="text-xs font-bold text-gray-600">ชุดเดรส</span>
+        <span class="text-xs font-sans text-gray-400">6</span>
+      </button>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+
+      <!-- Product Card 1 -->
+      <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all hover-lift card-glow flex flex-col">
+        <div class="relative aspect-square overflow-hidden bg-gray-50">
+          <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop" alt="เสื้อยืดคอกลม" class="w-full h-full object-cover hover:scale-105 transition-transform" style="transition:transform 0.5s">
+          <span class="absolute top-2.5 left-2.5 bg-white bg-opacity-90 text-gray-700 text-xs font-semibold px-2.5 py-1 rounded-lg shadow-sm">👕 เสื้อยืด</span>
+          <span class="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full shadow-sm"></span>
+        </div>
+        <div class="p-3.5 flex flex-col gap-2 flex-1">
+          <h3 class="font-bold text-gray-900 text-sm leading-snug">เสื้อยืดคอกลม Cotton 100%</h3>
+          <div class="flex gap-1 flex-wrap">
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">S</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">M</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">L</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">XL</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3.5 h-3.5 rounded-full bg-white border border-gray-300 inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-gray-900 inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-blue-600 inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-red-500 inline-block"></span>
+          </div>
+          <div class="mt-auto pt-2">
+            <span class="text-brand-500 font-extrabold text-base">฿199</span>
+            <span class="text-gray-400 text-xs ml-1">ขึ้นไป</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Card 2 -->
+      <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all hover-lift card-glow flex flex-col">
+        <div class="relative aspect-square overflow-hidden bg-gray-50">
+          <img src="https://images.unsplash.com/photo-1625910513413-5fc421e0fd6e?w=400&h=400&fit=crop" alt="เสื้อโปโล" class="w-full h-full object-cover hover:scale-105 transition-transform" style="transition:transform 0.5s">
+          <span class="absolute top-2.5 left-2.5 bg-white bg-opacity-90 text-gray-700 text-xs font-semibold px-2.5 py-1 rounded-lg shadow-sm">👔 เสื้อโปโล</span>
+          <span class="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full shadow-sm"></span>
+        </div>
+        <div class="p-3.5 flex flex-col gap-2 flex-1">
+          <h3 class="font-bold text-gray-900 text-sm leading-snug">เสื้อโปโลพรีเมียม ปักโลโก้ได้</h3>
+          <div class="flex gap-1 flex-wrap">
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">M</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">L</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">XL</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3.5 h-3.5 rounded-full bg-indigo-800 inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-white border border-gray-300 inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-gray-900 inline-block"></span>
+          </div>
+          <div class="mt-auto pt-2">
+            <span class="text-brand-500 font-extrabold text-base">฿350</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Card 3 -->
+      <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all hover-lift card-glow flex flex-col">
+        <div class="relative aspect-square overflow-hidden bg-gray-50">
+          <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&h=400&fit=crop" alt="แจ็กเก็ต" class="w-full h-full object-cover hover:scale-105 transition-transform" style="transition:transform 0.5s">
+          <span class="absolute top-2.5 left-2.5 bg-white bg-opacity-90 text-gray-700 text-xs font-semibold px-2.5 py-1 rounded-lg shadow-sm">🧥 แจ็กเก็ต</span>
+          <span class="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full shadow-sm"></span>
+        </div>
+        <div class="p-3.5 flex flex-col gap-2 flex-1">
+          <h3 class="font-bold text-gray-900 text-sm leading-snug">แจ็กเก็ตซิปหน้า สั่งปักชื่อได้</h3>
+          <div class="flex gap-1 flex-wrap">
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">M</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">L</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">XL</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">2XL</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3.5 h-3.5 rounded-full bg-gray-900 inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-gray-400 inline-block"></span>
+          </div>
+          <div class="mt-auto pt-2">
+            <span class="text-brand-500 font-extrabold text-base">฿590</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Card 4 -->
+      <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all hover-lift card-glow flex flex-col">
+        <div class="relative aspect-square overflow-hidden bg-gray-50">
+          <img src="https://images.unsplash.com/photo-1562157873-818bc0726f68?w=400&h=400&fit=crop" alt="เสื้อยืด" class="w-full h-full object-cover hover:scale-105 transition-transform" style="transition:transform 0.5s">
+          <span class="absolute top-2.5 left-2.5 bg-white bg-opacity-90 text-gray-700 text-xs font-semibold px-2.5 py-1 rounded-lg shadow-sm">👕 เสื้อยืด</span>
+          <span class="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full shadow-sm"></span>
+        </div>
+        <div class="p-3.5 flex flex-col gap-2 flex-1">
+          <h3 class="font-bold text-gray-900 text-sm leading-snug">เสื้อยืดคอวี เนื้อผ้านุ่ม</h3>
+          <div class="flex gap-1 flex-wrap">
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">S</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">M</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">L</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3.5 h-3.5 rounded-full bg-pink-400 inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-sky-400 inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-white border border-gray-300 inline-block"></span>
+          </div>
+          <div class="mt-auto pt-2">
+            <span class="text-brand-500 font-extrabold text-base">฿249</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Card 5 -->
+      <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all hover-lift card-glow flex flex-col">
+        <div class="relative aspect-square overflow-hidden bg-gray-50">
+          <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&h=400&fit=crop" alt="เสื้อเชิ้ต" class="w-full h-full object-cover hover:scale-105 transition-transform" style="transition:transform 0.5s">
+          <span class="absolute top-2.5 left-2.5 bg-white bg-opacity-90 text-gray-700 text-xs font-semibold px-2.5 py-1 rounded-lg shadow-sm">👔 เสื้อโปโล</span>
+          <span class="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full shadow-sm"></span>
+        </div>
+        <div class="p-3.5 flex flex-col gap-2 flex-1">
+          <h3 class="font-bold text-gray-900 text-sm leading-snug">เสื้อเชิ้ตแขนยาว ทางการ</h3>
+          <div class="flex gap-1 flex-wrap">
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">M</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">L</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">XL</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3.5 h-3.5 rounded-full bg-white border border-gray-300 inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-sky-400 inline-block"></span>
+          </div>
+          <div class="mt-auto pt-2">
+            <span class="text-brand-500 font-extrabold text-base">฿450</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Card 6 -->
+      <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all hover-lift card-glow flex flex-col">
+        <div class="relative aspect-square overflow-hidden bg-gray-50">
+          <img src="https://images.unsplash.com/photo-1434389677669-e08b4cda3a56?w=400&h=400&fit=crop" alt="กางเกง" class="w-full h-full object-cover hover:scale-105 transition-transform" style="transition:transform 0.5s">
+          <span class="absolute top-2.5 left-2.5 bg-white bg-opacity-90 text-gray-700 text-xs font-semibold px-2.5 py-1 rounded-lg shadow-sm">👖 กางเกง</span>
+          <span class="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full shadow-sm"></span>
+        </div>
+        <div class="p-3.5 flex flex-col gap-2 flex-1">
+          <h3 class="font-bold text-gray-900 text-sm leading-snug">กางเกงขายาว ผ้ายืด สวมสบาย</h3>
+          <div class="flex gap-1 flex-wrap">
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">28</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">30</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">32</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">34</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3.5 h-3.5 rounded-full bg-gray-900 inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-indigo-800 inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-amber-700 inline-block"></span>
+          </div>
+          <div class="mt-auto pt-2">
+            <span class="text-brand-500 font-extrabold text-base">฿399</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Card 7 -->
+      <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all hover-lift card-glow flex flex-col">
+        <div class="relative aspect-square overflow-hidden bg-gray-50">
+          <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=400&h=400&fit=crop" alt="เสื้อยืดพิมพ์ลาย" class="w-full h-full object-cover hover:scale-105 transition-transform" style="transition:transform 0.5s">
+          <span class="absolute top-2.5 left-2.5 bg-white bg-opacity-90 text-gray-700 text-xs font-semibold px-2.5 py-1 rounded-lg shadow-sm">👕 เสื้อยืด</span>
+          <span class="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full shadow-sm"></span>
+        </div>
+        <div class="p-3.5 flex flex-col gap-2 flex-1">
+          <h3 class="font-bold text-gray-900 text-sm leading-snug">เสื้อยืดพิมพ์ลาย Oversize</h3>
+          <div class="flex gap-1 flex-wrap">
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">M</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">L</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">XL</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3.5 h-3.5 rounded-full bg-gray-900 inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-white border border-gray-300 inline-block"></span>
+          </div>
+          <div class="mt-auto pt-2">
+            <span class="text-brand-500 font-extrabold text-base">฿299</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Card 8 -->
+      <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all hover-lift card-glow flex flex-col">
+        <div class="relative aspect-square overflow-hidden bg-gray-50">
+          <img src="https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=400&h=400&fit=crop" alt="เสื้อกีฬา" class="w-full h-full object-cover hover:scale-105 transition-transform" style="transition:transform 0.5s">
+          <span class="absolute top-2.5 left-2.5 bg-white bg-opacity-90 text-gray-700 text-xs font-semibold px-2.5 py-1 rounded-lg shadow-sm">⚽ เสื้อกีฬา</span>
+          <span class="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-green-400 border-2 border-white rounded-full shadow-sm"></span>
+        </div>
+        <div class="p-3.5 flex flex-col gap-2 flex-1">
+          <h3 class="font-bold text-gray-900 text-sm leading-snug">เสื้อกีฬาแห้งเร็ว ปักชื่อทีมได้</h3>
+          <div class="flex gap-1 flex-wrap">
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">S</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">M</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">L</span>
+            <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md font-semibold">XL</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3.5 h-3.5 rounded-full bg-red-500 inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-blue-600 inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-green-500 inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-yellow-400 inline-block"></span>
+          </div>
+          <div class="mt-auto pt-2">
+            <span class="text-brand-500 font-extrabold text-base">฿280</span>
+            <span class="text-gray-400 text-xs ml-1">ขึ้นไป</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Show more button -->
+    <div class="mt-10 text-center">
+      <button class="inline-flex items-center gap-2 border-2 border-gray-200 hover:border-orange-400 text-gray-700 font-bold px-8 py-3.5 rounded-xl transition-all hover-lift text-sm" style="transition: all 0.3s">
+        ดูสินค้าทั้งหมด (42 รายการ) ↓
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- EMBROIDERY SERVICES (HoN "Choose Your Role" style)         -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<section id="services" class="py-20 px-6 bg-gray-50">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-12">
+      <h2 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
+        บริการ<span class="text-brand-500">งานปัก</span>
+      </h2>
+      <p class="text-gray-500 max-w-lg mx-auto font-sans text-sm leading-relaxed">
+        รับงานปักทุกประเภท ทั้งตัวอักษร โลโก้ และลวดลาย — ไม่จำกัดจำนวนชิ้น
+      </p>
+      <div class="w-12 h-1 bg-brand-500 mx-auto rounded-full mt-5"></div>
+    </div>
+
+    <!-- Service Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-12">
+      <div class="group relative bg-white border-2 border-gray-200 hover:border-orange-400 rounded-2xl p-5 text-center cursor-default transition-all hover-lift" style="transition:all 0.3s">
+        <div class="text-4xl mb-3 group-hover:transform group-hover:scale-110 transition-transform">🏫</div>
+        <h3 class="font-bold text-gray-900 text-base mb-1">ชุดนักเรียน</h3>
+        <p class="text-gray-400 text-xs font-sans">ปักชื่อ โลโก้โรงเรียน</p>
+      </div>
+      <div class="group relative bg-white border-2 border-gray-200 hover:border-orange-400 rounded-2xl p-5 text-center cursor-default transition-all hover-lift" style="transition:all 0.3s">
+        <div class="text-4xl mb-3 group-hover:transform group-hover:scale-110 transition-transform">🏢</div>
+        <h3 class="font-bold text-gray-900 text-base mb-1">ชุดองค์กร</h3>
+        <p class="text-gray-400 text-xs font-sans">ยูนิฟอร์มบริษัท ปักโลโก้</p>
+      </div>
+      <div class="group relative bg-white border-2 border-gray-200 hover:border-orange-400 rounded-2xl p-5 text-center cursor-default transition-all hover-lift" style="transition:all 0.3s">
+        <div class="text-4xl mb-3 group-hover:transform group-hover:scale-110 transition-transform">⚽</div>
+        <h3 class="font-bold text-gray-900 text-base mb-1">เสื้อกีฬา</h3>
+        <p class="text-gray-400 text-xs font-sans">ปักชื่อทีม เบอร์นักกีฬา</p>
+      </div>
+      <div class="group relative bg-white border-2 border-gray-200 hover:border-orange-400 rounded-2xl p-5 text-center cursor-default transition-all hover-lift" style="transition:all 0.3s">
+        <div class="text-4xl mb-3 group-hover:transform group-hover:scale-110 transition-transform">👔</div>
+        <h3 class="font-bold text-gray-900 text-base mb-1">เสื้อโปโล</h3>
+        <p class="text-gray-400 text-xs font-sans">ปักชื่อร้าน แบรนด์สินค้า</p>
+      </div>
+      <div class="group relative bg-white border-2 border-gray-200 hover:border-orange-400 rounded-2xl p-5 text-center cursor-default transition-all hover-lift" style="transition:all 0.3s">
+        <div class="text-4xl mb-3 group-hover:transform group-hover:scale-110 transition-transform">🧥</div>
+        <h3 class="font-bold text-gray-900 text-base mb-1">แจ็กเก็ต</h3>
+        <p class="text-gray-400 text-xs font-sans">ปักลวดลายตามสั่ง</p>
+      </div>
+      <div class="group relative bg-white border-2 border-gray-200 hover:border-orange-400 rounded-2xl p-5 text-center cursor-default transition-all hover-lift" style="transition:all 0.3s">
+        <div class="text-4xl mb-3 group-hover:transform group-hover:scale-110 transition-transform">🎓</div>
+        <h3 class="font-bold text-gray-900 text-base mb-1">ชุดรับปริญญา</h3>
+        <p class="text-gray-400 text-xs font-sans">ปักชื่อ สถาบัน รุ่น</p>
+      </div>
+    </div>
+
+    <!-- Process Steps -->
+    <div class="bg-white rounded-3xl border border-gray-200 p-8 sm:p-10">
+      <h3 class="text-center text-xl font-extrabold text-gray-900 mb-8">
+        ขั้นตอน<span class="text-brand-500">การสั่งงาน</span>
+      </h3>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-6">
+        <div class="text-center group">
+          <div class="relative inline-flex items-center justify-center mb-4">
+            <div class="w-14 h-14 bg-gray-50 group-hover:bg-orange-50 rounded-2xl flex items-center justify-center text-2xl transition-colors">📞</div>
+            <span class="absolute -top-1.5 -right-1.5 w-6 h-6 bg-brand-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm">1</span>
+          </div>
+          <p class="font-bold text-gray-900 text-sm">ติดต่อสั่งงาน</p>
+          <p class="text-gray-400 text-xs mt-1 font-sans">โทรหรือแวะมาที่ร้าน</p>
+        </div>
+        <div class="text-center group">
+          <div class="relative inline-flex items-center justify-center mb-4">
+            <div class="w-14 h-14 bg-gray-50 group-hover:bg-orange-50 rounded-2xl flex items-center justify-center text-2xl transition-colors">💰</div>
+            <span class="absolute -top-1.5 -right-1.5 w-6 h-6 bg-brand-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm">2</span>
+          </div>
+          <p class="font-bold text-gray-900 text-sm">วางมัดจำ</p>
+          <p class="text-gray-400 text-xs mt-1 font-sans">รับเลขใบงานไว้ติดตาม</p>
+        </div>
+        <div class="text-center group">
+          <div class="relative inline-flex items-center justify-center mb-4">
+            <div class="w-14 h-14 bg-gray-50 group-hover:bg-orange-50 rounded-2xl flex items-center justify-center text-2xl transition-colors">🪡</div>
+            <span class="absolute -top-1.5 -right-1.5 w-6 h-6 bg-brand-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm">3</span>
+          </div>
+          <p class="font-bold text-gray-900 text-sm">ดำเนินการ</p>
+          <p class="text-gray-400 text-xs mt-1 font-sans">ทีมงานปักอย่างพิถีพิถัน</p>
+        </div>
+        <div class="text-center group">
+          <div class="relative inline-flex items-center justify-center mb-4">
+            <div class="w-14 h-14 bg-gray-50 group-hover:bg-orange-50 rounded-2xl flex items-center justify-center text-2xl transition-colors">✅</div>
+            <span class="absolute -top-1.5 -right-1.5 w-6 h-6 bg-brand-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm">4</span>
+          </div>
+          <p class="font-bold text-gray-900 text-sm">รับสินค้า</p>
+          <p class="text-gray-400 text-xs mt-1 font-sans">ชำระส่วนที่เหลือ</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- ORDER TRACKING                                              -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<section id="track" class="py-20 px-6 bg-white">
+  <div class="max-w-lg mx-auto">
+    <div class="text-center mb-10">
+      <h2 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
+        ติดตาม<span class="text-brand-500">สถานะงาน</span>
+      </h2>
+      <p class="text-gray-400 font-sans text-sm leading-relaxed">
+        กรอกเลขที่ใบงานที่ได้รับจากร้าน เพื่อดูความคืบหน้า
+      </p>
+      <div class="w-12 h-1 bg-brand-500 mx-auto rounded-full mt-5"></div>
+    </div>
+    <div class="bg-gray-50 rounded-3xl p-6 sm:p-8 border border-gray-200">
+      <label class="block text-sm font-bold text-gray-700 mb-2 font-sans">เลขที่ใบงาน</label>
+      <div class="flex gap-3">
+        <input type="text" placeholder="เช่น JOB-2024-0001" class="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-100 outline-none text-base font-sans transition-all" />
+        <button class="bg-brand-500 hover:bg-brand-400 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition-all hover-lift whitespace-nowrap" style="box-shadow:0 4px 15px rgba(249,115,22,0.2)">
+          ค้นหา
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- CONTACT CTA                                                 -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<section class="relative py-20 px-6 bg-gray-900 overflow-hidden">
+  <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full pointer-events-none" style="background: radial-gradient(ellipse at center, rgba(251,146,60,0.06) 0%, transparent 70%)"></div>
+  <div class="relative max-w-3xl mx-auto text-center">
+    <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">
+      ติดต่อ<span class="text-brand-400">เรา</span>
+    </h2>
+    <p class="text-gray-500 mb-10 font-sans text-sm">ยินดีให้คำปรึกษาทุกวัน — ไม่มีค่าใช้จ่าย</p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center">
+      <a href="tel:0812345678" class="group flex items-center gap-4 bg-white bg-opacity-5 hover:bg-opacity-10 border border-white border-opacity-10 rounded-2xl px-7 py-5 transition-all hover-lift justify-center" style="transition:all 0.3s">
+        <span class="text-3xl group-hover:transform group-hover:scale-110 transition-transform">📞</span>
+        <div class="text-left">
+          <p class="text-xs text-gray-500 font-sans uppercase tracking-wider">โทรศัพท์</p>
+          <p class="text-xl font-bold text-white tracking-wide">081-234-5678</p>
+        </div>
+      </a>
+      <div class="flex items-center gap-4 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-2xl px-7 py-5 justify-center">
+        <span class="text-3xl">📍</span>
+        <div class="text-left">
+          <p class="text-xs text-gray-500 font-sans uppercase tracking-wider">ที่อยู่</p>
+          <p class="font-bold text-white leading-snug">123 ถ.รัชดา กรุงเทพฯ 10400</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                      -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<footer class="bg-gray-900 border-t border-gray-800 text-gray-500 py-10 px-6">
+  <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#fb923c,#ea580c)">
+        <span class="text-sm">🧵</span>
+      </div>
+      <div>
+        <p class="font-bold text-white text-sm">LookKuan</p>
+        <p class="text-xs text-gray-600 font-sans">&copy; 2026 สงวนลิขสิทธิ์</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-6 text-xs font-sans">
+      <a href="#products" class="hover:text-orange-400 transition-colors">สินค้า</a>
+      <a href="#services" class="hover:text-orange-400 transition-colors">บริการปัก</a>
+      <a href="#track" class="hover:text-orange-400 transition-colors">ติดตามงาน</a>
+      <span class="text-gray-800">|</span>
+      <a href="#" class="hover:text-orange-400 transition-colors">เข้าสู่ระบบพนักงาน</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
