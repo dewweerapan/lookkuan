@@ -39,289 +39,264 @@ export default async function LandingPage() {
   return (
     <div className='min-h-screen bg-white text-gray-900 font-mali'>
 
-      {/* ── STICKY NAV ──────────────────────────────────────────── */}
-      <header className='sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100'>
-        <div className='max-w-5xl mx-auto px-5 h-16 flex items-center justify-between gap-4'>
-          <div className='flex items-center gap-2.5'>
-            <div className='w-10 h-10 bg-brand-500 rounded-2xl flex items-center justify-center shadow-sm rotate-3'>
-              <span className='text-xl'>🧵</span>
+      {/* ── STICKY NAV ──────────────────────────────────────── */}
+      <header className='sticky top-0 z-50 bg-gray-950/95 backdrop-blur-md border-b border-gray-800'>
+        <div className='max-w-6xl mx-auto px-6 h-16 flex items-center justify-between'>
+          {/* Logo */}
+          <Link href='/' className='flex items-center gap-3 group'>
+            <div className='w-9 h-9 bg-gradient-to-br from-brand-400 to-brand-600 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:shadow-brand-500/40 transition-shadow'>
+              <span className='text-lg'>🧵</span>
             </div>
-            <span className='text-xl font-bold text-gray-900 tracking-tight'>{STORE_NAME}</span>
-          </div>
+            <span className='text-lg font-bold text-white tracking-tight'>{STORE_NAME}</span>
+          </Link>
 
-          <nav className='flex items-center gap-1 sm:gap-2'>
-            <a
-              href='#products'
-              className='hidden sm:inline-flex items-center text-sm text-gray-500 hover:text-brand-600 font-semibold px-3 py-2 rounded-xl hover:bg-brand-50 transition-all'
-            >
-              สินค้า
-            </a>
-            <a
-              href='#track'
-              className='hidden sm:inline-flex items-center text-sm text-gray-500 hover:text-brand-600 font-semibold px-3 py-2 rounded-xl hover:bg-brand-50 transition-all'
-            >
-              ติดตามงาน
-            </a>
-            <Link
-              href='/login'
-              className='text-sm bg-brand-500 hover:bg-brand-600 text-white font-bold px-5 py-2.5 rounded-2xl shadow-sm hover:shadow-md transition-all'
-            >
-              เข้าสู่ระบบ
-            </Link>
+          {/* Nav links */}
+          <nav className='hidden md:flex items-center gap-1'>
+            {[
+              { href: '#products', label: 'สินค้า' },
+              { href: '#services', label: 'บริการปัก' },
+              { href: '#track', label: 'ติดตามงาน' },
+            ].map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className='text-sm text-gray-400 hover:text-white font-semibold px-4 py-2 rounded-lg hover:bg-white/5 transition-all duration-200'
+              >
+                {link.label}
+              </a>
+            ))}
           </nav>
+
+          {/* CTA */}
+          <Link
+            href='/login'
+            className='text-sm bg-brand-500 hover:bg-brand-400 text-white font-bold px-5 py-2.5 rounded-xl shadow-lg shadow-brand-500/25 hover:shadow-brand-400/30 transition-all duration-200 hover:-translate-y-0.5'
+          >
+            เข้าสู่ระบบ
+          </Link>
         </div>
       </header>
 
-      {/* ── HERO ─────────────────────────────────────────────────── */}
-      <section className='relative overflow-hidden bg-white'>
-        {/* Decorative blobs */}
+      {/* ── HERO SECTION (LoL-style: centered, clean, elegant) ─── */}
+      <section className='relative overflow-hidden bg-gradient-to-b from-gray-950 via-gray-900 to-white'>
+        {/* Subtle radial glow */}
         <div
-          className='absolute top-0 right-0 w-80 h-80 rounded-full pointer-events-none'
-          style={{ background: 'radial-gradient(circle, #BAE6FD 0%, transparent 70%)', transform: 'translate(35%, -35%)' }}
+          className='absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] pointer-events-none'
+          style={{ background: 'radial-gradient(ellipse at center, rgba(251,146,60,0.08) 0%, transparent 70%)' }}
           aria-hidden='true'
         />
-        <div
-          className='absolute bottom-0 left-0 w-64 h-64 rounded-full pointer-events-none'
-          style={{ background: 'radial-gradient(circle, #E0F2FE 0%, transparent 70%)', transform: 'translate(-35%, 35%)' }}
-          aria-hidden='true'
-        />
-        {/* Deco dots */}
-        <div className='absolute top-12 left-6 hidden lg:grid grid-cols-4 gap-2.5 pointer-events-none opacity-25' aria-hidden='true'>
-          {Array.from({ length: 16 }).map((_, i) => (
-            <div key={i} className='w-1.5 h-1.5 rounded-full bg-brand-400' />
-          ))}
+        {/* Floating particles */}
+        <div className='absolute inset-0 overflow-hidden pointer-events-none' aria-hidden='true'>
+          <div className='absolute top-20 left-[15%] w-1 h-1 bg-brand-400/40 rounded-full animate-pulse' />
+          <div className='absolute top-40 right-[20%] w-1.5 h-1.5 bg-brand-300/30 rounded-full animate-pulse [animation-delay:1s]' />
+          <div className='absolute top-60 left-[40%] w-1 h-1 bg-orange-300/20 rounded-full animate-pulse [animation-delay:2s]' />
+          <div className='absolute top-32 right-[35%] w-0.5 h-0.5 bg-brand-400/50 rounded-full animate-pulse [animation-delay:0.5s]' />
+          <div className='absolute top-80 left-[60%] w-1 h-1 bg-amber-300/25 rounded-full animate-pulse [animation-delay:1.5s]' />
         </div>
 
-        <div className='relative max-w-2xl mx-auto px-5 pt-16 pb-16 text-center'>
-          {/* Badge */}
-          <div className='inline-flex items-center gap-2 bg-brand-50 border border-brand-200 text-brand-700 text-sm font-semibold px-4 py-2 rounded-full mb-7'>
-            <span className='w-2 h-2 bg-brand-500 rounded-full animate-pulse' />
-            เปิดรับออเดอร์ทุกวัน
-          </div>
-
-          {/* Headline */}
-          <h1 className='text-5xl sm:text-6xl font-bold text-gray-900 leading-tight mb-5'>
-            เสื้อผ้าคุณภาพ
-            <br />
-            <span className='relative inline-block text-brand-500'>
-              ราคาเป็นมิตร
-              <svg
-                className='absolute -bottom-2 left-0 w-full'
-                viewBox='0 0 200 12'
-                preserveAspectRatio='none'
-                aria-hidden='true'
-              >
-                <path
-                  d='M0,6 C25,2 50,10 75,6 C100,2 125,10 150,6 C175,2 195,8 200,6'
-                  stroke='#38BDF8'
-                  strokeWidth='3'
-                  fill='none'
-                  strokeLinecap='round'
-                />
-              </svg>
+        <div className='relative max-w-3xl mx-auto px-6 pt-24 pb-32 text-center'>
+          {/* Brand name - large, styled like LoL logo */}
+          <h1 className='text-5xl sm:text-7xl font-extrabold text-white tracking-tight mb-6 leading-[1.1]'>
+            <span className='bg-gradient-to-r from-brand-300 via-brand-400 to-amber-400 bg-clip-text text-transparent'>
+              {STORE_NAME}
             </span>
           </h1>
 
-          <p className='text-gray-500 text-lg sm:text-xl mb-10 max-w-md mx-auto leading-relaxed font-sans'>
-            เสื้อผ้าหลายสไตล์ หลายไซส์ · รับปักโลโก้
-            <br className='hidden sm:block' />
-            ชื่อ และลวดลายสั่งทำทุกแบบ
+          {/* Tagline */}
+          <p className='text-gray-400 text-lg sm:text-xl mb-4 max-w-lg mx-auto leading-relaxed font-sans italic'>
+            เสื้อผ้าคุณภาพ ราคาเป็นมิตร — รับปักโลโก้สั่งทำทุกแบบ
           </p>
 
-          <div className='flex flex-col sm:flex-row gap-3 justify-center'>
+          {/* Accent line */}
+          <div className='w-16 h-1 bg-gradient-to-r from-brand-400 to-amber-400 mx-auto rounded-full mb-10' />
+
+          {/* CTA buttons */}
+          <div className='flex flex-col sm:flex-row gap-4 justify-center'>
             <a
               href='#products'
-              className='inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-600 text-white font-bold px-8 py-4 rounded-2xl text-base shadow-lg shadow-brand-200 hover:shadow-brand-300 transition-all hover:-translate-y-0.5 active:translate-y-0'
+              className='inline-flex items-center justify-center gap-2 bg-brand-500 hover:bg-brand-400 text-white font-bold px-8 py-4 rounded-xl text-base shadow-lg shadow-brand-500/25 hover:shadow-brand-400/30 transition-all duration-200 hover:-translate-y-0.5'
             >
-              ดูสินค้าทั้งหมด →
+              ดูสินค้าทั้งหมด
             </a>
             <a
               href='#track'
-              className='inline-flex items-center justify-center gap-2 bg-white border-2 border-gray-200 hover:border-brand-400 hover:bg-brand-50 text-gray-700 font-bold px-8 py-4 rounded-2xl text-base transition-all hover:-translate-y-0.5 active:translate-y-0'
+              className='inline-flex items-center justify-center gap-2 border-2 border-gray-600 hover:border-brand-400 text-gray-300 hover:text-white font-bold px-8 py-4 rounded-xl text-base transition-all duration-200 hover:-translate-y-0.5'
             >
-              🔍 ติดตามงานปัก
+              ติดตามงานปัก
             </a>
           </div>
         </div>
-
-        {/* Wave divider */}
-        <div className='relative h-12 overflow-hidden' aria-hidden='true'>
-          <svg viewBox='0 0 1200 48' className='absolute bottom-0 w-full' preserveAspectRatio='none'>
-            <path d='M0,24 C200,48 400,0 600,24 C800,48 1000,0 1200,24 L1200,48 L0,48 Z' fill='#F0F9FF' />
-          </svg>
-        </div>
       </section>
 
-      {/* ── TRUST / STATS BAR ────────────────────────────────────── */}
-      <section className='py-8 px-5 bg-brand-50'>
-        <div className='max-w-3xl mx-auto'>
-          <div className='flex items-center justify-between gap-3 overflow-x-auto scrollbar-none'>
+      {/* ── TRUST BAR (LoL-style: clean white section) ──────── */}
+      <section className='py-10 px-6 bg-white border-b border-gray-100'>
+        <div className='max-w-4xl mx-auto'>
+          <div className='grid grid-cols-2 sm:grid-cols-4 gap-4'>
             {[
-              { icon: '👕', stat: '100+', label: 'แบบสินค้า', color: 'bg-brand-100 text-brand-600' },
-              { icon: '🪡', stat: 'รับปัก', label: 'สั่งทำทุกแบบ', color: 'bg-indigo-100 text-indigo-600' },
-              { icon: '📦', stat: 'พร้อมส่ง', label: 'ในสต็อก', color: 'bg-teal-100 text-teal-600' },
-              { icon: '⭐', stat: 'บริการดี', label: 'ทุกออเดอร์', color: 'bg-cyan-100 text-cyan-600' },
+              { icon: '👕', stat: '100+', label: 'แบบสินค้า', desc: 'เสื้อผ้าหลากสไตล์' },
+              { icon: '🪡', stat: 'รับปัก', label: 'งานปักทุกประเภท', desc: 'โลโก้ ชื่อ ลวดลาย' },
+              { icon: '📦', stat: 'พร้อมส่ง', label: 'สินค้าในสต็อก', desc: 'จัดส่งได้ทันที' },
+              { icon: '⭐', stat: 'บริการดี', label: 'ทุกออเดอร์', desc: 'ใส่ใจทุกรายละเอียด' },
             ].map((item, i) => (
               <div
                 key={i}
-                className='flex items-center gap-3 px-5 py-3.5 bg-white rounded-2xl border border-brand-100 shadow-sm flex-shrink-0 flex-1 min-w-[140px] sm:min-w-0'
+                className='group text-center p-5 rounded-2xl hover:bg-gray-50 transition-colors duration-300'
               >
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${item.color}`}>
+                <div className='text-3xl mb-2 group-hover:scale-110 transition-transform duration-300'>
                   {item.icon}
                 </div>
-                <div>
-                  <p className='font-bold text-gray-900 text-sm leading-tight'>{item.stat}</p>
-                  <p className='text-gray-400 text-xs mt-0.5 font-sans'>{item.label}</p>
-                </div>
+                <p className='font-extrabold text-gray-900 text-lg leading-tight'>{item.stat}</p>
+                <p className='text-brand-500 text-xs font-bold uppercase tracking-wider mt-1 font-sans'>{item.label}</p>
+                <p className='text-gray-400 text-xs mt-1 font-sans'>{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── PRODUCTS SECTION ─────────────────────────────────────── */}
-      <section id='products' className='py-16 px-5 bg-white'>
-        <div className='max-w-5xl mx-auto'>
-          <div className='text-center mb-10'>
-            <span className='inline-block bg-brand-100 text-brand-700 text-xs font-bold px-3 py-1.5 rounded-full tracking-widest uppercase mb-3 font-sans'>
-              สินค้าในร้าน
-            </span>
-            <h2 className='text-3xl sm:text-4xl font-bold text-gray-900 mb-3'>
-              เลือกซื้อสินค้าได้เลย ✨
+      {/* ── PRODUCTS SECTION (HoN-style heading + LoL clean grid) ── */}
+      <section id='products' className='py-20 px-6 bg-white'>
+        <div className='max-w-6xl mx-auto'>
+          {/* Section heading — HoN style: bold with colored accent word */}
+          <div className='text-center mb-12'>
+            <h2 className='text-3xl sm:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight'>
+              เลือก<span className='text-brand-500'>สินค้า</span>ของคุณ
             </h2>
-            <p className='text-gray-400 max-w-sm mx-auto font-sans text-sm leading-relaxed'>
-              หลายหมวดหมู่ หลายไซส์ หลายสี — สอบถามเพิ่มเติมได้ตลอดเวลา
+            <p className='text-gray-400 max-w-md mx-auto font-sans text-sm leading-relaxed'>
+              เสื้อผ้าหลากสไตล์ หลายไซส์ หลายสี — สอบถามเพิ่มเติมได้ตลอดเวลา
             </p>
+            {/* Accent line */}
+            <div className='w-12 h-1 bg-brand-500 mx-auto rounded-full mt-5' />
           </div>
+
           <ProductShowcase products={normalizedProducts} categories={categories} />
         </div>
       </section>
 
-      {/* ── EMBROIDERY CTA ────────────────────────────────────────── */}
-      <section id='services' className='py-16 px-5 relative overflow-hidden bg-brand-50'>
-        {/* Deco dots */}
-        <div className='absolute top-8 right-8 hidden lg:grid grid-cols-5 gap-3 pointer-events-none opacity-20' aria-hidden='true'>
-          {Array.from({ length: 25 }).map((_, i) => (
-            <div key={i} className='w-2 h-2 rounded-full bg-brand-500' />
-          ))}
-        </div>
-        <div className='absolute bottom-8 left-8 hidden lg:grid grid-cols-3 gap-3 pointer-events-none opacity-20' aria-hidden='true'>
-          {Array.from({ length: 9 }).map((_, i) => (
-            <div key={i} className='w-2 h-2 rounded-full bg-indigo-400' />
-          ))}
-        </div>
-
-        <div className='max-w-4xl mx-auto relative'>
-          <div className='text-center mb-10'>
-            <div className='w-16 h-16 bg-white rounded-3xl flex items-center justify-center text-3xl mx-auto mb-4 shadow-md rotate-3'>
-              🪡
-            </div>
-            <h2 className='text-3xl sm:text-4xl font-bold text-gray-900 mb-3'>
-              ปักโลโก้ บริษัท / โรงเรียน
+      {/* ── EMBROIDERY SERVICES (HoN "Choose Your Role" style interactive cards) ── */}
+      <section id='services' className='py-20 px-6 bg-gray-50'>
+        <div className='max-w-5xl mx-auto'>
+          {/* HoN-style heading */}
+          <div className='text-center mb-12'>
+            <h2 className='text-3xl sm:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight'>
+              บริการ<span className='text-brand-500'>งานปัก</span>
             </h2>
-            <p className='text-gray-500 max-w-md mx-auto font-sans text-sm leading-relaxed'>
+            <p className='text-gray-500 max-w-lg mx-auto font-sans text-sm leading-relaxed'>
               รับงานปักทุกประเภท ทั้งตัวอักษร โลโก้ และลวดลาย — ไม่จำกัดจำนวนชิ้น
             </p>
+            <div className='w-12 h-1 bg-brand-500 mx-auto rounded-full mt-5' />
           </div>
 
-          <div className='flex flex-wrap gap-2.5 justify-center mb-10'>
+          {/* Service type cards — HoN "Choose Your Role" style */}
+          <div className='grid grid-cols-2 sm:grid-cols-3 gap-4 mb-12'>
             {[
-              { icon: '🏫', label: 'ชุดนักเรียน' },
-              { icon: '🎓', label: 'ชุดนักศึกษา' },
-              { icon: '🏢', label: 'ชุดองค์กร' },
-              { icon: '⚽', label: 'เสื้อกีฬา' },
-              { icon: '👔', label: 'เสื้อโปโล' },
-              { icon: '🧥', label: 'แจ็กเก็ต' },
-            ].map((chip) => (
-              <span
-                key={chip.label}
-                className='inline-flex items-center gap-1.5 bg-white border border-brand-200 text-gray-700 text-sm font-semibold px-4 py-2 rounded-full shadow-sm'
-              >
-                {chip.icon} {chip.label}
-              </span>
-            ))}
-          </div>
-
-          <div className='grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8'>
-            {[
-              { n: '1', icon: '📞', title: 'ติดต่อสั่งงาน', desc: 'โทรหรือแวะมาที่ร้าน' },
-              { n: '2', icon: '💰', title: 'วางมัดจำ', desc: 'รับเลขใบงานไว้ติดตาม' },
-              { n: '3', icon: '🪡', title: 'ดำเนินการ', desc: 'ทีมงานปักอย่างพิถีพิถัน' },
-              { n: '4', icon: '✅', title: 'รับสินค้า', desc: 'ชำระส่วนที่เหลือ' },
-            ].map((s) => (
+              { icon: '🏫', title: 'ชุดนักเรียน', desc: 'ปักชื่อ โลโก้โรงเรียน' },
+              { icon: '🏢', title: 'ชุดองค์กร', desc: 'ยูนิฟอร์มบริษัท ปักโลโก้' },
+              { icon: '⚽', title: 'เสื้อกีฬา', desc: 'ปักชื่อทีม เบอร์นักกีฬา' },
+              { icon: '👔', title: 'เสื้อโปโล', desc: 'ปักชื่อร้าน แบรนด์สินค้า' },
+              { icon: '🧥', title: 'แจ็กเก็ต', desc: 'ปักลวดลายตามสั่ง' },
+              { icon: '🎓', title: 'ชุดรับปริญญา', desc: 'ปักชื่อ สถาบัน รุ่น' },
+            ].map((service) => (
               <div
-                key={s.n}
-                className='bg-white rounded-3xl p-5 text-center shadow-sm border border-brand-100 hover:shadow-md transition-shadow'
+                key={service.title}
+                className='group relative bg-white border-2 border-gray-200 hover:border-brand-400 rounded-2xl p-5 text-center cursor-default transition-all duration-300 hover:shadow-lg hover:shadow-brand-100 hover:-translate-y-1'
               >
-                <div className='w-8 h-8 bg-brand-500 text-white rounded-2xl flex items-center justify-center text-sm font-bold mx-auto mb-3 -rotate-3'>
-                  {s.n}
+                {/* Glow on hover */}
+                <div className='absolute inset-0 rounded-2xl bg-gradient-to-b from-brand-50/0 to-brand-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none' />
+                <div className='relative'>
+                  <div className='text-4xl mb-3 group-hover:scale-110 transition-transform duration-300'>
+                    {service.icon}
+                  </div>
+                  <h3 className='font-bold text-gray-900 text-base mb-1'>{service.title}</h3>
+                  <p className='text-gray-400 text-xs font-sans'>{service.desc}</p>
                 </div>
-                <div className='text-3xl mb-2'>{s.icon}</div>
-                <p className='font-bold text-gray-800 text-sm'>{s.title}</p>
-                <p className='text-xs text-gray-400 mt-1 leading-snug font-sans'>{s.desc}</p>
               </div>
             ))}
           </div>
 
-          <div className='text-center'>
-            <a
-              href='#track'
-              className='inline-flex items-center gap-2 bg-white border border-brand-200 text-brand-600 hover:bg-brand-50 font-semibold text-sm px-5 py-2.5 rounded-full shadow-sm transition-colors'
-            >
-              🔍 สั่งงานแล้ว? ติดตามสถานะที่นี่ →
-            </a>
+          {/* Process steps — clean horizontal flow */}
+          <div className='bg-white rounded-3xl border border-gray-200 p-8 sm:p-10'>
+            <h3 className='text-center text-xl font-extrabold text-gray-900 mb-8'>
+              ขั้นตอน<span className='text-brand-500'>การสั่งงาน</span>
+            </h3>
+            <div className='grid grid-cols-2 sm:grid-cols-4 gap-6'>
+              {[
+                { n: '1', icon: '📞', title: 'ติดต่อสั่งงาน', desc: 'โทรหรือแวะมาที่ร้าน' },
+                { n: '2', icon: '💰', title: 'วางมัดจำ', desc: 'รับเลขใบงานไว้ติดตาม' },
+                { n: '3', icon: '🪡', title: 'ดำเนินการ', desc: 'ทีมงานปักอย่างพิถีพิถัน' },
+                { n: '4', icon: '✅', title: 'รับสินค้า', desc: 'ชำระส่วนที่เหลือ' },
+              ].map((step) => (
+                <div key={step.n} className='text-center group'>
+                  <div className='relative inline-flex items-center justify-center mb-4'>
+                    <div className='w-14 h-14 bg-gray-50 group-hover:bg-brand-50 rounded-2xl flex items-center justify-center text-2xl transition-colors duration-300'>
+                      {step.icon}
+                    </div>
+                    <span className='absolute -top-1.5 -right-1.5 w-6 h-6 bg-brand-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm'>
+                      {step.n}
+                    </span>
+                  </div>
+                  <p className='font-bold text-gray-900 text-sm'>{step.title}</p>
+                  <p className='text-gray-400 text-xs mt-1 font-sans leading-snug'>{step.desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── ORDER TRACKING ───────────────────────────────────────── */}
-      <section id='track' className='py-16 px-5 bg-white'>
+      {/* ── ORDER TRACKING (Clean white section) ───────────── */}
+      <section id='track' className='py-20 px-6 bg-white'>
         <div className='max-w-lg mx-auto'>
-          <div className='text-center mb-8'>
-            <div className='w-16 h-16 bg-brand-50 rounded-3xl flex items-center justify-center text-3xl mx-auto mb-4 rotate-6'>
-              📦
-            </div>
-            <h2 className='text-3xl sm:text-4xl font-bold text-gray-900 mb-3'>
-              ติดตามสถานะงาน
+          <div className='text-center mb-10'>
+            <h2 className='text-3xl sm:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight'>
+              ติดตาม<span className='text-brand-500'>สถานะงาน</span>
             </h2>
             <p className='text-gray-400 font-sans text-sm leading-relaxed'>
               กรอกเลขที่ใบงานที่ได้รับจากร้าน เพื่อดูความคืบหน้า
             </p>
+            <div className='w-12 h-1 bg-brand-500 mx-auto rounded-full mt-5' />
           </div>
-          <div className='bg-brand-50 rounded-3xl p-6 border border-brand-100'>
+          <div className='bg-gray-50 rounded-3xl p-6 sm:p-8 border border-gray-200'>
             <TrackingForm />
           </div>
         </div>
       </section>
 
-      {/* ── CONTACT ──────────────────────────────────────────────── */}
+      {/* ── CONTACT CTA (Full-width dark section like HoN final CTA) ── */}
       {(STORE_PHONE || STORE_ADDRESS) && (
-        <section className='py-14 px-5 bg-brand-500 relative overflow-hidden'>
-          <div className='absolute top-0 left-1/4 w-40 h-40 rounded-full bg-white/10 pointer-events-none' style={{ transform: 'translate(-50%, -50%)' }} aria-hidden='true' />
-          <div className='absolute bottom-0 right-1/4 w-32 h-32 rounded-full bg-white/10 pointer-events-none' style={{ transform: 'translate(50%, 50%)' }} aria-hidden='true' />
+        <section className='relative py-20 px-6 bg-gray-950 overflow-hidden'>
+          {/* Background glow */}
+          <div
+            className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] pointer-events-none'
+            style={{ background: 'radial-gradient(ellipse, rgba(251,146,60,0.06) 0%, transparent 70%)' }}
+            aria-hidden='true'
+          />
 
-          <div className='relative max-w-3xl mx-auto text-center text-white'>
-            <h2 className='text-3xl font-bold mb-2'>ติดต่อเรา 👋</h2>
-            <p className='text-brand-100 mb-8 font-sans text-sm'>ยินดีให้คำปรึกษาทุกวัน — ไม่มีค่าใช้จ่าย</p>
+          <div className='relative max-w-3xl mx-auto text-center'>
+            <h2 className='text-3xl sm:text-5xl font-extrabold text-white mb-4 tracking-tight'>
+              ติดต่อ<span className='text-brand-400'>เรา</span>
+            </h2>
+            <p className='text-gray-500 mb-10 font-sans text-sm'>ยินดีให้คำปรึกษาทุกวัน — ไม่มีค่าใช้จ่าย</p>
+
             <div className='flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center'>
               {STORE_PHONE && (
                 <a
                   href={`tel:${STORE_PHONE}`}
-                  className='flex items-center gap-3 bg-white/20 hover:bg-white/30 border border-white/20 rounded-2xl px-6 py-4 transition-all hover:-translate-y-0.5 w-full sm:w-auto justify-center'
+                  className='group flex items-center gap-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-brand-500/50 rounded-2xl px-7 py-5 transition-all duration-300 hover:-translate-y-0.5 w-full sm:w-auto justify-center'
                 >
-                  <span className='text-2xl'>📞</span>
+                  <span className='text-3xl group-hover:scale-110 transition-transform duration-300'>📞</span>
                   <div className='text-left'>
-                    <p className='text-xs text-brand-100 font-sans'>โทรศัพท์</p>
-                    <p className='text-xl font-bold tracking-wide'>{STORE_PHONE}</p>
+                    <p className='text-xs text-gray-500 font-sans uppercase tracking-wider'>โทรศัพท์</p>
+                    <p className='text-xl font-bold text-white tracking-wide'>{STORE_PHONE}</p>
                   </div>
                 </a>
               )}
               {STORE_ADDRESS && (
-                <div className='flex items-center gap-3 bg-white/20 border border-white/20 rounded-2xl px-6 py-4 w-full sm:w-auto justify-center'>
-                  <span className='text-2xl'>📍</span>
+                <div className='flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl px-7 py-5 w-full sm:w-auto justify-center'>
+                  <span className='text-3xl'>📍</span>
                   <div className='text-left'>
-                    <p className='text-xs text-brand-100 font-sans'>ที่อยู่</p>
-                    <p className='font-bold leading-snug'>{STORE_ADDRESS}</p>
+                    <p className='text-xs text-gray-500 font-sans uppercase tracking-wider'>ที่อยู่</p>
+                    <p className='font-bold text-white leading-snug'>{STORE_ADDRESS}</p>
                   </div>
                 </div>
               )}
@@ -330,23 +305,25 @@ export default async function LandingPage() {
         </section>
       )}
 
-      {/* ── FOOTER ───────────────────────────────────────────────── */}
-      <footer className='bg-gray-950 text-gray-500 py-8 px-5'>
-        <div className='max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4'>
-          <div className='flex items-center gap-2.5'>
-            <div className='w-8 h-8 bg-brand-500 rounded-xl flex items-center justify-center rotate-3'>
+      {/* ── FOOTER (HoN-style clean footer) ──────────────── */}
+      <footer className='bg-gray-950 border-t border-gray-800 text-gray-500 py-10 px-6'>
+        <div className='max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6'>
+          <div className='flex items-center gap-3'>
+            <div className='w-8 h-8 bg-gradient-to-br from-brand-400 to-brand-600 rounded-xl flex items-center justify-center'>
               <span className='text-sm'>🧵</span>
             </div>
             <div>
               <p className='font-bold text-white text-sm'>{STORE_NAME}</p>
-              <p className='text-xs text-gray-600 font-sans'>© {new Date().getFullYear()} สงวนลิขสิทธิ์</p>
+              <p className='text-xs text-gray-600 font-sans'>&copy; {new Date().getFullYear()} สงวนลิขสิทธิ์</p>
             </div>
           </div>
-          <div className='flex items-center gap-5 text-xs font-sans'>
-            <a href='#products' className='hover:text-white transition-colors'>สินค้า</a>
-            <a href='#track' className='hover:text-white transition-colors'>ติดตามงาน</a>
-            <span className='text-gray-700'>·</span>
-            <Link href='/login' className='hover:text-white transition-colors'>เข้าสู่ระบบพนักงาน</Link>
+
+          <div className='flex items-center gap-6 text-xs font-sans'>
+            <a href='#products' className='hover:text-brand-400 transition-colors duration-200'>สินค้า</a>
+            <a href='#services' className='hover:text-brand-400 transition-colors duration-200'>บริการปัก</a>
+            <a href='#track' className='hover:text-brand-400 transition-colors duration-200'>ติดตามงาน</a>
+            <span className='text-gray-800'>|</span>
+            <Link href='/login' className='hover:text-brand-400 transition-colors duration-200'>เข้าสู่ระบบพนักงาน</Link>
           </div>
         </div>
       </footer>

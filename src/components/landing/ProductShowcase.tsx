@@ -49,13 +49,13 @@ function getCategoryEmoji(name: string) {
 
 // Deterministic color gradient for placeholder based on product name
 const PLACEHOLDER_GRADIENTS = [
-  { from: 'from-orange-100', to: 'to-amber-50', text: 'text-orange-400' },
-  { from: 'from-sky-100', to: 'to-blue-50', text: 'text-sky-400' },
-  { from: 'from-emerald-100', to: 'to-green-50', text: 'text-emerald-400' },
-  { from: 'from-pink-100', to: 'to-rose-50', text: 'text-pink-400' },
-  { from: 'from-violet-100', to: 'to-purple-50', text: 'text-violet-400' },
-  { from: 'from-amber-100', to: 'to-yellow-50', text: 'text-amber-500' },
-  { from: 'from-teal-100', to: 'to-cyan-50', text: 'text-teal-400' },
+  { from: 'from-orange-50', to: 'to-amber-50', text: 'text-orange-300' },
+  { from: 'from-sky-50', to: 'to-blue-50', text: 'text-sky-300' },
+  { from: 'from-emerald-50', to: 'to-green-50', text: 'text-emerald-300' },
+  { from: 'from-pink-50', to: 'to-rose-50', text: 'text-pink-300' },
+  { from: 'from-violet-50', to: 'to-purple-50', text: 'text-violet-300' },
+  { from: 'from-amber-50', to: 'to-yellow-50', text: 'text-amber-400' },
+  { from: 'from-teal-50', to: 'to-cyan-50', text: 'text-teal-300' },
 ]
 
 const PLACEHOLDER_EMOJIS = ['👕', '🧥', '👗', '👘', '👔', '🧣', '🧤']
@@ -110,7 +110,7 @@ function ProductCard({ product }: { product: ProductItem }) {
   )
 
   return (
-    <div className='group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-250 flex flex-col'>
+    <div className='group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:shadow-gray-200/50 hover:-translate-y-1.5 transition-all duration-300 flex flex-col'>
       {/* Image */}
       <div className='relative aspect-square overflow-hidden bg-gray-50 flex-shrink-0'>
         {product.image_url ? (
@@ -127,7 +127,7 @@ function ProductCard({ product }: { product: ProductItem }) {
 
         {/* Out-of-stock overlay */}
         {!inStock && (
-          <div className='absolute inset-0 bg-gray-900/40 backdrop-blur-[1px] flex items-center justify-center'>
+          <div className='absolute inset-0 bg-gray-900/50 backdrop-blur-[2px] flex items-center justify-center'>
             <span className='bg-white/95 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm'>
               สินค้าหมด
             </span>
@@ -136,7 +136,7 @@ function ProductCard({ product }: { product: ProductItem }) {
 
         {/* Category chip — top left */}
         {product.category && (
-          <span className='absolute top-2.5 left-2.5 bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-white/60 shadow-sm leading-none'>
+          <span className='absolute top-2.5 left-2.5 bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-semibold px-2.5 py-1 rounded-lg border border-white/60 shadow-sm leading-none'>
             {getCategoryEmoji(product.category.name)} {product.category.name}
           </span>
         )}
@@ -148,7 +148,7 @@ function ProductCard({ product }: { product: ProductItem }) {
       </div>
 
       {/* Card body */}
-      <div className='p-3 flex flex-col gap-2 flex-1'>
+      <div className='p-3.5 flex flex-col gap-2 flex-1'>
         {/* Product name */}
         <h3 className='font-bold text-gray-900 text-sm leading-snug line-clamp-2'>
           {product.name}
@@ -160,7 +160,7 @@ function ProductCard({ product }: { product: ProductItem }) {
             {sizes.map((s) => (
               <span
                 key={s}
-                className='text-xs text-gray-500 bg-gray-100 hover:bg-orange-50 hover:text-brand-600 px-2 py-0.5 rounded-md font-semibold transition-colors cursor-default'
+                className='text-xs text-gray-500 bg-gray-50 hover:bg-brand-50 hover:text-brand-600 px-2 py-0.5 rounded-md font-semibold transition-colors cursor-default'
               >
                 {s}
               </span>
@@ -181,7 +181,7 @@ function ProductCard({ product }: { product: ProductItem }) {
         )}
 
         {/* Price — pinned to bottom */}
-        <div className='mt-auto pt-1'>
+        <div className='mt-auto pt-2'>
           <span className='text-brand-500 font-extrabold text-base'>
             ฿{product.base_price.toLocaleString('th-TH')}
           </span>
@@ -219,19 +219,28 @@ export default function ProductShowcase({ products, categories }: Props) {
 
   return (
     <div>
-      {/* ── Category filter pills ── */}
+      {/* ── HoN-style interactive category cards ── */}
       {categories.length > 0 && (
-        <div className='flex gap-2 overflow-x-auto scrollbar-none pb-1 mb-7 sm:flex-wrap sm:justify-center'>
+        <div className='grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 mb-10'>
+          {/* "All" card */}
           <button
             onClick={() => { setActiveCategory(null); setShowAll(false) }}
-            className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+            className={`group relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-300 ${
               activeCategory === null
-                ? 'bg-brand-500 text-white shadow-sm scale-[1.02]'
-                : 'bg-white text-gray-600 border border-gray-200 hover:border-brand-300 hover:text-brand-600'
+                ? 'border-brand-500 bg-brand-50 shadow-md shadow-brand-100'
+                : 'border-gray-200 bg-white hover:border-brand-300 hover:bg-gray-50'
             }`}
           >
-            ทั้งหมด ({products.length})
+            <span className='text-2xl group-hover:scale-110 transition-transform duration-300'>🏷️</span>
+            <span className={`text-xs font-bold ${activeCategory === null ? 'text-brand-600' : 'text-gray-600'}`}>
+              ทั้งหมด
+            </span>
+            <span className={`text-xs font-sans ${activeCategory === null ? 'text-brand-400' : 'text-gray-400'}`}>
+              {products.length}
+            </span>
           </button>
+
+          {/* Category cards */}
           {categories.map((cat) => {
             const count = products.filter((p) => p.category?.id === cat.id).length
             const isActive = activeCategory === cat.id
@@ -239,15 +248,19 @@ export default function ProductShowcase({ products, categories }: Props) {
               <button
                 key={cat.id}
                 onClick={() => { setActiveCategory(cat.id); setShowAll(false) }}
-                className={`flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 ${
+                className={`group relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-300 ${
                   isActive
-                    ? 'bg-brand-500 text-white shadow-sm scale-[1.02]'
-                    : 'bg-white text-gray-600 border border-gray-200 hover:border-brand-300 hover:text-brand-600'
+                    ? 'border-brand-500 bg-brand-50 shadow-md shadow-brand-100'
+                    : 'border-gray-200 bg-white hover:border-brand-300 hover:bg-gray-50'
                 }`}
               >
-                {getCategoryEmoji(cat.name)}
-                <span>{cat.name}</span>
-                <span className={`text-xs ${isActive ? 'text-orange-200' : 'text-gray-400'}`}>
+                <span className='text-2xl group-hover:scale-110 transition-transform duration-300'>
+                  {getCategoryEmoji(cat.name)}
+                </span>
+                <span className={`text-xs font-bold leading-tight text-center ${isActive ? 'text-brand-600' : 'text-gray-600'}`}>
+                  {cat.name}
+                </span>
+                <span className={`text-xs font-sans ${isActive ? 'text-brand-400' : 'text-gray-400'}`}>
                   {count}
                 </span>
               </button>
@@ -256,8 +269,23 @@ export default function ProductShowcase({ products, categories }: Props) {
         </div>
       )}
 
+      {/* ── Active category indicator ── */}
+      {activeCategory && (
+        <div className='flex items-center justify-between mb-6'>
+          <p className='text-sm text-gray-500 font-sans'>
+            แสดง <span className='font-bold text-gray-900'>{filtered.length}</span> รายการ
+          </p>
+          <button
+            onClick={() => { setActiveCategory(null); setShowAll(false) }}
+            className='text-xs text-brand-500 hover:text-brand-600 font-semibold font-sans transition-colors'
+          >
+            ดูทั้งหมด &rarr;
+          </button>
+        </div>
+      )}
+
       {/* ── Product grid ── */}
-      <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4'>
+      <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4'>
         {displayed.map((p) => (
           <ProductCard key={p.id} product={p} />
         ))}
@@ -273,15 +301,15 @@ export default function ProductShowcase({ products, categories }: Props) {
 
       {/* ── Show more / less toggle ── */}
       {hasMore && (
-        <div className='mt-8 text-center'>
+        <div className='mt-10 text-center'>
           <button
             onClick={() => setShowAll((prev) => !prev)}
-            className='inline-flex items-center gap-2 bg-white border-2 border-gray-200 hover:border-brand-400 hover:text-brand-600 text-gray-700 font-bold px-8 py-3 rounded-2xl transition-all duration-200 hover:-translate-y-0.5 text-sm shadow-sm hover:shadow-md'
+            className='inline-flex items-center gap-2 border-2 border-gray-200 hover:border-brand-400 hover:text-brand-600 text-gray-700 font-bold px-8 py-3.5 rounded-xl transition-all duration-300 hover:-translate-y-0.5 text-sm hover:shadow-lg hover:shadow-brand-100'
           >
             {showAll ? (
-              <>แสดงน้อยลง <span className='text-base'>↑</span></>
+              <>แสดงน้อยลง <span className='text-base'>&uarr;</span></>
             ) : (
-              <>แสดงทั้งหมด ({filtered.length} รายการ) <span className='text-base'>↓</span></>
+              <>ดูสินค้าทั้งหมด ({filtered.length} รายการ) <span className='text-base'>&darr;</span></>
             )}
           </button>
         </div>
